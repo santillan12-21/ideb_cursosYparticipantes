@@ -13,41 +13,45 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-color: #ffffff;
+            background-color: #f9f9f9;
             color: #333;
         }
-
 
         header {
             background-color: #000000;
             padding: 15px 20px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
         }
-
 
         header img {
-            width: 100px;  /* Aumenta el tamaño del logo */
+            width: 100px;
             height: auto;
-            margin-right: 20px;  /* Espacio entre el logo y el menú */
+            margin-right: 20px;
         }
-
 
         nav {
             display: flex;
             align-items: center;
         }
 
-        nav a {
+        nav a, .logout-button {
             color: #fff;
-            margin-right: 20px;  /* Espacio entre enlaces */
+            margin-right: 20px;
             text-decoration: none;
             font-weight: bold;
             font-size: 18px;
         }
 
-        nav a:hover {
+        nav a:hover, .logout-button:hover {
             text-decoration: underline;
+        }
+
+        .logout-button {
+            background: none;
+            border: none;
+            cursor: pointer;
         }
 
         .container {
@@ -62,17 +66,18 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             justify-items: center;
         }
 
-        .grid a {
+        .grid a,
+        .grid button {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 150px;
-            height: 100px;
+            width: 180px;
+            height: 50px;
             background-color: #000;
             color: #fff;
             text-decoration: none;
@@ -80,35 +85,19 @@
             text-align: center;
             border-radius: 8px;
             transition: background-color 0.3s ease;
-        }
-
-        .grid a:hover {
-            background-color: #444;
-        }
-        .logout-button {
-            color: #fff;
-            margin-right: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-            background: none;
             border: none;
-            padding: 0;
             cursor: pointer;
         }
 
-        .logout-button:hover {
-            text-decoration: underline;
+        .grid a:hover,
+        .grid button:hover {
+            background-color: #444;
         }
-
     </style>
 </head>
 <body>
     <header>
-
         <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
-
-
         <nav>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                 @csrf
@@ -122,16 +111,37 @@
     <div class="container">
         <h1>Acciones</h1>
         <div class="grid">
-            <a href="/users/create">Creacion usuario</a>
+            <a href="/users/create">Creación usuario</a>
             <a href="/cursos">Cursos</a>
-            <a href="/participantes">Participante</a>
-            <a href="/nuevo-servicio">Nuevo Servicio</a>
-            <a href="/ruta-archivos">Ruta Archivos</a>
-            <a href="/pagos-pendientes">Pagos Pendientes</a>
-            <a href="/pedidos-activos">Pedidos Activos</a>
-            <a href="/pedidos-finalizados">Pedidos Finalizados</a>
-            <a href="/pedidos-rechazados">Pedidos Rechazados</a>
+            <a href="/participantes">Participantes</a>
+            <a href="/">Ruta archivos</a>
+            <a href="/export-db">Exportar Base de Datos</a>
+            <form id="importForm" action="{{ route('database.import') }}" method="POST" enctype="multipart/form-data" style="display: inline;">
+                @csrf
+                <input type="file" id="databaseFile" name="database_file" accept=".sql" style="display: none;" required>
+                <button type="button"
+                    onclick="selectFile()">
+                    Importar Base de Datos
+                </button>
+            </form>
         </div>
+        <script>
+            function selectFile() {
+                const fileInput = document.getElementById('databaseFile');
+                const form = document.getElementById('importForm');
+
+                // Abrir el selector de archivos
+                fileInput.click();
+
+                // Escuchar cambios en el selector de archivos
+                fileInput.addEventListener('change', function () {
+                    if (fileInput.files.length > 0) {
+                        // Si se seleccionó un archivo, enviar el formulario
+                        form.submit();
+                    }
+                });
+            }
+        </script>
     </div>
 </body>
 </html>

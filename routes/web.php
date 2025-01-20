@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\ParticipanteController;
+use App\Http\Controllers\DatabaseController;
 
 //Rutas de inicio de sesion:
 Route::get('/login', function () {
@@ -66,3 +67,7 @@ Route::put('/participantes/{N}', [ParticipanteController::class, 'update'])->nam
 
 //Ruta para eliminar participantes
 Route::delete('/participantes/{N}', [ParticipanteController::class, 'destroy'])->name('participantes.destroy');
+
+//Rutas para exportar y importar base de datos
+Route::get('/export-db', [DatabaseController::class, 'export'])->name('database.export');
+Route::post('/import-db', [DatabaseController::class, 'import'])->name('database.import');
