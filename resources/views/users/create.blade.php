@@ -238,7 +238,7 @@
                         <button type="submit" class="btn btn-primary">
                             {{ __('Registrar Usuario') }}
                         </button>
-                        <a href="/Inicio" class="btn btn-danger">
+                        <a href="/users" class="btn btn-danger">
                             {{ __('Cancelar') }}
                         </a>
                     </div>

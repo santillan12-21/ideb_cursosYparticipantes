@@ -111,7 +111,7 @@
     <div class="container">
         <h1>Acciones</h1>
         <div class="grid">
-            <a href="/users/create">Creación usuario</a>
+            <a href="/users">Creación usuario</a>
             <a href="/cursos">Cursos</a>
             <a href="/participantes">Participantes</a>
             <a href="/">Ruta archivos</a>

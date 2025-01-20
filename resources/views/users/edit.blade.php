@@ -20,7 +20,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('users.update') }}">
+                    <form method="POST" action="{{ route('users.update', $user->id) }}">
                         @csrf
                         @method('PUT')
 
@@ -73,7 +73,7 @@
                             <button type="submit" class="btn btn-primary">
                                 {{ __('Guardar Cambios') }}
                             </button>
-                            <a href="{{ route('users.show') }}" class="btn btn-secondary">
+                            <a href="/users" class="btn btn-secondary">
                                 {{ __('Cancelar') }}
                             </a>
                         </div>

@@ -27,8 +27,10 @@ Route::post('/users', [UserController::class, 'store'])->name('users.store');
 
 //Rutas para ver el perfil de usuario y editarlo.
 Route::get('/profile', [UserController::class, 'show'])->name('users.show');
-Route::get('/profile/edit', [UserController::class, 'edit'])->name('users.edit');
-Route::put('/profile/update', [UserController::class, 'update'])->name('users.update');
+Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
 
 //Ruta para llenado de formulario de cursos
 Route::get('/curso/paso1', [CursoController::class, 'crearPaso1'])->name('curso.paso1');
