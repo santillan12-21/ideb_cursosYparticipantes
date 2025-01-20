@@ -124,8 +124,8 @@
         <div class="grid">
             <a href="/users/create">Creacion usuario</a>
             <a href="/cursos">Cursos</a>
+            <a href="/participantes">Participante</a>
             <a href="/nuevo-servicio">Nuevo Servicio</a>
-            <a href="/empleados">Empleados</a>
             <a href="/ruta-archivos">Ruta Archivos</a>
             <a href="/pagos-pendientes">Pagos Pendientes</a>
             <a href="/pedidos-activos">Pedidos Activos</a>

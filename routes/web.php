@@ -5,7 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CursoController;
-
+use App\Http\Controllers\ParticipanteController;
 
 //Rutas de inicio de sesion:
 Route::get('/login', function () {
@@ -44,6 +44,25 @@ Route::get('/curso/paso6', [CursoController::class, 'mostrarPaso6'])->name('curs
 Route::post('/curso/paso6', [CursoController::class, 'guardarPaso6'])->name('curso.paso6.guardar');
 Route::get('/curso/paso7', [CursoController::class, 'mostrarPaso7'])->name('curso.paso7');
 Route::post('/curso/paso7', [CursoController::class, 'guardarPaso7'])->name('curso.guardar-paso7');
+
+//Vista, modificacion, "eliminacion" y consulta de los cursos
 Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
 Route::resource('cursos', CursoController::class);
 
+//Llenado del formulario de los cursos
+Route::get('/participantes/crear', [ParticipanteController::class, 'create'])->name('participantes.create');
+Route::post('/participantes', [ParticipanteController::class, 'store'])->name('participantes.store');
+
+//Vista, modificacion, "eliminacion" y consulta de los participantes
+Route::get('/participantes', [ParticipanteController::class, 'index'])->name('participantes.index');
+Route::get('/participantes/create', [ParticipanteController::class, 'create'])->name('participantes.create');
+Route::post('/participantes', [ParticipanteController::class, 'store'])->name('participantes.store');
+
+// Ruta para mostrar el formulario de edición
+Route::get('/participantes/{N}/edit', [ParticipanteController::class, 'edit'])->name('participantes.edit');
+
+// Ruta para actualizar los datos del participante
+Route::put('/participantes/{N}', [ParticipanteController::class, 'update'])->name('participantes.update');
+
+//Ruta para eliminar participantes
+Route::delete('/participantes/{N}', [ParticipanteController::class, 'destroy'])->name('participantes.destroy');
