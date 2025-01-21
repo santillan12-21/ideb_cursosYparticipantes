@@ -28,6 +28,8 @@
         nav {
             display: flex;
             align-items: center;
+            margin-left: auto;
+            gap: 20px;
         }
 
         nav a {
@@ -107,12 +109,12 @@
     <header>
         <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
         <nav>
-            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                 @csrf
                 <button type="submit" class="logout-button">Salir</button>
             </form>
             <a href="/Inicio">Inicio</a>
-            <a href="{{ route('users.show') }}">Usuario</a>
+            <a href="{{ route('profile') }}">Mi Perfil</a>
         </nav>
     </header>
 
@@ -132,8 +134,11 @@
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
+                    <th>Apellido</th> <!-- Nueva columna -->
                     <th>Email</th>
                     <th>Puesto</th>
+                    <th>Edad</th> <!-- Nueva columna -->
+                    <th>Teléfono</th> <!-- Nueva columna -->
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -142,8 +147,11 @@
                     <tr>
                         <td>{{ $user->id }}</td>
                         <td>{{ $user->name }}</td>
+                        <td>{{ $user->apellido }}</td> <!-- Mostrar apellido -->
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->puesto }}</td>
+                        <td>{{ $user->edad }}</td> <!-- Mostrar edad -->
+                        <td>{{ $user->telefono }}</td> <!-- Mostrar teléfono -->
                         <td>
                             <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning">Editar</a>
                             <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
@@ -155,7 +163,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5">No hay usuarios registrados.</td>
+                        <td colspan="8">No hay usuarios registrados.</td> <!-- Ajustar colspan -->
                     </tr>
                 @endforelse
             </tbody>

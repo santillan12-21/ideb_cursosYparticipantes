@@ -5,15 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all(); // Obtiene todos los usuarios de la base de datos
-        return view('users.index', compact('users')); // Retorna la vista con los usuarios
+        $users = User::all();
+        return view('users.index', compact('users'));
     }
-
 
     public function create()
     {
@@ -22,57 +22,66 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user = User::findOrFail($id); // Busca al usuario o lanza un error si no existe
-        return view('users.edit', compact('user')); // Retorna la vista con los datos del usuario
+        $user = User::findOrFail($id);
+        return view('users.edit', compact('user'));
     }
 
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id); // Busca al usuario o lanza un error si no existe
+        $user = User::findOrFail($id);
 
-        // Validar los datos del formulario
+
         $request->validate([
             'name' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
             'email' => "required|email|unique:users,email,{$id}",
             'puesto' => 'required|string|max:255',
-            'password' => 'nullable|min:8', // Contraseña opcional
+            'telefono' => 'required|string|max:15',
+            'edad' => 'required|integer|min:0',
+            'password' => 'nullable|min:8|confirmed',
         ]);
 
-        // Actualizar los datos del usuario
+
         $user->name = $request->name;
+        $user->apellido = $request->apellido;
         $user->email = $request->email;
         $user->puesto = $request->puesto;
+        $user->telefono = $request->telefono;
+        $user->edad = $request->edad;
 
-        // Si se proporcionó una nueva contraseña, actualizarla
+
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
 
-        $user->save(); // Guardar los cambios en la base de datos
+        $user->save();
 
         return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente');
     }
 
-
-
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:8',
-            'puesto' => 'required'
+            'telefono' => 'required|string|max:15',
+            'edad' => 'required|integer|min:0',
+            'password' => 'required|string|min:8|confirmed',
+            'puesto' => 'required|string|max:255'
         ]);
 
         User::create([
             'name' => $request->name,
+            'apellido' => $request->apellido,
             'email' => $request->email,
+            'telefono' => $request->telefono,
+            'edad' => $request->edad,
             'password' => Hash::make($request->password),
             'puesto' => $request->puesto
         ]);
 
-
-        return redirect('/Inicio')->with('success', 'Usuario creado exitosamente');
+        return redirect('/users')->with('success', 'Usuario creado exitosamente');
     }
 
     public function destroy($id)
@@ -82,5 +91,9 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Usuario eliminado exitosamente');
     }
 
-
+    public function profile()
+    {
+        $user = Auth::user();
+        return view('users.profile', compact('user'));
+    }
 }

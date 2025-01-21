@@ -41,6 +41,7 @@
         nav {
             display: flex;
             align-items: center;
+            margin-left: auto; /* Alinea los enlaces a la derecha */
         }
 
         nav a {
@@ -117,7 +118,7 @@
                 <button type="submit" class="logout-button">Salir</button>
             </form>
             <a href="/Inicio">Inicio</a>
-            <a href="{{ route('users.show') }}">Usuario</a>
+            <a href="{{ route('profile') }}">Mi Perfil</a>
         </nav>
     </header>
 
