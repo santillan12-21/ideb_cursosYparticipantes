@@ -89,6 +89,7 @@
         <div class="mb-3">
             <button id="exportExcel" class="btn btn-success me-2">Exportar a Excel</button>
             <button id="exportPDF" class="btn btn-danger">Exportar a PDF</button>
+            <button id="exportCSV" class="btn btn-primary me-2">Exportar a CSV</button>
         </div>
 
         <table id="cursosTable" class="table table-bordered table-striped">
@@ -112,7 +113,16 @@
                         <td>{{ \Carbon\Carbon::parse($curso->FechadeInicio)->format('d/m/Y') }}</td>
                         <td>{{ \Carbon\Carbon::parse($curso->FechadeTermino)->format('d/m/Y') }}</td>
                         <td>${{ number_format($curso->CostodelCurso, 2) }}</td>
-                        <td><a href="{{ route('cursos.show', $curso->id) }}" class="btn btn-sm btn-info">Ver</a></td>
+                        <td><a href="{{ route('cursos.show', $curso->id) }}" class="btn btn-sm btn-info">Ver</a>
+                            <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-warning">Editar Curso</a>
+                            <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline-block;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este curso?')">Eliminar</button>
+                            </form>
+                        </td>
+
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -147,16 +157,56 @@
                },
                dom: 'Bfrtip',
                buttons: [
-                   {
-                       extend: 'excelHtml5',
-                       title: 'Lista de Cursos',
-                       className: 'buttons-excel'
-                   },
-                   {
-                       extend: 'pdfHtml5',
-                       title: 'Lista de Cursos',
-                       className: 'buttons-pdf'
-                   }
+                {
+                        extend: 'excelHtml5',
+                        text: 'Exportar a Excel',
+                        className: 'dt-button buttons-excel',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Excluir la columna "Acciones"
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: 'Exportar a PDF',
+                        title: 'Lista de Participantes',
+                        className: 'dt-button buttons-pdf',
+                        orientation: 'landscape', // Establece la orientación horizontal
+                        pageSize: 'A4', // Tamaño de la hoja
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Excluye la columna de "Acciones"
+                        },
+                        customize: function (doc) {
+                            // Ajuste de tamaño de fuente para asegurar que todo quepa
+                            doc.defaultStyle.fontSize = 8; // Reducir tamaño de fuente para ajustarlo a la página
+                            doc.styles.tableHeader.fontSize = 10; // Tamaño de fuente de los encabezados
+
+                            // Ajuste automático del ancho de las columnas
+                            doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+
+                            // Agregar paginación en el PDF si la tabla es demasiado grande para caber en una página
+                            doc.pageMargins = [5, 5, 5, 5]; // Márgenes alrededor del contenido
+                            doc.content[1].table.body.forEach(function (row) {
+                                row.forEach(function (cell) {
+                                    // Ajustar el tamaño de cada celda si es necesario
+                                    if (typeof cell === 'object' && cell.text) {
+                                        cell.text = cell.text.trim();
+                                    }
+                                });
+                            });
+
+                            // Dividir la tabla en páginas si es necesario
+                            doc.content[1].table.pageBreak = 'auto';
+                        }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: 'Exportar a CSV',
+                        className: 'dt-button buttons-csv',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Excluir la columna "Acciones"
+                        }
+                    }
+
                ],
                initComplete: function () {
                    // Ocultar los botones generados automáticamente
@@ -173,6 +223,11 @@
            $('#exportPDF').on('click', function() {
                table.button('.buttons-pdf').trigger();
            });
+
+           // Exportar a CSV
+            $('#exportCSV').on('click', function() {
+                table.button('.buttons-csv').trigger();
+            });
        });
    </script>
 

@@ -8,7 +8,7 @@ use App\Models\participantes;
 class ParticipanteController extends Controller
 {
     public function index() {
-        $participantes = ParticipanteS::all();
+        $participantes = participantes::all();
         return view('participantes.index', compact('participantes'));
     }
 
@@ -18,7 +18,7 @@ class ParticipanteController extends Controller
     }
 
     public function edit($N) {
-        $participante = Participantes::where('N', $N)->firstOrFail();
+        $participante = participantes::where('N', $N)->firstOrFail();
         return view('participantes.edit', compact('participante'));
     }
 
@@ -35,9 +35,11 @@ class ParticipanteController extends Controller
             'Puesto' => 'required',
             'Pago' => 'required',
             'FechadelCurso' => 'required|date',
+            'EstadoDePago' => 'required',
+            'CursoInscrito' => 'required',
         ]);
 
-        $participante = Participantes::where('N', $N)->firstOrFail();
+        $participante = participantes::where('N', $N)->firstOrFail();
         $participante->update($request->all());
 
         return redirect()->route('participantes.index')->with('success', 'Participante actualizado correctamente.');
@@ -58,6 +60,8 @@ class ParticipanteController extends Controller
             'Puesto' => 'required',
             'Pago' => 'required',
             'FechadelCurso' => 'required|date',
+            'EstadoDePago' => 'required',
+            'CursoInscrito' => 'required',
         ]);
 
         participantes::create($request->all());
@@ -66,7 +70,7 @@ class ParticipanteController extends Controller
     }
 
     public function destroy($N) {
-        $participante = Participantes::where('N', $N)->firstOrFail();
+        $participante = participantes::where('N', $N)->firstOrFail();
         $participante->delete();
 
         return redirect()->route('participantes.index')->with('success', 'Participante eliminado correctamente.');

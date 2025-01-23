@@ -13,6 +13,18 @@
             padding: 0;
             box-sizing: border-box;
         }
+        .container {
+            display: flex;
+            justify-content: center; /* Centra la tabla horizontalmente */
+            align-items: center; /* Opcional: centrar verticalmente si la altura es mayor */
+            flex-direction: column; /* Mantiene el contenido en columna */
+        }
+
+        table {
+            width: 100%; /* Asegura que la tabla ocupe el 100% del ancho de su contenedor */
+            max-width: 1200px; /* Limita el tamaño máximo de la tabla */
+            margin: 0 auto; /* Centra la tabla en el contenedor */
+        }
 
         body {
             font-family: Arial, sans-serif;
@@ -128,6 +140,8 @@
                     <th>Puesto</th>
                     <th>Pago</th>
                     <th>Fecha del Curso</th>
+                    <th>Curso Inscrito</th>
+                    <th>Estado de Pago</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -146,6 +160,8 @@
                     <td>{{ $participante->Puesto }}</td>
                     <td>{{ $participante->Pago }}</td>
                     <td>{{ $participante->FechadelCurso }}</td>
+                    <td>{{ $participante->CursoInscrito }}</td>
+                    <td>{{ $participante->EstadoDePago }}</td>
                     <td>
                         <!-- Botón para editar -->
                         <a href="{{ route('participantes.edit', $participante->N) }}" class="btn btn-warning">Editar</a>
@@ -202,14 +218,51 @@
                     {
                         extend: 'excelHtml5',
                         text: 'Exportar a Excel',
-                        title: 'Lista de Participantes',
-                        className: 'dt-button buttons-excel' // Clase personalizada para el botón de Excel
+                        className: 'dt-button buttons-excel',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Excluir la columna "Acciones"
+                        }
                     },
                     {
                         extend: 'pdfHtml5',
                         text: 'Exportar a PDF',
                         title: 'Lista de Participantes',
-                        className: 'dt-button buttons-pdf' // Clase personalizada para el botón de PDF
+                        className: 'dt-button buttons-pdf',
+                        orientation: 'landscape', // Establece la orientación horizontal
+                        pageSize: 'A4', // Tamaño de la hoja
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Excluye la columna de "Acciones"
+                        },
+                        customize: function (doc) {
+                            // Ajuste de tamaño de fuente para asegurar que todo quepa
+                            doc.defaultStyle.fontSize = 8; // Reducir tamaño de fuente para ajustarlo a la página
+                            doc.styles.tableHeader.fontSize = 10; // Tamaño de fuente de los encabezados
+
+                            // Ajuste automático del ancho de las columnas
+                            doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+
+                            // Agregar paginación en el PDF si la tabla es demasiado grande para caber en una página
+                            doc.pageMargins = [5, 5, 5, 5]; // Márgenes alrededor del contenido
+                            doc.content[1].table.body.forEach(function (row) {
+                                row.forEach(function (cell) {
+                                    // Ajustar el tamaño de cada celda si es necesario
+                                    if (typeof cell === 'object' && cell.text) {
+                                        cell.text = cell.text.trim();
+                                    }
+                                });
+                            });
+
+                            // Dividir la tabla en páginas si es necesario
+                            doc.content[1].table.pageBreak = 'auto';
+                        }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: 'Exportar a CSV',
+                        className: 'dt-button buttons-csv',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Excluir la columna "Acciones"
+                        }
                     }
                 ]
             });

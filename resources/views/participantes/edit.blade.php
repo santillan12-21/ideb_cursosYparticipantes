@@ -67,6 +67,28 @@
             </div>
         </div>
 
+        <!-- Nuevo campo Curso Inscrito -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="CursoInscrito" class="form-label">Curso Inscrito</label>
+                <input type="text" class="form-control" name="CursoInscrito" value="{{ $participante->CursoInscrito }}" required>
+            </div>
+        </div>
+
+        <!-- Nuevo campo Estado de Pago -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="EstadoDePago" class="form-label">Estado de Pago</label>
+                <select class="form-select" name="EstadoDePago" required>
+                    <option value="" disabled selected>Seleccione el estado</option>
+                    <option value="Curso Pagado" {{ $participante->EstadoDePago == 'Curso Pagado' ? 'selected' : '' }}>Curso Pagado</option>
+                    <option value="Pago Pendiente" {{ $participante->EstadoDePago == 'Pago Pendiente' ? 'selected' : '' }}>Pago Pendiente</option>
+                    <option value="Anticipo" {{ $participante->EstadoDePago == 'Anticipo' ? 'selected' : '' }}>Anticipo</option>
+                    <option value="No Pagado" {{ $participante->EstadoDePago == 'No Pagado' ? 'selected' : '' }}>No Pagado</option>
+                </select>
+            </div>
+        </div>
+
         <div class="text-center">
             <button type="submit" class="btn btn-primary">Actualizar</button>
             <a href="{{ route('participantes.index') }}" class="btn btn-danger">Cancelar</a>

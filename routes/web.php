@@ -7,6 +7,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\ParticipanteController;
 use App\Http\Controllers\DatabaseController;
+use App\Models\cursos;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 //Rutas de inicio de sesion:
 Route::get('/login', function () {
@@ -51,6 +53,8 @@ Route::post('/curso/paso7', [CursoController::class, 'guardarPaso7'])->name('cur
 //Vista, modificacion, "eliminacion" y consulta de los cursos
 Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
 Route::resource('cursos', CursoController::class);
+Route::get('/curso/editar', [CursoController::class, 'mostrarEdicion'])->name('curso.editar');
+
 
 //Llenado del formulario de los cursos
 Route::get('/participantes/crear', [ParticipanteController::class, 'create'])->name('participantes.create');
@@ -73,3 +77,15 @@ Route::delete('/participantes/{N}', [ParticipanteController::class, 'destroy'])-
 //Rutas para exportar y importar base de datos
 Route::get('/export-db', [DatabaseController::class, 'export'])->name('database.export');
 Route::post('/import-db', [DatabaseController::class, 'import'])->name('database.import');
+
+Route::get('/cursos/{id}/pdf', function ($id) {
+    $curso = cursos::findOrFail($id);
+
+    $pdf = Pdf::loadView('cursos.pdf', compact('curso'));
+    return $pdf->download('curso_detalles.pdf');
+})->name('cursos.pdf');
+
+Route::get('/cursos/{curso}/edit', [CursoController::class, 'edit'])->name('cursos.edit');
+Route::get('/cursos/{curso}/edit/{paso}', [CursoController::class, 'editPaso'])->name('cursos.edit.paso');
+Route::put('/cursos/{curso}/update/{paso}', [CursoController::class, 'updatePaso'])->name('cursos.update.paso');
+Route::delete('/cursos/{curso}', [CursoController::class, 'destroy'])->name('cursos.destroy');

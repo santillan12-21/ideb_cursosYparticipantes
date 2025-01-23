@@ -33,5 +33,7 @@ class participantes extends Model
         'Puesto',
         'Pago',
         'FechadelCurso',
+        'EstadoDePago',
+        'CursoInscrito',
     ];
 }

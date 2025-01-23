@@ -47,9 +47,9 @@ class CursoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Cursos $curso)
     {
-        //
+        return view('cursos.edit', compact('curso'));
     }
 
     /**
@@ -65,7 +65,16 @@ class CursoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $curso = Cursos::findOrFail($id);
+            $curso->delete();
+
+            return redirect()->route('cursos.index')
+                ->with('success', 'Curso eliminado exitosamente');
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Error al eliminar el curso: ' . $e->getMessage());
+        }
     }
 
     // Mostrar el formulario del Paso 1
@@ -288,6 +297,116 @@ class CursoController extends Controller
             return back()
                 ->withInput()
                 ->with('error', 'Hubo un error al guardar el curso: ' . $e->getMessage());
+        }
+    }
+
+    public function editPaso(Cursos $curso, $paso)
+    {
+        switch($paso) {
+            case 1:
+                return view('cursos.edit-paso1', compact('curso'));
+            case 2:
+                return view('cursos.edit-paso2', compact('curso'));
+            case 3:
+                return view('cursos.edit-paso3', compact('curso'));
+            case 4:
+                return view('cursos.edit-paso4', compact('curso'));
+            case 5:
+                return view('cursos.edit-paso5', compact('curso'));
+            case 6:
+                return view('cursos.edit-paso6', compact('curso'));
+            case 7:
+                return view('cursos.edit-paso7', compact('curso'));
+            default:
+                return redirect()->route('cursos.index')->with('error', 'Paso no válido');
+        }
+    }
+
+    public function updatePaso(Request $request, Cursos $curso, $paso)
+    {
+        try {
+            switch($paso) {
+                case 1:
+                    $validated = $request->validate([
+                        'Nomenclatura' => 'required|string|max:255',
+                        'NombredelCurso' => 'required|string|max:255',
+                        'DescripciondeCurso' => 'required|string',
+                        'CostodelCurso' => 'required|numeric',
+                        'InstructorResponsable' => 'required|string|max:255',
+                        'FechadeInicio' => 'required|date',
+                        'FechadeTermino' => 'required|date|after_or_equal:FechadeInicio',
+                    ]);
+                    break;
+                case 2:
+                    $validated = $request->validate([
+                        'Virtual' => 'required|in:Si,No',
+                        'Presencial' => 'required|in:Si,No',
+                        'Mixto' => 'required|in:Si,No',
+                    ]);
+                    break;
+                case 3:
+                    $validated = $request->validate([
+                        'SinFecha' => 'required|string|max:255',
+                        'DriveSinFecha' => 'required|string|max:255',
+                        'Facebook' => 'required|string|max:255',
+                        'DriveFacebook' => 'required|string|max:255',
+                        'Linkedin' => 'required|string|max:255',
+                        'DriveLinkedin' => 'required|string|max:255',
+                        'Instagram' => 'required|string|max:255',
+                        'DriveInstagram' => 'required|string|max:255',
+                    ]);
+                    break;
+                case 4:
+                    $validated = $request->validate([
+                        'Temario' => 'required|string|max:255',
+                        'DriveTemario' => 'required|string|max:255',
+                        'Itinerario' => 'required|string|max:255',
+                        'DriveItinerario' => 'required|string|max:255',
+                        'Planeación' => 'required|string|max:255',
+                        'DrivePlaneación' => 'required|string|max:255',
+                    ]);
+                    break;
+                case 5:
+                    $validated = $request->validate([
+                        'Digital' => 'required|string|max:255',
+                        'DriveDigital' => 'required|string|max:255',
+                        'Impreso_Presentable' => 'required|string|max:255',
+                    ]);
+                    break;
+                case 6:
+                    $validated = $request->validate([
+                        'Presentación' => 'required|string|max:255',
+                        'Evaluación_diagnostica' => 'required|string|max:255',
+                        'EvaluaciondeSatisfacción' => 'required|string|max:255',
+                        'EvaluacionFinal' => 'required|string|max:255',
+                        'DC3' => 'required|string|in:Tiene DC3,No tiene DC3,Por confirmar',
+                    ]);
+                    break;
+                case 7:
+                    $validated = $request->validate([
+                        'FechadeRegistro_STPS' => 'nullable|date',
+                        'Formato_DC5' => 'required|string|max:255',
+                        'Formato_DC5_Tienefirma' => 'required|string|in:Si,No',
+                        'Certificadodecomprobacion' => 'required|string|max:255',
+                        'DrivedeCertificadodecomprobacion' => 'required|string|max:255',
+                        'Cartapoder_tienefirma' => 'required|string|in:Si,No',
+                        'DriveCartapoder' => 'required|string|max:255',
+                        'UDEMY' => 'required|string|max:255',
+                    ]);
+                    break;
+                default:
+                    return redirect()->route('cursos.index')->with('error', 'Paso no válido');
+            }
+
+            $curso->update($validated);
+
+            return redirect()->route('cursos.edit', $curso->id)
+                ->with('success', "Paso $paso actualizado exitosamente");
+
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Hubo un error al actualizar el curso: ' . $e->getMessage());
         }
     }
 }

@@ -7,7 +7,7 @@
         @csrf
         <div class="row mb-3">
             <div class="col-md-4">
-                <label for="N" class="form-label">N° de nomeclatura</label>
+                <label for="N" class="form-label">N° de nomenclatura</label>
                 <input type="text" class="form-control" name="N" required>
             </div>
             <div class="col-md-4">
@@ -59,6 +59,24 @@
             <div class="col-md-4">
                 <label for="FechadelCurso" class="form-label">Fecha del Curso</label>
                 <input type="date" class="form-control" name="FechadelCurso" required>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="CursoInscrito" class="form-label">Curso Inscrito</label>
+                    <input type="text" class="form-control" name="CursoInscrito" required>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="EstadoDePago" class="form-label">Estado de Pago</label>
+                <select class="form-select" name="EstadoDePago" required>
+                    <option value="" disabled selected>Seleccione el estado</option>
+                    <option value="Curso Pagado">Curso Pagado</option>
+                    <option value="Pago Pendiente">Pago Pendiente</option>
+                    <option value="Anticipo">Anticipo</option>
+                    <option value="No Pagado">No Pagado</option>
+                </select>
             </div>
         </div>
         <div class="text-center">
