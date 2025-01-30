@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -154,21 +155,74 @@
         width: 100%; /* Ocupa el 100% del contenedor */
         max-width: 100%; /* Evita que la tabla sea demasiado ancha */
         table-layout: auto; /* Ajusta el ancho de las columnas automáticamente */
-    }
+        }
 
-    #toggleSidebar {
-        background-color: #28a745; /* Color verde */
-        border: none;
-        padding: 10px 20px;
-        color: white;
-        font-weight: bold;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-        #toggleSidebar:hover {
-        background-color: #218838; /* Color verde oscuro al pasar el mouse */
-    }
+        #toggleSidebar {
+            background-color: #28a745;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+            #toggleSidebar:hover {
+            background-color: #218838;
+        }
+
+        .table-container {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        #cursosTable {
+            width: 100% !important;
+            table-layout: auto;
+        }
+
+        .search-help {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+            color: #6c757d;
+            cursor: help;
+        }
+
+        .search-help:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
 
     </style>
 </head>
@@ -245,23 +299,31 @@
             <table id="cursosTable" class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th>Nomenclatura de Curso</th>
-                        <th>Nombre del Curso</th>
-                        <th>Descripción</th>
-                        <th>Duración del Curso</th>
-                        <th>Fecha de Inicio</th>
-                        <th>Fecha de Término</th>
-                        <th>Costo</th>
-                        <th>Instructor</th>
-                        <th>Drive Sin Fecha</th>
-                        <th>Drive Facebook</th>
-                        <th>Drive LinkedIn</th>
-                        <th>Drive Instagram</th>
-                        <th>Drive Temario</th>
-                        <th>Drive Itinerario</th>
-                        <th>Drive Planeación</th>
-                        <th>Drive Digital</th>
-                        <th>Acciones</th>
+                        <th>Nomenclatura de Curso</th> <!-- Índice 0 -->
+                        <th>Nombre del Curso</th> <!-- Índice 1 -->
+                        <th>Descripción</th> <!-- Índice 2 -->
+                        <th>Duración del Curso</th> <!-- Índice 3 -->
+                        <th>Fecha de Inicio</th> <!-- Índice 4 -->
+                        <th>Fecha de Término</th> <!-- Índice 5 -->
+                        <th>Costo</th> <!-- Índice 6 -->
+                        <th>Instructor</th> <!-- Índice 7 -->
+                        <th>Sin Fecha</th> <!-- Índice 8 -->
+                        <th>Drive Sin Fecha</th> <!-- Índice 9 -->
+                        <th>Facebook</th> <!-- Índice 10 -->
+                        <th>Drive Facebook</th> <!-- Índice 11 -->
+                        <th>LinkedIn</th> <!-- Índice 12 -->
+                        <th>Drive LinkedIn</th> <!-- Índice 13 -->
+                        <th>Instagram</th> <!-- Índice 14 -->
+                        <th>Drive Instagram</th> <!-- Índice 15 -->
+                        <th>Temario</th> <!-- Índice 16 -->
+                        <th>Drive Temario</th> <!-- Índice 17 -->
+                        <th>Itinerario</th> <!-- Índice 18 -->
+                        <th>Drive Itinerario</th> <!-- Índice 19 -->
+                        <th>Planeación</th> <!-- Índice 20 -->
+                        <th>Drive Planeación</th> <!-- Índice 21 -->
+                        <th>Digital</th> <!-- Índice 22 -->
+                        <th>Drive Digital</th> <!-- Índice 23 -->
+                        <th>Acciones</th> <!-- Índice 24 -->
                     </tr>
                 </thead>
                 <tbody>
@@ -275,41 +337,49 @@
                             <td>{{ \Carbon\Carbon::parse($curso->FechadeTermino)->format('d/m/Y') }}</td>
                             <td>${{ number_format($curso->CostodelCurso, 2) }}</td>
                             <td>{{ $curso->InstructorResponsable }}</td>
+                            <td>{{ $curso->SinFecha }}</td>
                             <td class="drive-link">
                                 @if($curso->DriveSinFecha)
                                     <a href="{{ $curso->DriveSinFecha }}" target="_blank">Drive Sin Fecha</a>
                                 @endif
                             </td>
+                            <td>{{ $curso->Facebook }}</td>
                             <td class="drive-link">
                                 @if($curso->DriveFacebook)
                                     <a href="{{ $curso->DriveFacebook }}" target="_blank">Drive Facebook</a>
                                 @endif
                             </td>
+                            <td>{{ $curso->Linkedin }}</td>
                             <td class="drive-link">
                                 @if($curso->DriveLinkedin)
                                     <a href="{{ $curso->DriveLinkedin }}" target="_blank">Drive LinkedIn</a>
                                 @endif
                             </td>
+                            <td>{{ $curso->Instagram }}</td>
                             <td class="drive-link">
                                 @if($curso->DriveInstagram)
                                     <a href="{{ $curso->DriveInstagram }}" target="_blank">Drive Instagram</a>
                                 @endif
                             </td>
+                            <td>{{ $curso->Temario }}</td>
                             <td class="drive-link">
                                 @if($curso->DriveTemario)
                                     <a href="{{ $curso->DriveTemario }}" target="_blank">Drive Temario</a>
                                 @endif
                             </td>
+                            <td>{{ $curso->Itinerario }}</td>
                             <td class="drive-link">
                                 @if($curso->DriveItinerario)
                                     <a href="{{ $curso->DriveItinerario }}" target="_blank">Drive Itinerario</a>
                                 @endif
                             </td>
+                            <td>{{ $curso->Planeación }}</td>
                             <td class="drive-link">
                                 @if($curso->DrivePlaneación)
                                     <a href="{{ $curso->DrivePlaneación }}" target="_blank">Drive Planeación</a>
                                 @endif
                             </td>
+                            <td>{{ $curso->Digital }}</td>
                             <td class="drive-link">
                                 @if($curso->DriveDigital)
                                     <a href="{{ $curso->DriveDigital }}" target="_blank">Drive Digital</a>
@@ -343,130 +413,141 @@
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 
     <script type="text/javascript">
+
     $(document).ready(function() {
-    var table = $('#cursosTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json'
-        },
-        columnDefs: [
-            {
-                targets: [8, 9, 10, 11, 12, 13, 14, 15], // Columnas de enlaces de Drive
-                visible: false // Ocultar por defecto
-            }
-        ],
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                text: 'Exportar a Excel',
-                className: 'dt-button buttons-excel',
-                exportOptions: {
-                    columns: ':not(:last-child)'
-                }
+        var table = $('#cursosTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json'
             },
-            {
-                extend: 'pdfHtml5',
-                text: 'Exportar a PDF',
-                title: 'Lista de Cursos',
-                className: 'dt-button buttons-pdf',
-                orientation: 'landscape',
-                pageSize: 'A4',
-                exportOptions: {
-                    columns: ':not(:last-child)'
+            columnDefs: [
+                {
+                    targets: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], // Columnas de enlaces de Drive
+                    visible: false // Ocultar por defecto
+                }
+            ],
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Exportar a Excel',
+                    className: 'dt-button buttons-excel',
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
                 },
-                customize: function (doc) {
-                    doc.defaultStyle.fontSize = 8;
-                    doc.styles.tableHeader.fontSize = 10;
-                    doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
-                    doc.pageMargins = [5, 5, 5, 5];
-                    doc.content[1].table.pageBreak = 'auto';
+                {
+                    extend: 'pdfHtml5',
+                    text: 'Exportar a PDF',
+                    title: 'Lista de Cursos',
+                    className: 'dt-button buttons-pdf',
+                    orientation: 'landscape',
+                    pageSize: 'A4',
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    },
+                    customize: function (doc) {
+                        doc.defaultStyle.fontSize = 8;
+                        doc.styles.tableHeader.fontSize = 10;
+                        doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                        doc.pageMargins = [5, 5, 5, 5];
+                        doc.content[1].table.pageBreak = 'auto';
+                    }
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: 'Exportar a CSV',
+                    className: 'dt-button buttons-csv',
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
                 }
-            },
-            {
-                extend: 'csvHtml5',
-                text: 'Exportar a CSV',
-                className: 'dt-button buttons-csv',
-                exportOptions: {
-                    columns: ':not(:last-child)'
-                }
+            ],
+            initComplete: function () {
+                $('.dt-buttons').hide();
+                $('.dataTables_filter').append(
+                    '<div class="search-help">' +
+                        '<i class="fas fa-question-circle"></i>' +
+                        '<div class="tooltip-text">' +
+                            '<strong>Búsqueda rápida:</strong><br>' +
+                            '• En todas las columnas<br>' +
+                            '• Búsqueda instantánea<br>' +
+                            '• Acepta múltiples términos<br>' +
+                            '• No distingue mayúsculas<br>' +
+                            '• Compatible con fechas' +
+                        '</div>' +
+                    '</div>'
+                );
             }
-        ],
-        initComplete: function () {
-            $('.dt-buttons').hide();
-        }
-    });
+        });
 
-    // Toggle sidebar visibility
-    $('#toggleSidebar').on('click', function() {
-        $('.sidebar').toggleClass('hidden');
-        $('.content').toggleClass('expanded');
-        $('header').toggleClass('expanded');
-    });
+        // Toggle sidebar visibility
+        $('#toggleSidebar').on('click', function() {
+            $('.sidebar').toggleClass('hidden');
+            $('.content').toggleClass('expanded');
+            $('header').toggleClass('expanded');
+        });
 
-    // View Option Toggle
-    $('input[name="viewOption"]').on('change', function() {
-        var selectedView = $(this).val();
+        // View Option Toggle
+        $('input[name="viewOption"]').on('change', function() {
+            var selectedView = $(this).val();
 
-        if (selectedView === 'drive') {
-            // Vista de enlaces de Drive: Mostrar solo el nombre del curso y los enlaces de Drive
-            table.columns().every(function(index) {
-                var column = this;
-                if (index === 1 ||  // Nombre del Curso
-                    (index >= 8 && index <= 15)  // Enlaces de Drive
-                ) {
-                    column.visible(true);
-                } else {
-                    column.visible(false);
-                }
-            });
-        } else {
-            // Vista predeterminada: Mostrar todas las columnas excepto los enlaces de Drive
-            table.columns().every(function(index) {
-                if (index >= 8 && index <= 15) {  // Enlaces de Drive
-                    column.visible(false);
-                } else {
-                    column.visible(true);
-                }
-            });
-        }
-
-        table.draw();
-    });
-
-    // Instructor Filter
-    $('#instructorFilter').on('change', function() {
-        var instructor = $(this).val();
-        table.column(7).search(instructor).draw(); // Ajusta el índice de la columna del instructor
-    });
-
-    // Cost Range Filter
-    $('#costMinFilter, #costMaxFilter').on('keyup change', function() {
-        var minCost = parseFloat($('#costMinFilter').val()) || 0;
-        var maxCost = parseFloat($('#costMaxFilter').val()) || Number.MAX_VALUE;
-
-        // Limpiar filtros anteriores
-        $.fn.dataTable.ext.search.pop();
-
-        $.fn.dataTable.ext.search.push(
-            function(settings, data) {
-                // Cambiar el índice de la columna de costo a 6
-                var cost = parseFloat(data[6].replace('$', '').replace(',', '')) || 0;
-                return (cost >= minCost && cost <= maxCost);
+            if (selectedView === 'drive') {
+                // Vista de enlaces de Drive: Mostrar solo las columnas de enlaces de Drive
+                table.columns().every(function(index) {
+                    if (index >= 8 && index <= 23) {  // Columnas de enlaces de Drive
+                        this.visible(true);
+                    } else {
+                        this.visible(false);
+                    }
+                });
+            } else {
+                // Vista predeterminada: Mostrar todas las columnas excepto los enlaces de Drive
+                table.columns().every(function(index) {
+                    if (index >= 8 && index <= 23) {  // Columnas de enlaces de Drive
+                        this.visible(false);
+                    } else {
+                        this.visible(true);
+                    }
+                });
             }
-        );
-        table.draw();
-    });
 
-    // Export buttons
-    $('#exportExcel').on('click', function() {
-        table.button('.buttons-excel').trigger();
-    });
+            // Forzar el redibujado de la tabla y ajustar el ancho de las columnas
+            table.columns.adjust().draw();
+        });
 
-    $('#exportCSV').on('click', function() {
-        table.button('.buttons-csv').trigger();
-    });
-});
+        // Instructor Filter
+        $('#instructorFilter').on('change', function() {
+            var instructor = $(this).val();
+            table.column(7).search(instructor).draw(); // Ajusta el índice de la columna del instructor
+        });
 
+        // Cost Range Filter
+        $('#costMinFilter, #costMaxFilter').on('keyup change', function() {
+            var minCost = parseFloat($('#costMinFilter').val()) || 0;
+            var maxCost = parseFloat($('#costMaxFilter').val()) || Number.MAX_VALUE;
+
+            // Limpiar filtros anteriores
+            $.fn.dataTable.ext.search.pop();
+
+            $.fn.dataTable.ext.search.push(
+                function(settings, data) {
+                    // Cambiar el índice de la columna de costo a 6
+                    var cost = parseFloat(data[6].replace('$', '').replace(',', '')) || 0;
+                    return (cost >= minCost && cost <= maxCost);
+                }
+            );
+            table.draw();
+        });
+
+        // Export buttons
+        $('#exportExcel').on('click', function() {
+            table.button('.buttons-excel').trigger();
+        });
+
+        $('#exportCSV').on('click', function() {
+            table.button('.buttons-csv').trigger();
+        });
+    });
 
     </script>
 </body>

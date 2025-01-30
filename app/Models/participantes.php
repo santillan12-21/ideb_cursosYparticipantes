@@ -29,11 +29,17 @@ class participantes extends Model
         'Direccion',
         'Escolaridad',
         'Curp',
+        'RazonSocial',
         'Empresa',
+        'RFCEmpresa',
         'Puesto',
         'Pago',
-        'FechadelCurso',
         'EstadoDePago',
-        'CursoInscrito',
+        'FechadelCurso'
     ];
+
+    public function cursos()
+    {
+        return $this->belongsToMany(Cursos::class, 'participante_curso', 'participante_id', 'curso_id');
+    }
 }

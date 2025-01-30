@@ -76,6 +76,7 @@
                 <p class="info-text"><span class="info-title">Instructor Responsable:</span> {{ $curso->InstructorResponsable }}</p>
                 <p class="info-text"><span class="info-title">Fecha de Inicio:</span> {{ \Carbon\Carbon::parse($curso->FechadeInicio)->format('d/m/Y') }}</p>
                 <p class="info-text"><span class="info-title">Fecha de Término:</span> {{ \Carbon\Carbon::parse($curso->FechadeTermino)->format('d/m/Y') }}</p>
+                <p class="info-text"><span class="info-title">Duración:</span> {{ $curso->Duracioncurso }}</p>
 
                 <h5>Modalidad</h5>
                 <table class="table">

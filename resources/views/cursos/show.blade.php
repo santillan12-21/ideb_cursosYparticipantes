@@ -118,6 +118,7 @@
                 <p><strong>Instructor Responsable:</strong> {{ $curso->InstructorResponsable }}</p>
                 <p><strong>Fecha de Inicio:</strong> {{ \Carbon\Carbon::parse($curso->FechadeInicio)->format('d/m/Y') }}</p>
                 <p><strong>Fecha de Término:</strong> {{ \Carbon\Carbon::parse($curso->FechadeTermino)->format('d/m/Y') }}</p>
+                <p><strong>Duración: {{ $curso->Duracioncurso}}</strong></p>
 
                 <h5>Modalidad</h5>
                 <p><strong>Virtual:</strong> {{ $curso->Virtual == 'Si' ? 'Sí' : 'No' }}</p>
