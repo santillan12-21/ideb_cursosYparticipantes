@@ -36,8 +36,15 @@
             <input type="date" name="FechadeTermino" class="form-control"
                    value="{{ $curso->FechadeTermino }}" required>
         </div>
+        <div class="mb-3">
+            <label>Duracion del curso</label>
+            <input type="text" name="Duracioncurso" class="form-control" placeholder="Duración del Curso (ej: 9 horas)"
+                   value="{{ $curso->Duracioncurso }}" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Actualizar Paso 1</button>
+        <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-secondary">Regresar</a>
     </form>
-    <button type="submit" class="btn btn-primary">Actualizar Paso 1</button>
-    <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-secondary">Regresar</a>
+
 </div>
 @endsection

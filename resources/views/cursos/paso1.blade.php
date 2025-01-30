@@ -127,6 +127,9 @@
                 <div class="mb-3">
                     <input type="date" name="FechadeTermino" class="form-control" required>
                 </div>
+                <div class="mb-3">
+                    <input type="text" name="Duracioncurso" class="form-control" placeholder="Duración del Curso (ej: 9 horas)" required>
+                </div>
                 <div class="mb-3 d-flex justify-content-between">
                     <button type="submit" class="btn btn-success">Siguiente</button>
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>

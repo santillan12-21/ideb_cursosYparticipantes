@@ -94,6 +94,7 @@ class CursoController extends Controller
             'InstructorResponsable' => 'required|string|max:255',
             'FechadeInicio' => 'required|date',
             'FechadeTermino' => 'required|date|after_or_equal:FechadeInicio',
+            'Duracioncurso' => 'required|string|max:255',
         ]);
 
         // Guardar los datos del Paso 1 en sesión
@@ -335,6 +336,7 @@ class CursoController extends Controller
                         'InstructorResponsable' => 'required|string|max:255',
                         'FechadeInicio' => 'required|date',
                         'FechadeTermino' => 'required|date|after_or_equal:FechadeInicio',
+                        'Duracioncurso' => 'required|string|max:100',
                     ]);
                     break;
                 case 2:

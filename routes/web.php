@@ -8,6 +8,7 @@ use App\Http\Controllers\CursoController;
 use App\Http\Controllers\ParticipanteController;
 use App\Http\Controllers\DatabaseController;
 use App\Models\cursos;
+use App\Http\Controllers\ConfigController;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 //Rutas de inicio de sesion:
@@ -89,3 +90,11 @@ Route::get('/cursos/{curso}/edit', [CursoController::class, 'edit'])->name('curs
 Route::get('/cursos/{curso}/edit/{paso}', [CursoController::class, 'editPaso'])->name('cursos.edit.paso');
 Route::put('/cursos/{curso}/update/{paso}', [CursoController::class, 'updatePaso'])->name('cursos.update.paso');
 Route::delete('/cursos/{curso}', [CursoController::class, 'destroy'])->name('cursos.destroy');
+
+Route::get('/configuraciones', [ConfigController::class, 'index'])->name('configuraciones.index');
+Route::post('/configuraciones', [ConfigController::class, 'store'])->name('configuraciones.store');
+Route::get('/users/show', [UserController::class, 'show'])->name('users.show');
+
+Route::get('/configuraciones', [ConfigController::class, 'index'])->name('configuraciones.index');
+Route::post('/configuraciones', [ConfigController::class, 'store'])->name('configuraciones.store');
+

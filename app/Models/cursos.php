@@ -47,7 +47,8 @@ class cursos extends Model
         'DrivedeCertificadodecomprobacion',
         'Cartapoder_tienefirma',
         'DriveCartapoder',
-        'UDEMY'
+        'UDEMY',
+        'Duracioncurso',
     ];
 
     protected $dates = [
