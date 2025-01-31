@@ -34,6 +34,7 @@ Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update
 Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+Route::post('/users/{id}/show-password', [UserController::class, 'showPassword'])->name('users.showPassword');
 
 //Ruta para llenado de formulario de cursos
 Route::get('/curso/paso1', [CursoController::class, 'crearPaso1'])->name('curso.paso1');

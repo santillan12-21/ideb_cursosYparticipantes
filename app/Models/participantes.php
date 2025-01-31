@@ -40,6 +40,7 @@ class participantes extends Model
 
     public function cursos()
     {
-        return $this->belongsToMany(Cursos::class, 'participante_curso', 'participante_id', 'curso_id');
+        return $this->belongsToMany(Cursos::class, 'participante_curso', 'participante_id', 'curso_id')
+                    ->withPivot('FechadelCurso');
     }
 }

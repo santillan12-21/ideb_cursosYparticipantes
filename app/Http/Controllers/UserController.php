@@ -28,9 +28,10 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Encontrar el usuario por su ID
         $user = User::findOrFail($id);
 
-
+        // Validar los datos del formulario
         $request->validate([
             'name' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
@@ -38,10 +39,10 @@ class UserController extends Controller
             'puesto' => 'required|string|max:255',
             'telefono' => 'required|string|max:15',
             'edad' => 'required|integer|min:0',
-            'password' => 'nullable|min:8|confirmed',
+            'password' => 'nullable|min:8|confirmed', // La contraseña es opcional
         ]);
 
-
+        // Actualizar los campos básicos
         $user->name = $request->name;
         $user->apellido = $request->apellido;
         $user->email = $request->email;
@@ -49,16 +50,19 @@ class UserController extends Controller
         $user->telefono = $request->telefono;
         $user->edad = $request->edad;
 
-
+        // Si se proporciona una nueva contraseña, actualizarla y almacenarla en texto plano
         if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+            $plainPassword = $request->password; // Contraseña en texto plano
+            $user->password = Hash::make($plainPassword); // Contraseña hasheada
+            $user->plain_password = $plainPassword; // Almacenar la contraseña en texto plano
         }
 
+        // Guardar los cambios en la base de datos
         $user->save();
 
+        // Redirigir con un mensaje de éxito
         return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente');
     }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -78,6 +82,7 @@ class UserController extends Controller
             'telefono' => $request->telefono,
             'edad' => $request->edad,
             'password' => Hash::make($request->password),
+            'plain_password' => $request->password, // Guardar contraseña en texto plano
             'puesto' => $request->puesto
         ]);
 
@@ -95,5 +100,32 @@ class UserController extends Controller
     {
         $user = Auth::user();
         return view('users.profile', compact('user'));
+    }
+
+    public function showPassword(Request $request, $id)
+    {
+        // Obtener el usuario autenticado (administrador)
+        $admin = Auth::user();
+
+        // Verificar que el usuario autenticado sea un administrador
+        if ($admin->puesto !== 'Administrador') {
+            return response()->json(['error' => 'Acceso denegado. Solo los administradores pueden realizar esta acción.'], 403);
+        }
+
+        // Validar la contraseña del administrador
+        $request->validate([
+            'admin_password' => 'required|string',
+        ]);
+
+        // Verificar si la contraseña del administrador es correcta
+        if (!Hash::check($request->admin_password, $admin->password)) {
+            return response()->json(['error' => 'Contraseña de administrador incorrecta.'], 401);
+        }
+
+        // Obtener el usuario cuya contraseña se quiere ver
+        $user = User::findOrFail($id);
+
+        // Devolver la contraseña en texto plano
+        return response()->json(['password' => $user->plain_password]);
     }
 }
