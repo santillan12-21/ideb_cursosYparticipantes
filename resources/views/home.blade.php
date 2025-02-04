@@ -176,7 +176,7 @@
         <a href="/users">Creación usuario</a>
         <a href="/cursos">Cursos</a>
         <a href="/participantes">Participantes</a>
-        <a href="/registros">Registro de curso</a>
+        <a href="/registro">Registro de curso</a>
         <a href="/">Ruta archivos</a>
         <a href="/export-db">Exportar Base de Datos</a>
 

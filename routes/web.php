@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\ParticipanteController;
 use App\Http\Controllers\DatabaseController;
+use App\Http\Controllers\RegistroController;
 use App\Models\cursos;
 use App\Http\Controllers\ConfigController;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -58,9 +59,6 @@ Route::resource('cursos', CursoController::class);
 Route::get('/curso/editar', [CursoController::class, 'mostrarEdicion'])->name('curso.editar');
 
 
-//Llenado del formulario de los cursos
-Route::get('/participantes/crear', [ParticipanteController::class, 'create'])->name('participantes.create');
-Route::post('/participantes', [ParticipanteController::class, 'store'])->name('participantes.store');
 
 //Vista, modificacion, "eliminacion" y consulta de los participantes
 Route::get('/participantes', [ParticipanteController::class, 'index'])->name('participantes.index');
@@ -68,13 +66,13 @@ Route::get('/participantes/create', [ParticipanteController::class, 'create'])->
 Route::post('/participantes', [ParticipanteController::class, 'store'])->name('participantes.store');
 
 // Ruta para mostrar el formulario de edición
-Route::get('/participantes/{N}/edit', [ParticipanteController::class, 'edit'])->name('participantes.edit');
+Route::get('/participantes/{id}/edit', [ParticipanteController::class, 'edit'])->name('participantes.edit');
 
 // Ruta para actualizar los datos del participante
-Route::put('/participantes/{N}', [ParticipanteController::class, 'update'])->name('participantes.update');
+Route::put('/participantes/{id}', [ParticipanteController::class, 'update'])->name('participantes.update');
 
-//Ruta para eliminar participantes
-Route::delete('/participantes/{N}', [ParticipanteController::class, 'destroy'])->name('participantes.destroy');
+// Ruta para eliminar participantes
+Route::delete('/participantes/{id}', [ParticipanteController::class, 'destroy'])->name('participantes.destroy');
 
 //Rutas para exportar y importar base de datos
 Route::get('/export-db', [DatabaseController::class, 'export'])->name('database.export');
@@ -99,3 +97,8 @@ Route::get('/users/show', [UserController::class, 'show'])->name('users.show');
 Route::get('/configuraciones', [ConfigController::class, 'index'])->name('configuraciones.index');
 Route::post('/configuraciones', [ConfigController::class, 'store'])->name('configuraciones.store');
 
+// Ruta para mostrar el formulario de registro
+Route::get('/registro', [RegistroController::class, 'index'])->name('registro.index');
+// Ruta para guardar un nuevo participante
+Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store');
+Route::get('/participantes/filtrar', [ParticipanteController::class, 'filtrar'])->name('participantes.filtrar');

@@ -180,47 +180,47 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const passwordModal = document.getElementById('passwordModal');
-            const passwordForm = document.getElementById('passwordForm');
-            const passwordResult = document.getElementById('passwordResult');
+        const passwordModal = document.getElementById('passwordModal');
+        const passwordForm = document.getElementById('passwordForm');
+        const passwordResult = document.getElementById('passwordResult');
 
-            // Abrir el modal cuando se hace clic en "Ver Contraseña"
-            document.querySelectorAll('.view-password').forEach(button => {
-                button.addEventListener('click', function () {
-                    const userId = this.getAttribute('data-id');
-                    document.getElementById('userId').value = userId;
-                    passwordResult.innerHTML = ''; // Limpiar resultados anteriores
-                    new bootstrap.Modal(passwordModal).show();
-                });
-            });
-
-            // Enviar la solicitud para verificar la contraseña del administrador
-            passwordForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-                const userId = formData.get('user_id');
-
-                fetch(`/users/${userId}/show-password`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        passwordResult.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
-                    } else {
-                        passwordResult.innerHTML = `<div class="alert alert-success">Contraseña: ${data.password}</div>`;
-                    }
-                })
-                .catch(error => {
-                    passwordResult.innerHTML = `<div class="alert alert-danger">Ocurrió un error al procesar la solicitud.</div>`;
-                });
+        // Abrir el modal cuando se hace clic en "Ver Contraseña"
+        document.querySelectorAll('.view-password').forEach(button => {
+            button.addEventListener('click', function () {
+                const userId = this.getAttribute('data-id');
+                document.getElementById('userId').value = userId;
+                passwordResult.innerHTML = ''; // Limpiar resultados anteriores
+                new bootstrap.Modal(passwordModal).show();
             });
         });
+
+        // Enviar la solicitud para verificar la contraseña del administrador
+        passwordForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const userId = formData.get('user_id');
+
+            fetch(`/users/${userId}/show-password`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    passwordResult.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                } else {
+                    passwordResult.innerHTML = `<div class="alert alert-success">Contraseña: ${data.password}</div>`;
+                }
+            })
+            .catch(error => {
+                passwordResult.innerHTML = `<div class="alert alert-danger">Ocurrió un error al procesar la solicitud.</div>`;
+            });
+        });
+    });
     </script>
 </body>
 </html>

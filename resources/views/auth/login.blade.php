@@ -46,14 +46,19 @@
 <body>
     <div class="login-container">
         <img src="{{ asset('images/logo.png') }}" alt="Logo">
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login') }}" autocomplete="off">
             @csrf
+
+            <!-- Campo oculto como señuelo -->
+            <input type="text" style="display:none;" name="fake_email" autocomplete="username">
+            <input type="password" style="display:none;" name="fake_password" autocomplete="current-password">
+
             <div class="form-group">
-                <input type="email" name="email" class="form-control" placeholder="Correo electrónico" required autofocus>
+                <input type="email" name="email" class="form-control" placeholder="Correo electrónico" required autofocus autocomplete="off" value="{{ old('email') }}">
             </div>
             <br>
             <div class="form-group password-container">
-                <input type="password" name="password" id="password" class="form-control" placeholder="Contraseña" required>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Contraseña" required autocomplete="off">
                 <span class="toggle-password" onclick="togglePassword()" id="togglePassword">👁️</span>
             </div>
             <br>
@@ -62,13 +67,26 @@
     </div>
 
     <script>
+        // Limpiar los campos al cargar la página
+        document.addEventListener('DOMContentLoaded', function () {
+            const emailField = document.querySelector('input[name="email"]');
+            const passwordField = document.getElementById('password');
+
+            if (emailField) {
+                emailField.value = '';
+            }
+            if (passwordField) {
+                passwordField.value = '';
+            }
+        });
+
+        // Función para alternar la visibilidad de la contraseña
         function togglePassword() {
             const passwordField = document.getElementById('password');
             const toggleIcon = document.getElementById('togglePassword');
             const isPasswordVisible = passwordField.getAttribute('type') === 'password';
-
             passwordField.setAttribute('type', isPasswordVisible ? 'text' : 'password');
-            toggleIcon.textContent = isPasswordVisible ? '👁️' : '🙈';
+            toggleIcon.textContent = isPasswordVisible ? '🙈' : '👁️';
         }
     </script>
 </body>

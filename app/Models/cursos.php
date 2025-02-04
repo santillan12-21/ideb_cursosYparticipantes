@@ -57,9 +57,17 @@ class cursos extends Model
         'FechadeRegistro_STPS'
     ];
 
+    public function inscripciones()
+    {
+        return $this->hasMany(Inscripcion::class, 'participante_id');
+    }
     public function participantes()
     {
-        return $this->belongsToMany(Participantes::class, 'participante_curso', 'curso_id', 'participante_id')
-                    ->withPivot('FechadelCurso');
+        return $this->belongsToMany(
+            Participantes::class,  // Modelo relacionado
+            'inscripciones',       // Tabla intermedia
+            'curso_id',            // Clave foránea en la tabla intermedia para cursos
+            'participante_id'      // Clave foránea en la tabla intermedia para participantes
+        );
     }
 }

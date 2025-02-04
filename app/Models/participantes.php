@@ -11,14 +11,9 @@ class participantes extends Model
 
     protected $table = 'participantes';
 
-    // Indicamos que la clave primaria es 'N'
-    protected $primaryKey = 'N';
+    protected $primaryKey = 'id';
+    public $incrementing = true; // Asegura que el ID sea autoincremental
 
-    // Especificamos que la clave primaria no es autoincrementable
-    public $incrementing = false;
-
-    // Indicamos que la clave primaria es de tipo string
-    protected $keyType = 'string';
 
     protected $fillable = [
         'N',
@@ -29,7 +24,7 @@ class participantes extends Model
         'Direccion',
         'Escolaridad',
         'Curp',
-        'RazonSocial',
+        'RazónSocial',
         'Empresa',
         'RFCEmpresa',
         'Puesto',
@@ -38,9 +33,19 @@ class participantes extends Model
         'FechadelCurso'
     ];
 
+
+    public function inscripciones()
+    {
+        return $this->hasMany(Inscripcion::class, 'participante_id');
+    }
+
     public function cursos()
     {
-        return $this->belongsToMany(Cursos::class, 'participante_curso', 'participante_id', 'curso_id')
-                    ->withPivot('FechadelCurso');
+        return $this->belongsToMany(
+            Cursos::class,         // Modelo relacionado
+            'inscripciones',       // Tabla intermedia
+            'participante_id',     // Clave foránea en la tabla intermedia para participantes
+            'curso_id'             // Clave foránea en la tabla intermedia para cursos
+        );
     }
 }

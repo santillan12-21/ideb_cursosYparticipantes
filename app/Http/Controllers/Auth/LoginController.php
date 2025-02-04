@@ -24,4 +24,6 @@ class LoginController extends Controller
             'email' => 'Las credenciales no coinciden.',
         ]);
     }
+
+
 }
