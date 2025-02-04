@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-
+/// prueba//
 class cursos extends Model
 {
     protected $fillable = [
