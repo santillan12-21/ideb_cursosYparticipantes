@@ -8,17 +8,15 @@
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
 <div class="container">
-    <!-- Mostrar mensajes de error -->
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
     <h2>Registrar Nuevo Participante</h2>
     <form action="{{ route('registro.store') }}" method="POST">
         @csrf <!-- Token CSRF para protección contra ataques -->
@@ -94,9 +92,10 @@
             <label for="EstadoDePago" class="form-label">Como desea pagar</label>
             <select class="form-select" id="EstadoDePago" name="EstadoDePago" required onchange="togglePagoField()">
                 <option value="" disabled selected>Opciones de Pago</option>
-                <option value="Pagado">Pagar haora</option>
-                <option value="Pendiente">Pagar</option>
+                <option value="Pagado">Pagado</option>
+                <option value="Pendiente">Pendiente</option>
                 <option value="Anticipo">Anticipo</option>
+                <option value="Cancelado">Cancelado</option>
             </select>
         </div>
 
@@ -108,6 +107,13 @@
             </div>
         </div>
 
+        <!-- Fecha del Curso -->
+        <div class="mb-3">
+            <label for="FechadelCurso" class="form-label">Fecha del Curso</label>
+            <input type="date" class="form-control" id="FechadelCurso" name="FechadelCurso" required>
+        </div>
+
+        <!-- Selección de cursos -->
         <div class="mb-3">
             <label for="cursos" class="form-label">Selecciona los cursos en los que deseas inscribirte:</label>
             <select class="form-select" id="cursos" name="cursos[]" multiple required onchange="updateCourseDetails()">
@@ -120,18 +126,23 @@
             </select>
         </div>
 
-        <!-- Información de la Fecha de Inicio (solo lectura) -->
-        <div class="mb-3">
-            <label for="FechadeInicioDisplay" class="form-label">Fecha de Inicio del Curso</label>
-            <input type="text" class="form-control" id="FechadeInicioDisplay" readonly>
-        </div>
-
         <!-- Botón de envío -->
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 </div>
 
 <script>
+
+    function updateCourseDetails() {
+        const cursos = document.getElementById('cursos');
+        const fechaDisplay = document.getElementById('FechadeInicioDisplay');
+
+        const selectedOption = cursos.selectedOptions[0];
+        const fecha = selectedOption.getAttribute('data-fecha');
+
+        fechaDisplay.value = fecha;
+    }
+
 
     function updateCourseDetails() {
         const cursos = document.getElementById('cursos');

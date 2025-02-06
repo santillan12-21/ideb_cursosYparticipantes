@@ -84,9 +84,17 @@ class participantes extends Model
 
     public function setEstadoDePagoAttribute($value)
     {
-        // Si el usuario selecciona "Pendiente" o "Cancelado", asegúrate de que se guarde correctamente
-        if ($value === 'Pendiente' || $value === 'Cancelado') {
+        // Lista de valores permitidos
+        $allowedValues = ['Pendiente', 'Pagado', 'Anticipo', 'Cancelado'];
+
+        // Si el valor está en la lista permitida, guárdalo; de lo contrario, usa un valor predeterminado
+        if (in_array($value, $allowedValues)) {
             $this->attributes['EstadoDePago'] = $value;
+
+            // Si el estado de pago es "Cancelado", establecer el campo Pago en 0
+            if ($value === 'Cancelado') {
+                $this->attributes['Pago'] = 0;
+            }
         } else {
             $this->attributes['EstadoDePago'] = 'Pagado'; // Valor predeterminado
         }

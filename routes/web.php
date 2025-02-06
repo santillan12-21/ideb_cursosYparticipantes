@@ -57,6 +57,8 @@ Route::post('/curso/paso7', [CursoController::class, 'guardarPaso7'])->name('cur
 Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
 Route::resource('cursos', CursoController::class);
 Route::get('/curso/editar', [CursoController::class, 'mostrarEdicion'])->name('curso.editar');
+//Para obtener la fecha de inicio de cursos para participantes
+Route::get('/cursos/{id}/fecha-inicio', [CursoController::class, 'getFechaInicio'])->name('cursos.fecha-inicio');
 
 
 

@@ -70,6 +70,24 @@
 </style>
 
     <div class="container">
+            @if(session()->has('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <!-- Mensajes de error -->
+        @if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <!-- Título de la sección -->
         <h3 class="text-center mt-5">Participantes Inscritos</h3>
 
@@ -119,23 +137,6 @@
                             placeholder="Máximo" value="{{ request('max_costo') }}">
                     </div>
 
-                    <!-- Filtro de búsqueda -->
-                    <div class="form-group mr-3 position-relative">
-                        <label for="busqueda" class="mr-2">Búsqueda General:</label>
-                        <div class="d-flex align-items-center">
-                            <input type="text" name="busqueda" id="busqueda" class="form-control"
-                                placeholder="Buscar por nombre, correo, teléfono, empresa..."
-                                value="{{ request('busqueda') }}">
-                                <div class="search-help ml-2">
-                                    <i class="fas fa-question-circle text-primary" style="font-size: 1.2rem;"></i>
-                                    <div class="tooltip-text">
-                                        Puedes buscar toda la información de la tabla, a excepción de pago y cursos.
-                                        Puedes usar mayúsculas y minúsculas.
-                                        Para regresar a la tabla completa, solo borra lo que escribiste y dale clic a filtrar.
-                                    </div>
-                                </div>
-                        </div>
-                    </div>
 
                     <!-- Botón para Aplicar Filtros -->
                     <button type="submit" class="btn btn-primary">Filtrar</button>

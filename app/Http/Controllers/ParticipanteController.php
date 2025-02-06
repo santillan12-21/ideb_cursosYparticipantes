@@ -42,9 +42,6 @@ class ParticipanteController extends Controller
         // Buscar el participante por su ID (clave primaria)
         $participante = Participantes::findOrFail($id);
         $cursos = Cursos::all(); // Obtener todos los cursos disponibles
-        foreach ($cursos as $curso) {
-            $curso->FechadeInicio = \Carbon\Carbon::parse($curso->FechadeInicio)->format('Y-m-d');
-        }
         return view('participantes.edit', compact('participante', 'cursos'));
     }
 
@@ -53,69 +50,34 @@ class ParticipanteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        \Log::info('Request datos:', $request->all());  // Log para debug
-
-        try {
-            // Validar los datos del formulario
-            $validated = $request->validate([
-                'N' => 'required|string|max:255|unique:participantes,N,' . $id,
-                'NombredelPostulante' => 'required|string|max:255',
-                'Correo' => 'required|email|max:255',
-                'Telefono' => 'required|string|max:255',
-                'Edad' => 'required|integer',
-                'Direccion' => 'required|string|max:255',
-                'Escolaridad' => 'required|string|max:255',
-                'Curp' => 'required|string|max:255',
-                'RazónSocial' => 'nullable|string|max:255',
-                'Empresa' => 'required|string|max:255',
-                'RFCEmpresa' => 'nullable|string|max:255',
-                'Puesto' => 'required|string|max:255',
-                'Pago' => 'nullable',
-                'EstadoDePago' => 'required|string|max:255',
-                'FechadelCurso' => 'nullable|date',
-                'cursos' => 'required|array|min:1',
-            ]);
+        // Validar los datos del formulario
+        $validated = $request->validate([
+            'N' => 'required|string|max:255|unique:participantes,N,' . $id, // Validar que N sea único
+            'NombredelPostulante' => 'required|string|max:255',
+            'Correo' => 'required|email|max:255',
+            'Telefono' => 'required|string|max:255',
+            'Edad' => 'required|integer',
+            'Direccion' => 'required|string|max:255',
+            'Escolaridad' => 'required|string|max:255',
+            'Curp' => 'required|string|max:255',
+            'RazónSocial' => 'nullable|string|max:255',
+            'Empresa' => 'required|string|max:255',
+            'RFCEmpresa' => 'nullable|string|max:255',
+            'Puesto' => 'required|string|max:255',
+            'Pago' => 'required|numeric',
+            'EstadoDePago' => 'required|string|max:255',
+            'FechadelCurso' => 'required|date',
+        ]);
 
             \Log::info('Datos validados:', $validated);  // Log para debug
 
             $participante = Participantes::findOrFail($id);
 
-            // Limpiar el formato de moneda del campo Pago
-            if (isset($validated['Pago'])) {
-                $validated['Pago'] = str_replace(['$', ','], '', $validated['Pago']);
-            }
+        // Actualizar los datos del participante
+        $participante->update($validated);
 
-            // Actualizar campos básicos
-            $participante->fill($validated);
-
-            // Actualizar la fecha del curso
-            if (!empty($validated['cursos'])) {
-                $primerCursoId = $validated['cursos'][0];
-                $primerCurso = Cursos::findOrFail($primerCursoId);
-                $participante->FechadelCurso = $primerCurso->FechadeInicio;
-            }
-
-            // Guardar el participante
-            $participante->save();
-
-            \Log::info('Participante guardado');  // Log para debug
-
-            // Sincronizar cursos
-            $participante->cursos()->sync($validated['cursos']);
-
-            \Log::info('Cursos sincronizados');  // Log para debug
-
-            return redirect()
-                ->route('participantes.index')
-                ->with('success', 'Participante actualizado correctamente.');
-
-        } catch (\Exception $e) {
-            \Log::error('Error en actualización:', ['error' => $e->getMessage()]);  // Log para debug
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors(['error' => 'Error al actualizar: ' . $e->getMessage()]);
-        }
+        // Redireccionar con mensaje de éxito
+        return redirect()->route('participantes.index')->with('success', 'Participante actualizado correctamente.');
     }
 
     /**
