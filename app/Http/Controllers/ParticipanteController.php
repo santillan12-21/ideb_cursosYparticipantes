@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Models\Participantes;
 use App\Models\Cursos;
 use App\Models\Inscripcion;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ParticipantesExport;
 
 class ParticipanteController extends Controller
 {
@@ -78,58 +82,43 @@ class ParticipanteController extends Controller
      * Guardar un nuevo participante en la base de datos.
      */
     public function store(Request $request)
-    {
-        // Validar los datos del formulario
-        $validated = $request->validate([
-            'N' => 'required|string|max:255|unique:participantes,N', // Validar que N sea único
-            'NombredelPostulante' => 'required|string|max:255',
-            'Correo' => 'required|email|max:255',
-            'Telefono' => 'required|string|max:255',
-            'Edad' => 'required|integer',
-            'Direccion' => 'required|string|max:255',
-            'Escolaridad' => 'required|string|max:255',
-            'Curp' => 'required|string|max:255',
-            'RazónSocial' => 'nullable|string|max:200',
-            'Empresa' => 'required|string|max:255',
-            'RFCEmpresa' => 'nullable|string|max:100',
-            'Puesto' => 'required|string|max:255',
-            'Pago' => 'required|numeric',
-            'EstadoDePago' => 'required|string|max:255',
-            'FechadelCurso' => 'required|date',
-            'cursos' => 'required|array', // IDs de los cursos seleccionados
-        ]);
+{
+    // Validar los datos del formulario
+    $validated = $request->validate([
+        'N' => 'required|string|max:255|unique:participantes,N',
+        'NombredelPostulante' => 'required|string|max:255',
+        'Correo' => 'required|email|max:255',
+        'Telefono' => 'required|string|max:255',
+        'Edad' => 'required|integer',
+        'Direccion' => 'required|string|max:255',
+        'Escolaridad' => 'required|string|max:255',
+        'Curp' => 'required|string|max:255',
+        'RazónSocial' => 'nullable|string|max:200',
+        'Empresa' => 'required|string|max:255',
+        'RFCEmpresa' => 'nullable|string|max:100',
+        'Puesto' => 'required|string|max:255',
+        'Pago' => 'nullable|numeric', // Pago puede ser nulo
+        'EstadoDePago' => 'required|string|max:255',
+        'FechadelCurso' => 'required|date',
+        'cursos' => 'required|array|min:1',
+    ]);
 
-        // Crear el participante
-        $participante = new Participantes();
-        $participante->N = $validated['N']; // Asignar el valor de N
-        $participante->NombredelPostulante = $validated['NombredelPostulante'];
-        $participante->Correo = $validated['Correo'];
-        $participante->Telefono = $validated['Telefono'];
-        $participante->Edad = $validated['Edad'];
-        $participante->Direccion = $validated['Direccion'];
-        $participante->Escolaridad = $validated['Escolaridad'];
-        $participante->Curp = $validated['Curp'];
-        $participante->RazónSocial = $validated['RazónSocial'];
-        $participante->Empresa = $validated['Empresa'];
-        $participante->RFCEmpresa = $validated['RFCEmpresa'];
-        $participante->Puesto = $validated['Puesto'];
-        $participante->Pago = $validated['Pago'];
-        $participante->EstadoDePago = $validated['EstadoDePago'];
-        $participante->FechadelCurso = $validated['FechadelCurso'];
-        $participante->save();
+    // Crear el participante
+    $participante = new Participantes();
+    $participante->fill($validated);
+    $participante->save();
 
-        // Guardar las inscripciones en la tabla intermedia
-        foreach ($validated['cursos'] as $curso_id) {
-            $inscripcion = new Inscripcion();
-            $inscripcion->participante_id = $participante->id; // Usar el ID del participante
-            $inscripcion->curso_id = $curso_id;
-            $inscripcion->save();
-        }
-
-        // Redireccionar con mensaje de éxito
-        return redirect()->route('participantes.index')->with('success', 'Participante registrado exitosamente.');
+    // Guardar las inscripciones en la tabla intermedia
+    foreach ($validated['cursos'] as $curso_id) {
+        $inscripcion = new Inscripcion();
+        $inscripcion->participante_id = $participante->id;
+        $inscripcion->curso_id = $curso_id;
+        $inscripcion->save();
     }
 
+    // Redireccionar con mensaje de éxito
+    return redirect()->route('participantes.index')->with('success', 'Participante registrado exitosamente.');
+}
     /**
      * Eliminar un participante.
      */
@@ -199,4 +188,38 @@ class ParticipanteController extends Controller
         // Pasar datos a la vista
         return view('participantes.index', compact('participantes', 'cursos'));
     }
+
+    public function showDetails($id)
+    {
+        // Obtener el participante por su ID
+        $participante = Participantes::with('cursos')->findOrFail($id);
+
+        // Pasar los datos a la vista
+        return view('participantes.detalles', compact('participante'));
+    }
+
+    public function downloadPdf($id)
+    {
+        // Obtener el participante por su ID
+        $participante = Participantes::with('cursos')->findOrFail($id);
+
+        // Cargar la vista PDF y pasar los datos
+        $pdf = Pdf::loadView('participantes.pdf', compact('participante'));
+
+        // Descargar el PDF
+        return $pdf->download('detalles-participante-' . $participante->NombredelPostulante . '.pdf');
+    }
+
+    public function exportarExcel()
+    {
+        $participantes = Participantes::with('cursos')->get();
+        return Excel::download(new ParticipantesExport($participantes), 'participantes.xlsx');
+    }
+
+    public function exportarCsv()
+    {
+        $participantes = Participantes::with('cursos')->get();
+        return Excel::download(new ParticipantesExport($participantes), 'participantes.csv');
+    }
+
 }

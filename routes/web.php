@@ -102,3 +102,11 @@ Route::get('/registro', [RegistroController::class, 'index'])->name('registro.in
 // Ruta para guardar un nuevo participante
 Route::post('/registro', [RegistroController::class, 'store'])->name('registro.store');
 Route::get('/participantes/filtrar', [ParticipanteController::class, 'filtrar'])->name('participantes.filtrar');
+Route::get('/participantes/{id}/detalles', [ParticipanteController::class, 'showDetails'])->name('participantes.detalles');
+Route::get('/participantes/{id}/descargar-pdf', [ParticipanteController::class, 'downloadPdf'])->name('participantes.descargar-pdf');
+
+Route::get('/exportar-excel', [ParticipanteController::class, 'exportarExcel'])->name('exportar.excel');
+Route::get('/exportar-csv', [ParticipanteController::class, 'exportarCsv'])->name('exportar.csv');
+
+Route::get('/exportar-cursos-excel', [CursoController::class, 'exportarExcel'])->name('exportar.cursos.excel');
+Route::get('/exportar-cursos-csv', [CursoController::class, 'exportarCsv'])->name('exportar.cursos.csv');

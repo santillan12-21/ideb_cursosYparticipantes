@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cursos;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CursosExport;
 
 class CursoController extends Controller
 {
@@ -410,6 +412,18 @@ class CursoController extends Controller
                 ->withInput()
                 ->with('error', 'Hubo un error al actualizar el curso: ' . $e->getMessage());
         }
+    }
+
+    public function exportarExcel()
+    {
+        $cursos = Cursos::all();
+        return Excel::download(new CursosExport($cursos), 'cursos.xlsx');
+    }
+
+    public function exportarCsv()
+    {
+        $cursos = Cursos::all();
+        return Excel::download(new CursosExport($cursos), 'cursos.csv');
     }
 }
 

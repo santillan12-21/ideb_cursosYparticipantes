@@ -1,6 +1,74 @@
 @extends('layouts.app')
 
 @section('content')
+
+<style>
+    .table-container {
+        width: 100%;
+        overflow-x: auto; /* Permite desplazamiento horizontal si el contenido es demasiado ancho */
+        margin: 0 auto; /* Centra el contenedor */
+        padding: 130px;
+        box-sizing: border-box;
+    }
+
+    table {
+        width: 200%;
+        max-width: 1500px; /* Limita el ancho máximo de la tabla */
+        margin: 0 auto; /* Centra la tabla dentro del contenedor */
+        border-collapse: collapse; /* Elimina los bordes adicionales entre celdas */
+        text-align: center; /* Centra el texto dentro de las celdas */
+    }
+
+
+       /* Estilo para el contenedor del tooltip */
+       .search-help {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+            color: #6c757d;
+            cursor: help;
+        }
+
+        .search-help:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .tooltip-text {
+        z-index: 1000; /* Asegura que el tooltip esté encima de otros elementos */
+    }
+
+</style>
+
     <div class="container">
         <!-- Título de la sección -->
         <h3 class="text-center mt-5">Participantes Inscritos</h3>
@@ -51,22 +119,21 @@
                             placeholder="Máximo" value="{{ request('max_costo') }}">
                     </div>
 
-                    <!-- Filtro de busqueda -->
+                    <!-- Filtro de búsqueda -->
                     <div class="form-group mr-3 position-relative">
                         <label for="busqueda" class="mr-2">Búsqueda General:</label>
                         <div class="d-flex align-items-center">
                             <input type="text" name="busqueda" id="busqueda" class="form-control"
                                 placeholder="Buscar por nombre, correo, teléfono, empresa..."
                                 value="{{ request('busqueda') }}">
-                            <div class="ml-2 position-relative"
-                                 data-toggle="tooltip"
-                                 data-placement="right"
-                                 title="Puedes buscar toda la información de la tabla, a excepción de pago y cursos.
-                                    Puedes usar mayúsculas y minúsculas.
-                                    Para regresar a la tabla completa, solo borra lo que escribiste y dale clic a filtrar.
-                                 ">
-                                <i class="fas fa-question-circle text-primary" style="font-size: 1.2rem; cursor: help;"></i>
-                            </div>
+                                <div class="search-help ml-2">
+                                    <i class="fas fa-question-circle text-primary" style="font-size: 1.2rem;"></i>
+                                    <div class="tooltip-text">
+                                        Puedes buscar toda la información de la tabla, a excepción de pago y cursos.
+                                        Puedes usar mayúsculas y minúsculas.
+                                        Para regresar a la tabla completa, solo borra lo que escribiste y dale clic a filtrar.
+                                    </div>
+                                </div>
                         </div>
                     </div>
 
@@ -76,9 +143,14 @@
             </div>
         </div>
 
+        <!-- Botones de Exportación -->
+
+        <a href="{{ route('exportar.excel') }}" class="btn btn-success">Exportar a Excel</a>
+        <a href="{{ route('exportar.csv') }}" class="btn btn-primary">Exportar a CSV</a>
+
         <!-- Contenedor responsivo para la tabla -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover mx-auto" style="width: 100%; max-width: 1200px;">
+        <div class="table-container">
+            <table id="participantesTable" class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
                         <th>N</th>
@@ -130,6 +202,9 @@
                         </td>
                         <!-- Acciones (Editar y Eliminar) -->
                         <td>
+                            <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn btn-sm btn-info" target="_blank">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
                             <!-- Botón Editar -->
                             <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn btn-sm btn-primary">
                                 <i class="fas fa-edit"></i> Editar
@@ -151,7 +226,7 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
+         </div>
     </div>
 
     <!-- Script para Mostrar/Ocultar Filtros -->
@@ -164,12 +239,111 @@
             filtersContainer.style.display = 'none';
         }
     });
-        $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip({
-            html: true,
-            template: '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner text-left"></div></div>'
-        });
-    });
+
+
     </script>
 
+    <!-- DataTables y Exportación -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+
+    <script>
+    $(document).ready(function () {
+        var table = $('#participantesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json'
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Exportar a Excel',
+                    className: 'dt-button buttons-excel',
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: 'Exportar a PDF',
+                    title: 'Lista de Cursos',
+                    className: 'dt-button buttons-pdf',
+                    orientation: 'landscape',
+                    pageSize: 'A4',
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    },
+                    customize: function (doc) {
+                        doc.defaultStyle.fontSize = 8;
+                        doc.styles.tableHeader.fontSize = 10;
+                        doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                        doc.pageMargins = [5, 5, 5, 5];
+                        doc.content[1].table.pageBreak = 'auto';
+                    }
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: 'Exportar a CSV',
+                    className: 'dt-button buttons-csv',
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    }
+                }
+            ],
+            initComplete: function () {
+                $('.dt-buttons').hide();
+                $('.dataTables_filter').append(
+                    '<div class="search-help">' +
+                        '<i class="fas fa-question-circle"></i>' +
+                        '<div class="tooltip-text">' +
+                            '<strong>Búsqueda rápida:</strong><br>' +
+                            '• En todas las columnas<br>' +
+                            '• Búsqueda instantánea<br>' +
+                            '• Acepta múltiples términos<br>' +
+                            '• No distingue mayúsculas<br>' +
+                            '• Compatible con fechas' +
+                        '</div>' +
+                    '</div>'
+                );
+            }
+        });
+
+        // Asocia los botones personalizados con los botones de DataTables
+        $('#exportExcel').on('click', function () {
+            table.button('.buttons-excel').trigger();
+        });
+
+        $('#exportCSV').on('click', function () {
+            table.button('.buttons-csv').trigger();
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+    const helpIcon = document.querySelector('.search-help .fas.fa-question-circle');
+    const tooltip = document.querySelector('.search-help .tooltip-text');
+
+        if (helpIcon && tooltip) {
+            helpIcon.addEventListener('mouseenter', () => {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '1';
+            });
+
+            helpIcon.addEventListener('mouseleave', () => {
+                tooltip.style.visibility = 'hidden';
+                tooltip.style.opacity = '0';
+            });
+        }
+    });
+    </script>
 @endsection

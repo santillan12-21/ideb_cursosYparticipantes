@@ -26,8 +26,9 @@ class RegistroController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar los datos del formulario
-        $validated = $request->validate([
+        dd($request->all());
+        // Validación inicial + validación condicional
+        $rules = [
             'NombredelPostulante' => 'required|string|max:255',
             'Correo' => 'required|email|max:255',
             'Telefono' => 'required|string|max:255',
@@ -35,44 +36,40 @@ class RegistroController extends Controller
             'Direccion' => 'required|string|max:255',
             'Escolaridad' => 'required|string|max:255',
             'Curp' => 'required|string|max:255',
-            'RazónSocial' => 'required|string|max:255',
+            'RazónSocial' => 'nullable|string|max:200',
             'Empresa' => 'required|string|max:255',
-            'RFCEmpresa' => 'required|string|max:255',
+            'RFCEmpresa' => 'nullable|string|max:100',
             'Puesto' => 'required|string|max:255',
-            'Pago' => 'required|string|max:255',
             'EstadoDePago' => 'required|string|max:255',
             'FechadelCurso' => 'required|date',
-            'cursos' => 'required|array',
-        ]);
+            'cursos' => 'required|array|min:1', // IDs de los cursos seleccionados
+        ];
+
+        // Validación condicional para el campo Pago
+        if (in_array($request->EstadoDePago, ['Pagado', 'Anticipo'])) {
+            $rules['Pago'] = ['required', 'regex:/^\d+(\.\d{1,2})?$/']; // Solo números o decimales (ejemplo: 100, 100.50)
+        } else {
+            $rules['Pago'] = 'nullable'; // Pago es opcional
+        }
+
+        // Validar todos los campos
+        $validated = $request->validate($rules);
 
         // Crear el participante
         $participante = new Participantes();
-        $participante->NombredelPostulante = $validated['NombredelPostulante'];
-        $participante->Correo = $validated['Correo'];
-        $participante->Telefono = $validated['Telefono'];
-        $participante->Edad = $validated['Edad'];
-        $participante->Direccion = $validated['Direccion'];
-        $participante->Escolaridad = $validated['Escolaridad'];
-        $participante->Curp = $validated['Curp'];
-        $participante->RazónSocial = $validated['RazónSocial'];
-        $participante->Empresa = $validated['Empresa'];
-        $participante->RFCEmpresa = $validated['RFCEmpresa'];
-        $participante->Puesto = $validated['Puesto'];
-        $participante->Pago = $validated['Pago'];
-        $participante->EstadoDePago = $validated['EstadoDePago'];
-        $participante->FechadelCurso = $validated['FechadelCurso'];
-
+        $participante->fill($validated);
+        $participante->Pago = $request->Pago ?? null; // Guardar null si no se proporciona un valor
         $participante->save();
 
         // Guardar las inscripciones en la tabla intermedia
-        foreach ($validated['cursos'] as $curso_id) {
+        foreach ($request->cursos as $curso_id) {
             $inscripcion = new Inscripcion();
             $inscripcion->participante_id = $participante->id;
             $inscripcion->curso_id = $curso_id;
             $inscripcion->save();
         }
 
-        // Redireccionar a la lista de participantes
-        return redirect()->route('participantes.index')->with('success', 'Participante registrado exitosamente.');
+        // Redireccionar con mensaje de éxito
+        return redirect()->route('registro.index')->with('success', 'Participante registrado exitosamente.');
     }
 }

@@ -291,10 +291,8 @@
         <div class="container-fluid table-container">
             <h2 class="text-center mb-4">Lista de Cursos</h2>
 
-            <div class="mb-3">
-                <button id="exportExcel" class="btn btn-success me-2">Exportar a Excel</button>
-                <button id="exportCSV" class="btn btn-primary me-2">Exportar a CSV</button>
-            </div>
+            <a href="{{ route('exportar.cursos.excel') }}" class="btn btn-success">Exportar a Excel</a>
+            <a href="{{ route('exportar.cursos.csv') }}" class="btn btn-primary">Exportar a CSV</a>
 
             <table id="cursosTable" class="table table-bordered table-striped">
                 <thead class="table-dark">

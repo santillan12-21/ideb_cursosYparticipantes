@@ -5,6 +5,55 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property string|null $N
+ * @property string $NombredelPostulante
+ * @property string $Correo
+ * @property string $Telefono
+ * @property string $Edad
+ * @property string $Direccion
+ * @property string $Escolaridad
+ * @property string $Curp
+ * @property string $RazónSocial
+ * @property string $Empresa
+ * @property string $RFCEmpresa
+ * @property string $Puesto
+ * @property string $Pago
+ * @property string $EstadoDePago
+ * @property string $FechadelCurso
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\cursos> $cursos
+ * @property-read int|null $cursos_count
+ * @property-read \App\Models\TFactory|null $use_factory
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inscripcion> $inscripciones
+ * @property-read int|null $inscripciones_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereCorreo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereCurp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereDireccion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereEdad($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereEmpresa($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereEscolaridad($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereEstadoDePago($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereFechadelCurso($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereN($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereNombredelPostulante($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes wherePago($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes wherePuesto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereRFCEmpresa($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereRazónSocial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereTelefono($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class participantes extends Model
 {
     use HasFactory;
@@ -33,6 +82,15 @@ class participantes extends Model
         'FechadelCurso'
     ];
 
+    public function setEstadoDePagoAttribute($value)
+    {
+        // Si el usuario selecciona "Pendiente" o "Cancelado", asegúrate de que se guarde correctamente
+        if ($value === 'Pendiente' || $value === 'Cancelado') {
+            $this->attributes['EstadoDePago'] = $value;
+        } else {
+            $this->attributes['EstadoDePago'] = 'Pagado'; // Valor predeterminado
+        }
+    }
 
     public function inscripciones()
     {
