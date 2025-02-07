@@ -67,6 +67,7 @@ class ParticipanteController extends Controller
             'Pago' => 'required|numeric',
             'EstadoDePago' => 'required|string|max:255',
             'FechadelCurso' => 'required|date',
+            'cursos' => 'required|array|min:1',
         ]);
 
             \Log::info('Datos validados:', $validated);  // Log para debug
@@ -75,6 +76,9 @@ class ParticipanteController extends Controller
 
         // Actualizar los datos del participante
         $participante->update($validated);
+
+        // Actualizar los cursos asociados al participante
+        $participante->cursos()->sync($validated['cursos']);
 
         // Redireccionar con mensaje de éxito
         return redirect()->route('participantes.index')->with('success', 'Participante actualizado correctamente.');

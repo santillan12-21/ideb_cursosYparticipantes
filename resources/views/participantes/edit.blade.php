@@ -79,7 +79,7 @@
             </div>
             <div class="col-md-4">
                 <label for="Pago" class="form-label">Pago</label>
-                <input type="text" class="form-control" id="Pago" name="Pago" value="{{ old('Pago', $participante->Pago ?: '$0.00') }}">
+                <input type="text" class="form-control" id="Pago" name="Pago" value="{{ old('Pago', $participante->Pago ?: '0.00') }}">
             </div>
             <div class="col-md-4">
                 <label for="FechadelCurso" class="form-label">Fecha del Curso</label>
@@ -131,7 +131,7 @@
             // Manejar cambios en estado de pago
             estadoPagoSelect.addEventListener('change', function () {
                 if (estadoPagoSelect.value === 'Cancelado') {
-                    pagoInput.value = '$0.00';
+                    pagoInput.value = '0.00';
                 }
             });
 
