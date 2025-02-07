@@ -107,12 +107,6 @@
             </div>
         </div>
 
-        <!-- Fecha del Curso -->
-        <div class="mb-3">
-            <label for="FechadelCurso" class="form-label">Fecha del Curso</label>
-            <input type="date" class="form-control" id="FechadelCurso" name="FechadelCurso" required>
-        </div>
-
         <!-- Selección de cursos -->
         <div class="mb-3">
             <label for="cursos" class="form-label">Selecciona los cursos en los que deseas inscribirte:</label>
@@ -124,6 +118,11 @@
                     </option>
                 @endforeach
             </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="FechadeInicioDisplay" class="form-label">Fecha de Inicio del Curso</label>
+            <input type="text" class="form-control" id="FechadeInicioDisplay" readonly>
         </div>
 
         <!-- Botón de envío -->
@@ -144,15 +143,21 @@
     }
 
 
-    function updateCourseDetails() {
-        const cursos = document.getElementById('cursos');
-        const fechaDisplay = document.getElementById('FechadeInicioDisplay');
+    // Previous autocomplete and other scripts remain the same
+    $(function () {
+        const puestos = [
+            // ... (lista de puestos anterior)
+        ];
 
-        const selectedOption = cursos.selectedOptions[0];
-        const fecha = selectedOption.getAttribute('data-fecha');
-
-        fechaDisplay.value = fecha;
-    }
+        $("#Puesto").autocomplete({
+            source: puestos,
+            minLength: 1,
+            select: function (event, ui) {
+                $("#Puesto").val(ui.item.value);
+                return false;
+            }
+        });
+    });
 
     // Autocompletado para el campo "Puesto"
     $(function () {
