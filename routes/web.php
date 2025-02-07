@@ -110,3 +110,5 @@ Route::get('/exportar-csv', [ParticipanteController::class, 'exportarCsv'])->nam
 
 Route::get('/exportar-cursos-excel', [CursoController::class, 'exportarExcel'])->name('exportar.cursos.excel');
 Route::get('/exportar-cursos-csv', [CursoController::class, 'exportarCsv'])->name('exportar.cursos.csv');
+
+Route::get('/cursos/{id}/fecha-inicio', [CursoController::class, 'getFechaInicio'])->name('cursos.fecha-inicio');

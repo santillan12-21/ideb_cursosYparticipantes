@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $Nomenclatura
@@ -165,6 +165,13 @@ class cursos extends Model
     {
         return $this->hasMany(Inscripcion::class, 'participante_id');
     }
+
+    public function getFechaInicio($id)
+    {
+        $curso = Cursos::findOrFail($id);
+        return response()->json(['fecha_inicio' => $curso->FechadeInicio]);
+    }
+
     public function participantes()
     {
         return $this->belongsToMany(

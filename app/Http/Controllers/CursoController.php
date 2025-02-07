@@ -425,5 +425,11 @@ class CursoController extends Controller
         $cursos = Cursos::all();
         return Excel::download(new CursosExport($cursos), 'cursos.csv');
     }
+
+    public function getFechaInicio($id)
+    {
+        $curso = Cursos::findOrFail($id);
+        return response()->json(['fecha_inicio' => $curso->FechadeInicio]);
+    }
 }
 

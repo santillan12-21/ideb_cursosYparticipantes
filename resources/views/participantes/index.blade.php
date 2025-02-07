@@ -188,7 +188,12 @@
                         <td>{{ $participante->Empresa }}</td>
                         <td>{{ $participante->RFCEmpresa }}</td>
                         <td>{{ $participante->Puesto }}</td>
-                        <td>${{ number_format($participante->Pago, 2) }}</td>
+                        <td>
+                            @php
+                                $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;
+                            @endphp
+                            ${{ number_format($pago, 2) }}
+                        </td>
                         <td>{{ $participante->EstadoDePago }}</td>
                         <td>{{ $participante->FechadelCurso }}</td>
                         <td>

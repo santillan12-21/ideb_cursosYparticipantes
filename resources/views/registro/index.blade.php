@@ -1,22 +1,24 @@
 @extends('layouts.app') <!-- Asegúrate de tener un layout base -->
-@section('content')
 
+@section('content')
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <!-- jQuery UI -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
 <div class="container">
+    <!-- Mostrar mensajes de error -->
     @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <h2>Registrar Nuevo Participante</h2>
     <form action="{{ route('registro.store') }}" method="POST">
         @csrf <!-- Token CSRF para protección contra ataques -->
@@ -83,23 +85,22 @@
 
         <!-- Puesto -->
         <div class="mb-3">
-            <label for="Puesto" class="form-label">Area en el que trabaja</label>
+            <label for="Puesto" class="form-label">Área en el que trabaja</label>
             <input type="text" class="form-control" id="Puesto" name="Puesto" placeholder="Escribe el puesto..." required>
         </div>
 
         <!-- Estado de Pago -->
         <div class="mb-3">
-            <label for="EstadoDePago" class="form-label">Estado de Pago</label>
+            <label for="EstadoDePago" class="form-label">Como desea pagar</label>
             <select class="form-select" id="EstadoDePago" name="EstadoDePago" required onchange="togglePagoField()">
                 <option value="" disabled selected>Opciones de Pago</option>
-                <option value="Pagado">Pagado</option>
-                <option value="Pendiente">Pendiente</option>
+                <option value="Pagado">Pagar haora</option>
+                <option value="Pendiente">Pagar</option>
                 <option value="Anticipo">Anticipo</option>
-                <option value="Cancelado">Cancelado</option>
             </select>
         </div>
 
-        <!-- Pago -->
+        <!-- Pago (mostrado u oculto según el estado de pago) -->
         <div id="pagoFieldContainer" style="display: none;">
             <div class="mb-3">
                 <label for="Pago" class="form-label">Pago</label>
@@ -107,20 +108,22 @@
             </div>
         </div>
 
-        <!-- Fecha del Curso -->
-        <div class="mb-3">
-            <label for="FechadelCurso" class="form-label">Fecha del Curso</label>
-            <input type="date" class="form-control" id="FechadelCurso" name="FechadelCurso" required>
-        </div>
-
-        <!-- Selección de cursos -->
         <div class="mb-3">
             <label for="cursos" class="form-label">Selecciona los cursos en los que deseas inscribirte:</label>
-            <select class="form-select" id="cursos" name="cursos[]" multiple required>
+            <select class="form-select" id="cursos" name="cursos[]" multiple required onchange="updateCourseDetails()">
                 @foreach ($cursos as $curso)
-                    <option value="{{ $curso->id }}">{{ $curso->NombredelCurso }}</option>
+                    <option value="{{ $curso->id }}"
+                            data-fecha="{{ $curso->FechadeInicio }}">
+                        {{ $curso->NombredelCurso }} (Inicio: {{ $curso->FechadeInicio }})
+                    </option>
                 @endforeach
             </select>
+        </div>
+
+        <!-- Información de la Fecha de Inicio (solo lectura) -->
+        <div class="mb-3">
+            <label for="FechadeInicioDisplay" class="form-label">Fecha de Inicio del Curso</label>
+            <input type="text" class="form-control" id="FechadeInicioDisplay" readonly>
         </div>
 
         <!-- Botón de envío -->
@@ -130,6 +133,17 @@
 
 <script>
 
+    function updateCourseDetails() {
+        const cursos = document.getElementById('cursos');
+        const fechaDisplay = document.getElementById('FechadeInicioDisplay');
+
+        const selectedOption = cursos.selectedOptions[0];
+        const fecha = selectedOption.getAttribute('data-fecha');
+
+        fechaDisplay.value = fecha;
+    }
+
+    // Autocompletado para el campo "Puesto"
     $(function () {
         const puestos = [
             "Agricultura y silvicultura", "Ganadería", "Pesca y acuacultura",
@@ -138,15 +152,18 @@
             "Mecánica", "Electricidad", "Electrónica", "Informática", "Telecomunicaciones", "Procesos industriales",
             "Minerales no metálicos", "HCM",
             "Ferroviario", "Autotransporte", "Aéreo", "Marítimo y fluvial", "Servicios de apoyo",
-            "Comercio", "Alimentación y hospedaje", "Turismo", "Deporte y esparcimiento", "Servicios personales", "Reparación de artículos de uso doméstico y personal", "Limpieza", "Servicio postal y mensajería",
+            "Comercio", "Alimentación y hospedaje", "Turismo", "Deporte y esparcimiento", "Servicios personales",
+            "Reparación de artículos de uso doméstico y personal", "Limpieza", "Servicio postal y mensajería",
             "Bolsa, banca y seguros", "Administración", "Servicios legales",
-            "Servicios médicos", "Inspección sanitaria y del medio ambiente", "Seguridad social", "Protección de bienes y/o personas",
-            "Minerales no metálicos", "Metales", "Alimentos y bebidas", "Textiles y prendas de vestir", "Materia orgánica", "Productos químicos", "Productos metálicos y de hule y plástico", "Productos eléctricos y electrónicos", "Productos impresos",
-            "Publicación", "Radio, cine, televisión y teatro", "Interpretación artística", "Traducción e interpretación lingüística", "Publicidad, propaganda y relaciones públicas",
+            "Servicios médicos", "Inspección sanitaria y del medio ambiente", "Seguridad social",
+            "Protección de bienes y/o personas",
+            "Minerales no metálicos", "Metales", "Alimentos y bebidas", "Textiles y prendas de vestir",
+            "Materia orgánica", "Productos químicos", "Productos metálicos y de hule y plástico",
+            "Productos eléctricos y electrónicos", "Productos impresos",
+            "Publicación", "Radio, cine, televisión y teatro", "Interpretación artística",
+            "Traducción e interpretación lingüística", "Publicidad, propaganda y relaciones públicas",
             "Investigación", "Enseñanza", "Difusión cultural",
-
         ];
-
         $("#Puesto").autocomplete({
             source: puestos,
             minLength: 1, // Mínimo de caracteres antes de mostrar sugerencias
@@ -158,14 +175,10 @@
         });
     });
 
+    // Función para mostrar/ocultar el campo "Pago"
     function togglePagoField() {
-        // Obtener el valor seleccionado en el campo EstadoDePago
         const estadoPago = document.getElementById('EstadoDePago').value;
-
-        // Obtener el contenedor del campo Pago
         const pagoFieldContainer = document.getElementById('pagoFieldContainer');
-
-        // Mostrar u ocultar el campo Pago según la selección
         if (estadoPago === 'Pagado' || estadoPago === 'Anticipo') {
             pagoFieldContainer.style.display = 'block'; // Mostrar el campo
             document.getElementById('Pago').setAttribute('required', true); // Hacerlo obligatorio

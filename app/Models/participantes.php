@@ -97,6 +97,17 @@ class participantes extends Model
         return $this->hasMany(Inscripcion::class, 'participante_id');
     }
 
+    public function getPagoAttribute($value)
+    {
+        return $value ?? '';
+    }
+
+    public function getEstadoDePagoAttribute($value)
+    {
+        return $value ?? 'Pago Pendiente';
+    }
+
+
     public function cursos()
     {
         return $this->belongsToMany(
