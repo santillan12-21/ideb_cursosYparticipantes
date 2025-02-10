@@ -17,7 +17,10 @@
             <p><strong>Empresa:</strong> {{ $participante->Empresa }}</p>
             <p><strong>RFC Empresa:</strong> {{ $participante->RFCEmpresa }}</p>
             <p><strong>Puesto:</strong> {{ $participante->Puesto }}</p>
-            <p><strong>Pago:</strong> ${{ number_format($participante->Pago, 2) }}</p>
+            <p><strong>Pago:</strong> @php
+                $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;
+            @endphp
+            ${{ number_format($pago, 2) }}</p>
             <p><strong>Estado de Pago:</strong> {{ $participante->EstadoDePago }}</p>
             <p><strong>Fecha del Curso:</strong> {{ $participante->FechadelCurso }}</p>
             <p><strong>Cursos Inscritos:</strong></p>
