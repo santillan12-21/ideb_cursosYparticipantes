@@ -11,6 +11,9 @@ use App\Http\Controllers\RegistroController;
 use App\Models\cursos;
 use App\Http\Controllers\ConfigController;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+
 
 //Rutas de inicio de sesion:
 Route::get('/login', function () {
@@ -114,3 +117,8 @@ Route::get('/exportar-cursos-excel', [CursoController::class, 'exportarExcel'])-
 Route::get('/exportar-cursos-csv', [CursoController::class, 'exportarCsv'])->name('exportar.cursos.csv');
 
 Route::get('/cursos/{id}/fecha-inicio', [CursoController::class, 'getFechaInicio'])->name('cursos.fecha-inicio');
+
+Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
