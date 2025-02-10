@@ -60,7 +60,8 @@
         <!-- CURP -->
         <div class="mb-3">
             <label for="Curp" class="form-label">CURP</label>
-            <input type="text" class="form-control" id="Curp" name="Curp" required>
+            <input type="text" class="form-control" id="Curp" name="Curp" required oninput="validarCURP(this)">
+            <small id="curpError" class="text-danger" style="display: none;">La CURP debe tener 18 caracteres.</small>
         </div>
 
         <!-- Razón Social -->
@@ -203,5 +204,18 @@
             document.getElementById('Pago').removeAttribute('required'); // Hacerlo opcional
         }
     }
+
+        function validarCURP(input) {
+            const curp = input.value;
+            const curpError = document.getElementById('curpError');
+
+            if (curp.length !== 18) {
+                input.style.borderColor = 'red'; // Cambia el borde a rojo
+                curpError.style.display = 'block'; // Muestra el mensaje de error
+            } else {
+                input.style.borderColor = ''; // Restablece el color del borde
+                curpError.style.display = 'none'; // Oculta el mensaje de error
+            }
+        }
 </script>
 @endsection
