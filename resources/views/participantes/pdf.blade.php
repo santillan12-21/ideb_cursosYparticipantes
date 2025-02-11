@@ -167,7 +167,10 @@
             <p class="info-text"><span class="info-title">Empresa:</span> {{ $participante->Empresa }}</p>
             <p class="info-text"><span class="info-title">RFC Empresa:</span> {{ $participante->RFCEmpresa }}</p>
             <p class="info-text"><span class="info-title">Puesto:</span> {{ $participante->Puesto }}</p>
-            <p class="info-text"><span class="info-title">Pago:</span> ${{ number_format($participante->Pago, 2) }}</p>
+            @php
+                                $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;
+                            @endphp
+                            ${{ number_format($pago, 2) }},
             <p class="info-text"><span class="info-title">Estado de Pago:</span> {{ $participante->EstadoDePago }}</p>
             <p class="info-text"><span class="info-title">Fecha del Curso:</span> {{ \Carbon\Carbon::parse($participante->FechadelCurso)->format('d/m/Y') }}</p>
         </div>

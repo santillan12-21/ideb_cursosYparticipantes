@@ -58,7 +58,7 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping, 
             $participantes->Empresa,
             $participantes->RFCEmpresa,
             $participantes->Puesto,
-            '$' . number_format($participantes->Pago, 2),
+            '$' . number_format((!empty($participantes->Pago) && is_numeric($participantes->Pago)) ? floatval($participantes->Pago) : 0, 2),
             $participantes->EstadoDePago,
             $participantes->FechadelCurso,
             $participantes->cursos->isEmpty() ? 'No hay cursos inscritos' : $participantes->cursos->map(function ($curso) {
