@@ -198,8 +198,7 @@
         </button>
       </div>
       <div class="modal-body">
-        ¡Tu contraseña ha sido restablecida con éxito!, regresando a la pantalla de inicio.
-      </div>
+        ¡Tu contraseña ha sido restablecida con éxito!. Regresando al login.
     </div>
   </div>
 </div>
@@ -242,7 +241,7 @@
 
             // Ocultar el spinner de carga
             document.getElementById('loadingOverlay').style.display = 'none';
-
+<
             // Verificar si la respuesta es exitosa
             if (response.ok) {
                 // Mostrar el modal de éxito
