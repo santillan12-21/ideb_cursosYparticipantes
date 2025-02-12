@@ -68,12 +68,34 @@
             text-align: center; /* Centrar el enlace */
             margin-bottom: 20px; /* Espacio entre el enlace y el botón */
         }
+        .alert-danger {
+            border-radius: 8px;
+            padding: 12px;
+            background-color: #fff2f2;
+            color: #d63031;
+            margin-bottom: 20px;
+            border: 1px solid #ffcccc;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <!-- Imagen centrada -->
         <img src="{{ asset('images/logo.png') }}" alt="Logo" class="mx-auto d-block">
+
+        <!-- Mostrar errores de autenticación -->
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @if ($errors->has('email'))
+                        <li>{{ $errors->first('email') }}</li>
+                    @endif
+                    @if ($errors->has('password'))
+                        <li>{{ $errors->first('password') }}</li>
+                    @endif
+                </ul>
+            </div>
+        @endif
 
         <form method="POST" action="{{ route('login') }}" autocomplete="off">
             @csrf
@@ -84,6 +106,9 @@
             <!-- Campo de correo electrónico -->
             <div class="mb-4">
                 <input type="email" name="email" class="form-control" placeholder="Correo electrónico" required autofocus autocomplete="off" value="{{ old('email') }}">
+                @if ($errors->has('email'))
+                    <small class="text-danger">{{ $errors->first('email') }}</small>
+                @endif
             </div>
 
             <!-- Campo de contraseña -->
@@ -92,6 +117,9 @@
                 <button type="button" onclick="togglePassword()">
                     <i id="toggleIcon" class="bi bi-eye-slash"></i> <!-- Ícono inicial: ojo cerrado -->
                 </button>
+                @if ($errors->has('password'))
+                    <small class="text-danger">{{ $errors->first('password') }}</small>
+                @endif
             </div>
 
             <!-- Enlace para recuperar contraseña -->
