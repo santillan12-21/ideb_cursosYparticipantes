@@ -6,7 +6,7 @@
 <body>
     <h1>Notificación de Cambio de Contraseña</h1>
     <p>Hola Administrador,</p>
-    <p>La contraseña del usuario ha sido restablecida exitosamente.</p>
+    <p>Un usuario a cambiado su contraseña.</p>
     <p>Detalles:</p>
     <ul>
         <li><strong>Email del Usuario:</strong> {{ $user->email }}</li>

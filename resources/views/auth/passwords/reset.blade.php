@@ -107,6 +107,27 @@
         .password-toggle button:hover {
             color: #0d6efd;
         }
+
+        /* Estilos para el overlay de carga */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none; /* Oculto por defecto */
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
         @media (max-width: 576px) {
             .reset-container {
                 margin: 15px;
@@ -133,15 +154,7 @@
             </ul>
         </div>
     @endif
-    @if (session('status'))
-        <script>
-            // Mostrar ventana emergente cuando la contraseña es restablecida con éxito
-            $(document).ready(function() {
-                $('#statusModal').modal('show');
-            });
-        </script>
-    @endif
-    <form action="{{ route('password.update') }}" method="POST">
+    <form id="resetPasswordForm">
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
         <input type="hidden" name="email" value="{{ $email }}">
@@ -159,16 +172,21 @@
         <div class="form-group password-toggle">
             <label for="password_confirmation">Confirmar Nueva Contraseña</label>
             <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
-            <button type="button" onclick="togglePassword('password_confirmation', 'toggleIcon2')">
-                <i id="toggleIcon2" class="bi bi-eye-slash"></i>
-            </button>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Restablecer Contraseña</button>
+        <button type="submit" class="btn btn-primary btn-block" id="submitButton">Restablecer Contraseña</button>
     </form>
     <p class="text-center mt-3">
         <a href="{{ url('/login') }}">Regresar al inicio de sesión</a>
     </p>
 </div>
+
+<!-- Overlay de carga -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
+    </div>
+</div>
+
 <!-- Modal de estado -->
 <div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -180,14 +198,12 @@
         </button>
       </div>
       <div class="modal-body">
-        ¡Tu contraseña ha sido restablecida con éxito!
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url('/login') }}'">Iniciar sesión</button>
+        ¡Tu contraseña ha sido restablecida con éxito!, regresando a la pantalla de inicio.
       </div>
     </div>
   </div>
 </div>
+
 <script>
     // Función para alternar la visibilidad de la contraseña
     function togglePassword(fieldId, iconId) {
@@ -203,6 +219,57 @@
             toggleIcon.classList.add('bi-eye-slash');    // Agregar ojo cerrado
         }
     }
+
+    // Manejar el envío del formulario
+    document.getElementById('resetPasswordForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Evitar el envío predeterminado
+
+        // Mostrar el spinner de carga
+        document.getElementById('loadingOverlay').style.display = 'flex';
+
+        // Obtener los datos del formulario
+        const formData = new FormData(this);
+
+        try {
+            // Enviar la solicitud POST
+            const response = await fetch("{{ route('password.update') }}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                }
+            });
+
+            // Ocultar el spinner de carga
+            document.getElementById('loadingOverlay').style.display = 'none';
+
+            // Verificar si la respuesta es exitosa
+            if (response.ok) {
+                // Mostrar el modal de éxito
+                $('#statusModal').modal('show');
+
+                // Redirigir al login después de 3 segundos
+                setTimeout(() => {
+                    window.location.href = "{{ url('/login') }}";
+                }, 3000);
+            } else {
+                // Mostrar errores si la respuesta no es exitosa
+                const data = await response.json();
+                if (data.errors) {
+                    let errorHtml = '<ul>';
+                    for (const error of Object.values(data.errors)) {
+                        errorHtml += `<li>${error}</li>`;
+                    }
+                    errorHtml += '</ul>';
+                    document.querySelector('.alert-danger').innerHTML = errorHtml;
+                    document.querySelector('.alert-danger').style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    });
 </script>
 </body>
 </html>

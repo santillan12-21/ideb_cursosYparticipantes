@@ -50,7 +50,7 @@ class ResetPasswordController extends Controller
 
         // Obtener la IP y la hora actual
         $ip = $request->ip();
-        $time = now();
+        $time = Carbon::now()->setTimezone('America/Mexico_City')->toDateTimeString(); // Fecha y hora en tu zona horaria
 
         // Enviar el correo al administrador
         $adminEmail = '2123200418@soy.utj.edu.mx'; // Reemplaza con el correo del administrador

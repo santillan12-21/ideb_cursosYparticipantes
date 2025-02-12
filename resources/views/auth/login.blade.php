@@ -64,6 +64,10 @@
             font-size: 1.1em; /* Texto más grande en los campos */
             padding: 12px; /* Más espacio dentro de los campos */
         }
+        .forgot-password-link {
+            text-align: center; /* Centrar el enlace */
+            margin-bottom: 20px; /* Espacio entre el enlace y el botón */
+        }
     </style>
 </head>
 <body>

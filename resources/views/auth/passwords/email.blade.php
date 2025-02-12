@@ -103,6 +103,26 @@
             padding-left: 20px;
         }
 
+        /* Estilos para el overlay de carga */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none; /* Oculto por defecto */
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
         @media (max-width: 576px) {
             .login-container {
                 margin: 15px;
@@ -142,17 +162,24 @@
         </script>
     @endif
 
-    <form action="{{ route('password.email') }}" method="POST">
+    <form action="{{ route('password.email') }}" method="POST" id="resetPasswordForm">
         @csrf
         <div class="form-group">
             <label for="email">Correo Electrónico</label>
             <input type="email" class="form-control" id="email" name="email" required autofocus>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Enviar Enlace de Restablecimiento</button>
+        <button type="submit" class="btn btn-primary btn-block" id="submitButton">Enviar Enlace de Restablecimiento</button>
     </form>
     <p class="text-center mt-3">
         <a href="{{ url('/login') }}">Regresar al inicio de sesión</a>
     </p>
+</div>
+
+<!-- Overlay de carga -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
+    </div>
 </div>
 
 <!-- Modal de estado -->
@@ -175,9 +202,17 @@
   </div>
 </div>
 
-<script src="//code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="//stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Mostrar el spinner cuando se envíe el formulario
+    document.getElementById('resetPasswordForm').addEventListener('submit', function() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    });
+
+    // Ocultar el spinner si hay un error en el formulario
+    @if ($errors->any())
+        document.getElementById('loadingOverlay').style.display = 'none';
+    @endif
+</script>
 
 </body>
 </html>
