@@ -119,11 +119,13 @@ Route::get('/exportar-cursos-csv', [CursoController::class, 'exportarCsv'])->nam
 
 Route::get('/cursos/{id}/fecha-inicio', [CursoController::class, 'getFechaInicio'])->name('cursos.fecha-inicio');
 
-// Mostrar formulario para solicitar enlace de restablecimiento
-Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+// Ruta para mostrar el formulario de solicitud de restablecimiento de contraseña (GET)
+Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->name('password.request');
 
-// Enviar enlace de restablecimiento
-Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+// Ruta para procesar el envío del enlace de restablecimiento (POST)
+Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->name('password.email');
 
 // Mostrar formulario de restablecimiento de contraseña
 Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');

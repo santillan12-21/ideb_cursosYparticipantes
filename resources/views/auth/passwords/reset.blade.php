@@ -1,65 +1,208 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Reset Password') }}</div>
-
-                <div class="card-body">
-                    <form method="POST" action="{{ route('password.update') }}">
-                        @csrf
-
-                        <input type="hidden" name="token" value="{{ $token }}">
-
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus>
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="password-confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
-                            </div>
-                        </div>
-
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Reset Password') }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restablecer Contraseña</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"> <!-- Bootstrap Icons -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        :root {
+            --primary-gray: #333333;
+            --secondary-gray: #666666;
+            --light-gray: #f5f5f5;
+            --hover-gray: #444444;
+        }
+        body {
+            background-color: var(--light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .reset-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+            margin: 20px;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+            width: 100%;
+            object-fit: contain;
+        }
+        .form-group label {
+            font-weight: 500;
+            color: var(--primary-gray);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .form-control {
+            border: 1px solid #e1e1e1;
+            border-radius: 6px;
+            padding: 10px 12px;
+            height: auto;
+            font-size: 0.95rem;
+        }
+        .form-control:focus {
+            border-color: var(--secondary-gray);
+            box-shadow: 0 0 0 0.2rem rgba(102, 102, 102, 0.15);
+        }
+        .btn-primary {
+            background-color: var(--primary-gray);
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-top: 20px;
+            transition: background-color 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: var(--hover-gray);
+        }
+        h2 {
+            color: var(--primary-gray);
+            font-weight: 600;
+            margin-bottom: 30px;
+            font-size: 1.75rem;
+        }
+        .alert-danger {
+            border-radius: 6px;
+            border: none;
+            background-color: #fff2f2;
+            color: #d63031;
+            font-size: 0.9rem;
+            padding: 12px 15px;
+        }
+        .alert-danger ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+        .password-toggle {
+            position: relative;
+        }
+        .password-toggle button {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-size: 1.4em; /* Ícono más grande */
+            cursor: pointer;
+        }
+        .password-toggle button:hover {
+            color: #0d6efd;
+        }
+        @media (max-width: 576px) {
+            .reset-container {
+                margin: 15px;
+                padding: 25px;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="reset-container">
+    <div class="logo-container">
+        <img src="https://www.idebmexico.com/imagenes/cropped-I-DEB-Negro.png" alt="Logo" class="logo">
     </div>
+    <h2 class="text-center">Restablecer Contraseña</h2>
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    @if (session('status'))
+        <script>
+            // Mostrar ventana emergente cuando la contraseña es restablecida con éxito
+            $(document).ready(function() {
+                $('#statusModal').modal('show');
+            });
+        </script>
+    @endif
+    <form action="{{ route('password.update') }}" method="POST">
+        @csrf
+        <input type="hidden" name="token" value="{{ $token }}">
+        <input type="hidden" name="email" value="{{ $email }}">
+        <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $email) }}" required autofocus>
+        </div>
+        <div class="form-group password-toggle">
+            <label for="password">Nueva Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+            <button type="button" onclick="togglePassword('password', 'toggleIcon1')">
+                <i id="toggleIcon1" class="bi bi-eye-slash"></i>
+            </button>
+        </div>
+        <div class="form-group password-toggle">
+            <label for="password_confirmation">Confirmar Nueva Contraseña</label>
+            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+            <button type="button" onclick="togglePassword('password_confirmation', 'toggleIcon2')">
+                <i id="toggleIcon2" class="bi bi-eye-slash"></i>
+            </button>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Restablecer Contraseña</button>
+    </form>
+    <p class="text-center mt-3">
+        <a href="{{ url('/login') }}">Regresar al inicio de sesión</a>
+    </p>
 </div>
-@endsection
+<!-- Modal de estado -->
+<div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Contraseña Restablecida</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ¡Tu contraseña ha sido restablecida con éxito!
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url('/login') }}'">Iniciar sesión</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    // Función para alternar la visibilidad de la contraseña
+    function togglePassword(fieldId, iconId) {
+        const passwordField = document.getElementById(fieldId);
+        const toggleIcon = document.getElementById(iconId);
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text'; // Mostrar contraseña
+            toggleIcon.classList.remove('bi-eye-slash'); // Remover ojo cerrado
+            toggleIcon.classList.add('bi-eye');         // Agregar ojo abierto
+        } else {
+            passwordField.type = 'password'; // Ocultar contraseña
+            toggleIcon.classList.remove('bi-eye');       // Remover ojo abierto
+            toggleIcon.classList.add('bi-eye-slash');    // Agregar ojo cerrado
+        }
+    }
+</script>
+</body>
+</html>

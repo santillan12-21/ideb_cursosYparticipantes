@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Auth;
 
+use  Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -10,6 +11,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PasswordChangedAdminNotification;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Password;
 
 class ResetPasswordController extends Controller
 {
@@ -51,7 +53,7 @@ class ResetPasswordController extends Controller
         $time = now();
 
         // Enviar el correo al administrador
-        $adminEmail = 'admin@ejemplo.com'; // Reemplaza con el correo del administrador
+        $adminEmail = '2123200418@soy.utj.edu.mx'; // Reemplaza con el correo del administrador
         Mail::to($adminEmail)->send(new PasswordChangedAdminNotification($user, $time, $ip));
 
         // Eliminar el registro del token
@@ -59,5 +61,9 @@ class ResetPasswordController extends Controller
 
         // Redirigir al usuario con un mensaje de éxito
         return redirect()->route('login')->with('status', 'Tu contraseña ha sido restablecida con éxito.');
+    }
+    protected function redirectTo()
+    {
+        return route('login');
     }
 }
