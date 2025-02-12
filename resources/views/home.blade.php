@@ -178,6 +178,9 @@
         <a href="/participantes">Participantes</a>
         <a href="/registro">Registro de curso</a>
         <a href="{{ route('ruta.archivos') }}">Ruta archivos</a>
+        <a href="https://drive.google.com/drive/folders/1HRJ_UliysPgzUOm1_XvcLR4MSuAjdODD?usp=sharing" target="_blank" class="drive-link">
+            <i class="fab fa-google-drive"></i> Carpeta de Drive
+        </a>
         <a href="/export-db">Exportar Base de Datos</a>
 
         <!-- Nuevo enlace para importar base de datos -->

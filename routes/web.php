@@ -134,10 +134,9 @@ Route::get('password/reset/{token}', [ResetPasswordController::class, 'showReset
 Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 
-//Ruta archivos
 Route::prefix('archivos')->group(function () {
     // Ruta principal
-    Route::get('/ruta-archivos', [ArchivosController::class, 'index'])->name('ruta.archivos');
+    Route::get('/', [ArchivosController::class, 'index'])->name('ruta.archivos');
 
     // Operaciones con archivos
     Route::post('/upload', [ArchivosController::class, 'upload'])->name('archivos.upload');
@@ -146,14 +145,20 @@ Route::prefix('archivos')->group(function () {
 
     // Operaciones con carpetas
     Route::post('/create-folder', [ArchivosController::class, 'createFolder'])->name('archivos.create-folder');
-    Route::delete('/delete-folder/{carpeta}', [ArchivosController::class, 'deleteFolder'])->name('archivos.delete-folder');
+    Route::delete('/delete-folder/{carpeta}', [ArchivosController::class, 'deleteFolder'])
+        ->where('carpeta', '.*') // Permite cualquier carácter
+        ->name('archivos.delete-folder');
 
     // Operaciones dentro de una carpeta específica
     Route::get('/open-folder/{carpeta?}', [ArchivosController::class, 'openFolder'])
-    ->where('carpeta', '.*')
-    ->name('archivos.open-folder');
-    Route::post('/upload-to-folder/{carpeta}', [ArchivosController::class, 'uploadToFolder'])->name('archivos.upload-to-folder');
-    Route::post('/create-subfolder/{carpeta}', [ArchivosController::class, 'createSubfolder'])->name('archivos.create-subfolder');
+        ->where('carpeta', '.*') // Permite cualquier carácter
+        ->name('archivos.open-folder');
+    Route::post('/upload-to-folder/{carpeta}', [ArchivosController::class, 'uploadToFolder'])
+        ->where('carpeta', '.*') // Permite cualquier carácter
+        ->name('archivos.upload-to-folder');
+    Route::post('/create-subfolder/{carpeta}', [ArchivosController::class, 'createSubfolder'])
+        ->where('carpeta', '.*') // Permite cualquier carácter
+        ->name('archivos.create-subfolder');
     Route::get('/download-from-folder/{carpeta}/{archivo}', [ArchivosController::class, 'downloadFromFolder'])
         ->where('carpeta', '.*') // Permite cualquier carácter
         ->where('archivo', '.*') // Permite cualquier carácter

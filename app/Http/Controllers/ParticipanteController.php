@@ -10,6 +10,7 @@ use App\Models\Inscripcion;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParticipantesExport;
+use Illuminate\Support\Facades\Log;
 
 class ParticipanteController extends Controller
 {
@@ -70,7 +71,7 @@ class ParticipanteController extends Controller
             'cursos' => 'required|array|min:1',
         ]);
 
-            \Log::info('Datos validados:', $validated);  // Log para debug
+            Log::info('Datos validados:', $validated);  // Log para debug
 
             $participante = Participantes::findOrFail($id);
 
