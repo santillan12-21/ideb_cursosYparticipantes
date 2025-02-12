@@ -13,6 +13,7 @@ use App\Http\Controllers\ConfigController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\ArchivosController;
 
 
 //Rutas de inicio de sesion:
@@ -118,7 +119,45 @@ Route::get('/exportar-cursos-csv', [CursoController::class, 'exportarCsv'])->nam
 
 Route::get('/cursos/{id}/fecha-inicio', [CursoController::class, 'getFechaInicio'])->name('cursos.fecha-inicio');
 
-Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+// Mostrar formulario para solicitar enlace de restablecimiento
+Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+
+// Enviar enlace de restablecimiento
+Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+// Mostrar formulario de restablecimiento de contraseña
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+
+// Procesar el restablecimiento de contraseña
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+
+//Ruta archivos
+Route::prefix('archivos')->group(function () {
+    // Ruta principal
+    Route::get('/ruta-archivos', [ArchivosController::class, 'index'])->name('ruta.archivos');
+
+    // Operaciones con archivos
+    Route::post('/upload', [ArchivosController::class, 'upload'])->name('archivos.upload');
+    Route::get('/download/{archivo}', [ArchivosController::class, 'download'])->name('archivos.download');
+    Route::delete('/delete/{archivo}', [ArchivosController::class, 'delete'])->name('archivos.delete');
+
+    // Operaciones con carpetas
+    Route::post('/create-folder', [ArchivosController::class, 'createFolder'])->name('archivos.create-folder');
+    Route::delete('/delete-folder/{carpeta}', [ArchivosController::class, 'deleteFolder'])->name('archivos.delete-folder');
+
+    // Operaciones dentro de una carpeta específica
+    Route::get('/open-folder/{carpeta?}', [ArchivosController::class, 'openFolder'])
+    ->where('carpeta', '.*')
+    ->name('archivos.open-folder');
+    Route::post('/upload-to-folder/{carpeta}', [ArchivosController::class, 'uploadToFolder'])->name('archivos.upload-to-folder');
+    Route::post('/create-subfolder/{carpeta}', [ArchivosController::class, 'createSubfolder'])->name('archivos.create-subfolder');
+    Route::get('/download-from-folder/{carpeta}/{archivo}', [ArchivosController::class, 'downloadFromFolder'])
+        ->where('carpeta', '.*') // Permite cualquier carácter
+        ->where('archivo', '.*') // Permite cualquier carácter
+        ->name('archivos.download-from-folder');
+    Route::delete('/delete-from-folder/{carpeta}/{archivo}', [ArchivosController::class, 'deleteFromFolder'])
+        ->where('carpeta', '.*') // Permite cualquier carácter
+        ->where('archivo', '.*') // Permite cualquier carácter
+        ->name('archivos.delete-from-folder');
+});

@@ -177,7 +177,7 @@
         <a href="/cursos">Cursos</a>
         <a href="/participantes">Participantes</a>
         <a href="/registro">Registro de curso</a>
-        <a href="/">Ruta archivos</a>
+        <a href="{{ route('ruta.archivos') }}">Ruta archivos</a>
         <a href="/export-db">Exportar Base de Datos</a>
 
         <!-- Nuevo enlace para importar base de datos -->
