@@ -445,6 +445,8 @@
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json'
             },
+            pageLength: 25, // Esto cambiará el número de registros por página a 25
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]], // Esto permite al usuario elegir cuántos registros ver
             columnDefs: [
                 {
                     targets: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], // Columnas de enlaces de Drive
