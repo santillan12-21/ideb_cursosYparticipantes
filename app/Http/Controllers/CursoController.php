@@ -7,6 +7,8 @@ use App\Models\Cursos;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CursosExport;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class CursoController extends Controller
 {
@@ -134,23 +136,79 @@ class CursoController extends Controller
 
     // Guardar los datos del Paso 3 y redirigir al Paso 4
     public function guardarPaso3(Request $request)
-    {
+{
+    try {
+        // Validar los datos del formulario
         $validated = $request->validate([
             'SinFecha' => 'required|string|max:255',
-            'DriveSinFecha' => 'required|string|max:255',
+            'DriveSinFecha' => 'nullable|string|max:255',
             'Facebook' => 'required|string|max:255',
-            'DriveFacebook' => 'required|string|max:255',
+            'DriveFacebook' => 'nullable|string|max:255',
             'Linkedin' => 'required|string|max:255',
-            'DriveLinkedin' => 'required|string|max:255',
+            'DriveLinkedin' => 'nullable|string|max:255',
             'Instagram' => 'required|string|max:255',
-            'DriveInstagram' => 'required|string|max:255',
+            'DriveInstagram' => 'nullable|string|max:255',
         ]);
 
-        // Guardar los datos del Paso 3 en sesión
-        session(['cursos_paso3' => $validated]);
+        // Obtener la configuración de ruta
+        $configJson = Storage::get('config/ruta_archivos.json');
+        $config = json_decode($configJson, true);
 
+        if (!$config) {
+            return redirect()->back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
+        }
+
+        $rutaBase = $config['rutaCompleta'];
+        $rutasArchivos = [];
+
+        // Verificar y crear carpetas si no existen
+        $carpetas = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
+        foreach ($carpetas as $carpeta) {
+            $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . $carpeta;
+            if (!File::exists($rutaCarpeta)) {
+                File::makeDirectory($rutaCarpeta, 0755, true);
+            }
+        }
+
+        // Guardar archivos si fueron subidos
+        if ($request->hasFile('SinFechaLocal')) {
+            $archivo = $request->file('SinFechaLocal');
+            $nombreArchivo = time() . '_sinfecha_' . $archivo->getClientOriginalName();
+            $archivo->move($rutaBase . DIRECTORY_SEPARATOR . 'SinFecha', $nombreArchivo);
+            $rutasArchivos['SinFechaLocal'] = 'SinFecha/' . $nombreArchivo;
+        }
+
+        if ($request->hasFile('FacebookLocal')) {
+            $archivo = $request->file('FacebookLocal');
+            $nombreArchivo = time() . '_facebook_' . $archivo->getClientOriginalName();
+            $archivo->move($rutaBase . DIRECTORY_SEPARATOR . 'Facebook', $nombreArchivo);
+            $rutasArchivos['FacebookLocal'] = 'Facebook/' . $nombreArchivo;
+        }
+
+        if ($request->hasFile('LinkedInLocal')) {
+            $archivo = $request->file('LinkedInLocal');
+            $nombreArchivo = time() . '_linkedin_' . $archivo->getClientOriginalName();
+            $archivo->move($rutaBase . DIRECTORY_SEPARATOR . 'LinkedIn', $nombreArchivo);
+            $rutasArchivos['LinkedInLocal'] = 'LinkedIn/' . $nombreArchivo;
+        }
+
+        if ($request->hasFile('InstagramLocal')) {
+            $archivo = $request->file('InstagramLocal');
+            $nombreArchivo = time() . '_instagram_' . $archivo->getClientOriginalName();
+            $archivo->move($rutaBase . DIRECTORY_SEPARATOR . 'Instagram', $nombreArchivo);
+            $rutasArchivos['InstagramLocal'] = 'Instagram/' . $nombreArchivo;
+        }
+
+        // Guardar los datos en la sesión
+        session(['cursos_paso3' => array_merge($validated, $rutasArchivos)]);
+
+        // Redirigir al siguiente paso
         return redirect()->route('curso.paso4');
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Error al procesar los archivos: ' . $e->getMessage());
     }
+}
     // Mostrar el formulario del Paso 4
     public function mostrarPaso4()
     {
@@ -430,6 +488,116 @@ class CursoController extends Controller
     {
         $curso = Cursos::findOrFail($id);
         return response()->json(['fecha_inicio' => $curso->FechadeInicio]);
+    }
+
+    public function crearCarpeta(Request $request)
+    {
+        try {
+            // Validar la solicitud
+            $request->validate([
+                'tipo' => 'required|string',
+                'nombreCarpeta' => 'required|string'
+            ]);
+
+            // Obtener la configuración de ruta base
+            $configJson = Storage::get('config/ruta_archivos.json');
+            $config = json_decode($configJson, true);
+
+            if (!$config) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error: No se ha configurado la ruta de archivos.'
+                ], 400);
+            }
+
+            // Normalizar la ruta base
+            $rutaBase = str_replace('\\', '/', $config['rutaCarpeta']); // Usar 'rutaCarpeta' en lugar de 'rutaCompleta'
+            $nombreCarpeta = trim($request->nombreCarpeta);
+            $tipo = trim($request->tipo);
+
+            // Construir la ruta completa
+            $rutaCompleta = $rutaBase . '/' . $tipo . '/' . $nombreCarpeta;
+
+            // Verificar si la carpeta ya existe
+            if (File::exists($rutaCompleta)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La carpeta ya existe.'
+                ], 400);
+            }
+
+            // Crear la carpeta
+            File::makeDirectory($rutaCompleta, 0755, true);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Carpeta creada exitosamente',
+                'ruta' => $rutaCompleta
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear la carpeta: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    public function subirArchivo(Request $request)
+    {
+        try {
+            // Validar la solicitud
+            $request->validate([
+                'archivo' => 'required|file',
+                'tipo' => 'required|string',
+                'nombreCarpeta' => 'required|string'
+            ]);
+
+            // Leer el archivo de configuración
+            $configJson = Storage::get('config/ruta_archivos.json');
+            $config = json_decode($configJson, true);
+
+            if (!$config) {
+                Log::error('Archivo de configuración no encontrado o inválido.');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error: No se ha configurado la ruta de archivos.'
+                ], 400);
+            }
+
+            // Normalizar la ruta base
+            $rutaBase = str_replace('\\', '/', $config['rutaCompleta']);
+            $tipo = $request->tipo;
+            $nombreCarpeta = $request->nombreCarpeta;
+            $archivo = $request->file('archivo');
+
+            // Construir la ruta completa
+            $rutaCompleta = $rutaBase . '/' . $tipo . '/' . $nombreCarpeta;
+
+            // Verificar si la carpeta existe, si no, crearla
+            if (!File::exists($rutaCompleta)) {
+                Log::info('Creando carpeta: ' . $rutaCompleta);
+                File::makeDirectory($rutaCompleta, 0755, true);
+            }
+
+            // Mover el archivo
+            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+            Log::info('Intentando mover archivo a: ' . $rutaCompleta . '/' . $nombreArchivo);
+            $archivo->move($rutaCompleta, $nombreArchivo);
+
+            // Respuesta exitosa
+            return response()->json([
+                'success' => true,
+                'message' => 'Archivo subido exitosamente',
+                'ruta' => $tipo . '/' . $nombreCarpeta . '/' . $nombreArchivo
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al subir archivo: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al subir el archivo: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
 

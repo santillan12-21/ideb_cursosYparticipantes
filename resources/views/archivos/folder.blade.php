@@ -17,35 +17,45 @@
     @endif
 
     <!-- Formulario para subir archivos -->
-    <form action="{{ route('archivos.upload-to-folder', ['carpeta' => $carpeta]) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('archivos.upload-to-folder', ['carpeta' => $carpeta]) }}" method="POST" enctype="multipart/form-data" class="mb-4">
         @csrf
-        <input type="file" name="archivo" required>
+        <div class="form-group">
+            <input type="file" name="archivo" class="form-control-file" required>
+        </div>
         <button type="submit" class="btn btn-primary">Subir Archivo</button>
     </form>
 
     <!-- Formulario para crear subcarpetas -->
-    <form action="{{ route('archivos.create-subfolder', ['carpeta' => $carpeta]) }}" method="POST">
+    <form action="{{ route('archivos.create-subfolder', ['carpeta' => $carpeta]) }}" method="POST" class="mb-4">
         @csrf
-        <input type="text" name="nombre_subcarpeta" placeholder="Nombre de la subcarpeta" required>
+        <div class="form-group">
+            <input type="text" name="nombre_subcarpeta" class="form-control" placeholder="Nombre de la subcarpeta" required>
+        </div>
         <button type="submit" class="btn btn-info">Crear Subcarpeta</button>
     </form>
 
     <!-- Lista de archivos -->
     <h2>Archivos</h2>
     @if (count($archivos) > 0)
-        <ul class="file-list">
+        <div class="list-group mb-4">
             @foreach ($archivos as $archivo)
-                <li>
-                    {{ basename($archivo) }}
-                    <a href="{{ route('archivos.download-from-folder', ['carpeta' => $carpeta, 'archivo' => basename($archivo)]) }}" class="btn btn-success btn-sm">Descargar</a>
-                    <form action="{{ route('archivos.delete-from-folder', ['carpeta' => $carpeta, 'archivo' => basename($archivo)]) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                    </form>
-                </li>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    @if (in_array(pathinfo($archivo, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                        <img src="{{ Storage::url($archivo) }}" alt="{{ basename($archivo) }}" style="max-width: 100px; max-height: 100px;">
+                    @else
+                        <span>{{ basename($archivo) }}</span>
+                    @endif
+                    <div>
+                        <a href="{{ route('archivos.download', ['archivo' => basename($archivo)]) }}" class="btn btn-success btn-sm">Descargar</a>
+                        <form action="{{ route('archivos.delete', ['archivo' => basename($archivo)]) }}" method="POST" style="display: inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
             @endforeach
-        </ul>
+        </div>
     @else
         <p>No hay archivos en esta carpeta.</p>
     @endif
@@ -53,9 +63,9 @@
     <!-- Lista de subcarpetas -->
     <h2>Subcarpetas</h2>
     @if (count($subcarpetas) > 0)
-        <ul class="folder-list">
+        <div class="list-group mb-4">
             @foreach ($subcarpetas as $subcarpeta)
-                <li>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
                     <a href="{{ route('archivos.open-folder', ['carpeta' => rawurlencode($carpeta . '/' . basename($subcarpeta))]) }}">
                         {{ basename($subcarpeta) }}
                     </a>
@@ -64,15 +74,15 @@
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                     </form>
-                </li>
+                </div>
             @endforeach
-        </ul>
+        </div>
     @else
         <p>No hay subcarpetas en esta carpeta.</p>
     @endif
 
     <!-- Breadcrumb para navegar entre carpetas -->
-    <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('ruta.archivos') }}">Inicio</a></li>
             @php
@@ -97,11 +107,12 @@
         $carpetaPadre = dirname($carpeta);
     @endphp
     @if ($carpetaPadre === null || $carpetaPadre === '.')
-    <a href="{{ route('ruta.archivos') }}" class="btn btn-secondary">Volver</a>
-@else
-    <a href="{{ route('archivos.open-folder', ['carpeta' => $carpetaPadre]) }}" class="btn btn-secondary">Volver</a>
-@endif
+        <a href="{{ route('ruta.archivos') }}" class="btn btn-secondary">Volver</a>
+    @else
+        <a href="{{ route('archivos.open-folder', ['carpeta' => $carpetaPadre]) }}" class="btn btn-secondary">Volver</a>
+    @endif
 </div>
+
 <script>
     document.querySelectorAll('a[href*="open-folder"]').forEach(link => {
         link.addEventListener('click', function(e) {
@@ -110,5 +121,5 @@
             window.location.href = decodeURIComponent(path);
         });
     });
-    </script>
+</script>
 @endsection

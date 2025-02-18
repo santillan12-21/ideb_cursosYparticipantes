@@ -14,6 +14,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\ArchivosController;
+use App\Http\Controllers\RutaCursosController;
+use App\Http\Controllers\RutaArchivosController;
 
 
 //Rutas de inicio de sesion:
@@ -168,3 +170,9 @@ Route::prefix('archivos')->group(function () {
         ->where('archivo', '.*') // Permite cualquier carácter
         ->name('archivos.delete-from-folder');
 });
+
+Route::post('/guardar-ruta-cursos', [RutaCursosController::class, 'guardar'])->name('guardar.ruta.cursos');
+Route::post('/guardar-ruta-archivos', [RutaArchivosController::class, 'guardar'])->name('guardar.ruta.archivos');
+Route::get('/obtener-ruta-archivos', [RutaArchivosController::class, 'obtenerRuta'])->name('obtener.ruta.archivos');
+Route::post('/crear-carpeta', [CursoController::class, 'crearCarpeta'])->name('crear.carpeta');
+Route::post('/subir-archivo', [CursoController::class, 'subirArchivo'])->name('subir.archivo');

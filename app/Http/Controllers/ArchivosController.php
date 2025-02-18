@@ -127,19 +127,18 @@ class ArchivosController extends Controller
         ]);
 
         try {
-            // Decodifica el nombre de la carpeta
             $carpeta = urldecode($carpeta);
-
             $ruta = 'mi_carpeta/' . $carpeta;
             $archivo = $request->file('archivo');
-            $archivo->storeAs($ruta, $archivo->getClientOriginalName());
+            $archivo->storeAs($ruta, $archivo->getClientOriginalName(), 'public'); // Usa el disco 'public'
 
-            return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])->with('success', 'Archivo subido correctamente.');
+            return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])
+                ->with('success', 'Archivo subido correctamente.');
         } catch (\Exception $e) {
-            return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])->with('error', 'Error al subir el archivo: ' . $e->getMessage());
+            return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])
+                ->with('error', 'Error al subir el archivo: ' . $e->getMessage());
         }
     }
-
     // Método para crear subcarpetas
     public function createSubfolder(Request $request, $carpeta)
     {

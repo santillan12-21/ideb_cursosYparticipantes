@@ -289,6 +289,34 @@
 
     <div class="content">
         <div class="container-fluid table-container">
+            <!-- Sección de Ruta de Archivos (oculta inicialmente) -->
+            <div id="rutaArchivosSection" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Ruta de Archivos</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="rutaArchivosForm">
+                            <div class="mb-3">
+                                <label for="nombreCarpeta" class="form-label">Nombre de la Carpeta</label>
+                                <input type="text" class="form-control" id="nombreCarpeta" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="rutaCarpeta" class="form-label">Ruta de la Carpeta</label>
+                                <input type="text" class="form-control" id="rutaCarpeta" required>
+                                <small class="text-muted">Selecciona la ruta donde se almacenarán los archivos de los cursos.</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Ruta</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <!-- Ícono de configuraciones en la esquina inferior derecha -->
+        <div id="configButton" style="position: fixed; bottom: 20px; right: 20px; cursor: pointer; z-index: 1000;">
+            <img src="{{ asset('images/imagenuerca2.png') }}" alt="Configuraciones" style="width: 40px; height: 40px;">
+            <div style="text-align: center; font-size: 12px; color: #333; margin-top: 5px;">Ruta de Archivos</div>
+        </div>
+        <div class="container-fluid table-container">
             <h2 class="text-center mb-4">Lista de Cursos</h2>
 
             <a href="{{ route('exportar.cursos.excel') }}" class="btn btn-success">Exportar a Excel</a>
@@ -546,6 +574,63 @@
             table.button('.buttons-csv').trigger();
         });
     });
+
+
+        // Mostrar u ocultar la sección de Ruta de Archivos
+        $('#configButton').on('click', function(e) {
+            e.preventDefault(); // Evitar que el enlace funcione
+            $('#rutaArchivosSection').toggle(); // Mostrar u ocultar la sección
+        });
+
+
+
+        let rutaConfigurada = false;
+
+    // Verificar si ya existe una ruta configurada al cargar la página
+    $.get("{{ route('obtener.ruta.archivos') }}", function(response) {
+        if (response.success && response.data) {
+            rutaConfigurada = true;
+            $('#nombreCarpeta').val(response.data.nombreCarpeta);
+            $('#rutaCarpeta').val(response.data.rutaCarpeta);
+        }
+    });
+
+    // Guardar la configuración de la ruta
+    $('#rutaArchivosForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const nombreCarpeta = $('#nombreCarpeta').val();
+        const rutaCarpeta = $('#rutaCarpeta').val();
+
+        if (!nombreCarpeta || !rutaCarpeta) {
+            alert('Por favor, completa todos los campos.');
+            return;
+        }
+
+        $.ajax({
+            url: "{{ route('guardar.ruta.archivos') }}",
+            method: 'POST',
+            data: {
+                nombreCarpeta: nombreCarpeta,
+                rutaCarpeta: rutaCarpeta,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                if (response.success) {
+                    rutaConfigurada = true;
+                    alert(response.message);
+                    $('#rutaArchivosSection').hide();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                alert(response?.message || 'Error al guardar la ruta.');
+            }
+        });
+    });
+
 
     </script>
 </body>
