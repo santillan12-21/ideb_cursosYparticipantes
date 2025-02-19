@@ -408,6 +408,9 @@ class CursoController extends Controller
                 'Cartapoder_tienefirma' => 'required|string|in:Si,No',
                 'DriveCartapoder' => 'required|string|max:255',
                 'UDEMY' => 'required|string|max:255',
+                'FormatoDC5Local' => 'nullable|file', // Archivo local para Formato DC5
+                'CertificadoComprobacionLocal' => 'nullable|file', // Archivo local para Certificado de Comprobación
+                'CartaPoderLocal' => 'nullable|file', // Archivo local para Carta Poder
             ]);
 
             // Obtener todos los datos de la sesión
@@ -425,6 +428,56 @@ class CursoController extends Controller
                     ->with('error', 'Por favor complete todos los pasos del formulario');
             }
 
+            // Obtener la configuración de ruta base
+            $configJson = Storage::get('config/ruta_archivos.json');
+            $config = json_decode($configJson, true);
+
+            // Ordenar por timestamp y obtener la última ruta configurada
+            usort($config, function ($a, $b) {
+                return strtotime($b['timestamp']) - strtotime($a['timestamp']);
+            });
+
+            $rutaBase = $config[0]['rutaCompleta'] ?? null;
+
+            if (!$rutaBase) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Error: No se ha configurado la ruta de archivos.');
+            }
+
+            // Crear carpetas para cada tipo si no existen
+            $carpetas = ['FormatoDC5', 'CertificadoComprobacion', 'CartaPoder'];
+            foreach ($carpetas as $carpeta) {
+                $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . $carpeta;
+                if (!File::exists($rutaCarpeta)) {
+                    File::makeDirectory($rutaCarpeta, 0755, true);
+                }
+            }
+
+            // Guardar archivos locales
+            $rutasArchivos = [];
+
+            if ($request->hasFile('FormatoDC5Local')) {
+                $archivo = $request->file('FormatoDC5Local');
+                $nombreArchivo = time() . '_formatodc5_' . $archivo->getClientOriginalName();
+                $archivo->move($rutaBase . DIRECTORY_SEPARATOR . 'FormatoDC5', $nombreArchivo);
+                $rutasArchivos['FormatoDC5Local'] = 'FormatoDC5/' . $nombreArchivo;
+            }
+
+            if ($request->hasFile('CertificadoComprobacionLocal')) {
+                $archivo = $request->file('CertificadoComprobacionLocal');
+                $nombreArchivo = time() . '_certificadocomprobacion_' . $archivo->getClientOriginalName();
+                $archivo->move($rutaBase . DIRECTORY_SEPARATOR . 'CertificadoComprobacion', $nombreArchivo);
+                $rutasArchivos['CertificadoComprobacionLocal'] = 'CertificadoComprobacion/' . $nombreArchivo;
+            }
+
+            if ($request->hasFile('CartaPoderLocal')) {
+                $archivo = $request->file('CartaPoderLocal');
+                $nombreArchivo = time() . '_cartapoder_' . $archivo->getClientOriginalName();
+                $archivo->move($rutaBase . DIRECTORY_SEPARATOR . 'CartaPoder', $nombreArchivo);
+                $rutasArchivos['CartaPoderLocal'] = 'CartaPoder/' . $nombreArchivo;
+            }
+
             // Combinar todos los datos
             $cursoData = array_merge(
                 $paso1,
@@ -433,7 +486,8 @@ class CursoController extends Controller
                 $paso4,
                 $paso5,
                 $paso6,
-                $validatedPaso7
+                $validatedPaso7,
+                $rutasArchivos // Agregar las rutas de los archivos locales
             );
 
             Log::info('Intentando crear curso con datos:', ['data' => $cursoData]);
