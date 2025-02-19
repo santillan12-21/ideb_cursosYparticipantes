@@ -12,25 +12,21 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: Arial, sans-serif;
             background-color: #ffffff;
             color: #333;
         }
-
         header {
             background-color: #000000;
             padding: 15px 20px;
             display: flex;
             align-items: center;
         }
-
         header img {
             width: 100px;
             height: auto;
         }
-
         .modal-header {
             background-color: #000;
             color: white;
@@ -100,42 +96,48 @@
     <header>
         <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
     </header>
-
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <h3 class="text-center mb-4">Material de Apoyo</h3>
-                <form action="{{ route('curso.paso5.guardar') }}" method="POST">
+                <form action="{{ route('curso.paso5.guardar') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-
+                    <!-- Digital -->
                     <div class="mb-3">
                         <label class="form-label">Digital</label>
                         <input type="text" name="Digital" class="form-control" required>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Drive Digital</label>
                         <input type="text" name="DriveDigital" class="form-control" required>
                     </div>
-
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Digital</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Digital')">Crear carpeta local</button>
+                        <div id="archivoDigitalContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="DigitalLocal" class="form-control">
+                            @if(session('cursos_paso5.DigitalLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso5.DigitalLocal') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <!-- Impreso Presentable -->
                     <div class="mb-3">
                         <label class="form-label">Impreso Presentable</label>
                         <input type="text" name="Impreso_Presentable" class="form-control" required>
                     </div>
-
                     <!-- Botones -->
                     <div class="mb-3 d-flex justify-content-between">
                         <!-- Botón Siguiente -->
                         <button type="submit" class="btn btn-success">Siguiente</button>
-
                         <!-- Botón Atrás -->
                         <a href="{{ route('curso.paso4') }}" class="btn btn-secondary">Atrás</a>
-
                         <!-- Botón Cancelar -->
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
                     </div>
                 </form>
-
                 <!-- Modal -->
                 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -145,7 +147,6 @@
                                 <img src="{{ asset('images/logo3.png') }}" alt="Logo">
                                 <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
-
                             <!-- Cuerpo del Modal -->
                             <div class="modal-body">
                                 <div class="step-indicator">
@@ -157,15 +158,12 @@
                                     <div class="step">Paso 6 Documentos de Evaluación</div>
                                     <div class="step">Paso 7 Documentación STPS y Certificados</div>
                                 </div>
-
                                 <p>Al dar click a Confirmar se va a borrar toda la informacion y lo regresara a la venta de inicio.</p>
-
                                 <div class="buttons-container">
                                     <a href="{{ route('cursos.index') }}" class="btn btn-primary">Confirmar</a>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                                 </div>
                             </div>
-
                             <!-- Pie de página del Modal -->
                             <div class="modal-footer text-center">
                                 Soporte y servicios técnicos y de ingeniería.
@@ -173,10 +171,40 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
+    <script>
+        function crearCarpeta(tipo) {
+            fetch('/crear-carpeta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    tipo: tipo,
+                    nombreCarpeta: tipo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Carpeta creada exitosamente: ' + data.ruta);
+                    // Mostrar el contenedor de archivos correspondiente
+                    const contenedor = document.getElementById(`archivo${tipo.replace('ó', 'o')}Container`);
+                    if (contenedor) {
+                        contenedor.style.display = 'block';
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>

@@ -12,25 +12,21 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: Arial, sans-serif;
             background-color: #ffffff;
             color: #333;
         }
-
         header {
             background-color: #000000;
             padding: 15px 20px;
             display: flex;
             align-items: center;
         }
-
         header img {
             width: 100px;
             height: auto;
         }
-
         .modal-header {
             background-color: #000;
             color: white;
@@ -100,26 +96,22 @@
     <header>
         <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
     </header>
-
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <h3 class="text-center mb-4">Documentación STPS y Certificados</h3>
-
                 @if(session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
                 @endif
-
-                <form action="{{ route('curso.guardar-paso7') }}" method="POST">
+                <form action="{{ route('curso.guardar-paso7') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-
                     <div class="mb-3">
                         <label class="form-label">Fecha de Registro STPS</label>
                         <input type="date" name="FechadeRegistro_STPS" class="form-control" value="{{ old('FechadeRegistro_STPS') }}">
                     </div>
-
+                    <!-- Formato DC5 -->
                     <div class="mb-3">
                         <label class="form-label">Formato DC5</label>
                         <input type="text" name="Formato_DC5" class="form-control" required value="{{ old('Formato_DC5') }}">
@@ -127,7 +119,18 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Formato DC5</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('FormatoDC5')">Crear carpeta local</button>
+                        <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
+                            <input type="file" name="FormatoDC5Local" class="form-control">
+                            @if(session('cursos_paso7.FormatoDC5Local'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso7.FormatoDC5Local') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Formato DC5 - ¿Tiene firma?</label>
                         <select name="Formato_DC5_Tienefirma" class="form-select" required>
@@ -139,7 +142,7 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
+                    <!-- Certificado de Comprobación -->
                     <div class="mb-3">
                         <label class="form-label">Certificado de Comprobación</label>
                         <select name="Certificadodecomprobacion" class="form-select" required>
@@ -152,7 +155,6 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Drive de Certificado de Comprobación</label>
                         <input type="text" name="DrivedeCertificadodecomprobacion" class="form-control" required value="{{ old('DrivedeCertificadodecomprobacion') }}">
@@ -160,7 +162,19 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Drive de Certificado de Comprobación</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CertificadoComprobacion')">Crear carpeta local</button>
+                        <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="CertificadoComprobacionLocal" class="form-control">
+                            @if(session('cursos_paso7.CertificadoComprobacionLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso7.CertificadoComprobacionLocal') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <!-- Carta Poder -->
                     <div class="mb-3">
                         <label class="form-label">Carta Poder - ¿Tiene firma?</label>
                         <select name="Cartapoder_tienefirma" class="form-select" required>
@@ -172,7 +186,6 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Drive Carta Poder</label>
                         <input type="text" name="DriveCartapoder" class="form-control" required value="{{ old('DriveCartapoder') }}">
@@ -180,7 +193,19 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Drive Carta Poder</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CartaPoder')">Crear carpeta local</button>
+                        <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="CartaPoderLocal" class="form-control">
+                            @if(session('cursos_paso7.CartaPoderLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso7.CartaPoderLocal') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <!-- UDEMY -->
                     <div class="mb-3">
                         <label class="form-label">UDEMY</label>
                         <select name="UDEMY" class="form-select" required>
@@ -192,20 +217,16 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
                     <!-- Botones -->
                     <div class="mb-3 d-flex justify-content-between">
                         <!-- Botón Finalizar -->
                         <button type="submit" class="btn btn-success">Finalizar</button>
-
                         <!-- Botón Atrás -->
                         <a href="{{ route('curso.paso6') }}" class="btn btn-secondary">Atrás</a>
-
                         <!-- Botón Cancelar -->
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
                     </div>
                 </form>
-
                 <!-- Modal -->
                 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -215,7 +236,6 @@
                                 <img src="{{ asset('images/logo3.png') }}" alt="Logo">
                                 <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
-
                             <!-- Cuerpo del Modal -->
                             <div class="modal-body">
                                 <div class="step-indicator">
@@ -227,9 +247,7 @@
                                     <div class="step">Paso 6 Documentos de Evaluación</div>
                                     <div class="step active">Paso 7 Documentación STPS y Certificados</div>
                                 </div>
-
-                                <p>Al dar click a Confirmar se va a borrar toda la informacion y lo regresara a la venta de inicio.</p>
-
+                                <p>Al dar click a Confirmar se va a borrar toda la información y lo regresará a la venta de inicio.</p>
                                 <div class="buttons-container">
                                     <a href="{{ route('cursos.index') }}" class="btn btn-primary">Confirmar</a>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -242,11 +260,39 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
+    <script>
+        function crearCarpeta(tipo) {
+            fetch('/crear-carpeta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    tipo: tipo,
+                    nombreCarpeta: tipo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Carpeta creada exitosamente: ' + data.ruta);
+                    const contenedor = document.getElementById(`archivo${tipo.replace('ó', 'o')}Container`);
+                    if (contenedor) {
+                        contenedor.style.display = 'block';
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>
-

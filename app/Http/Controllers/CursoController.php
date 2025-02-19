@@ -17,7 +17,7 @@ class CursoController extends Controller
      */
     public function index()
     {
-        $cursos = Cursos::orderBy('created_at', 'asc')->paginate(10);
+        $cursos = Cursos::all();
         return view('cursos.index', compact('cursos'));
     }
 
@@ -312,16 +312,57 @@ class CursoController extends Controller
     // Guardar los datos del Paso 5 y redirigir al siguiente paso
     public function guardarPaso5(Request $request)
     {
-        $validated = $request->validate([
-            'Digital' => 'required|string|max:255',
-            'DriveDigital' => 'required|string|max:255',
-            'Impreso_Presentable' => 'required|string|max:255',
-        ]);
+        try {
+            // 1. Validar los datos del formulario
+            $validated = $request->validate([
+                'Digital' => 'required|string|max:255', // Campo obligatorio para "Digital"
+                'DriveDigital' => 'required|string|max:255', // Campo obligatorio para "Drive Digital"
+                'Impreso_Presentable' => 'required|string|max:255', // Campo obligatorio para "Impreso Presentable"
+                'DigitalLocal' => 'nullable|file', // Archivo local opcional para "Digital"
+            ]);
 
-        // Guardar los datos del Paso 5 en sesión
-        session(['cursos_paso5' => $validated]);
+            // 2. Obtener la configuración de ruta base desde el archivo JSON
+            $configJson = Storage::get('config/ruta_archivos.json');
+            $config = json_decode($configJson, true);
 
-        return redirect()->route('curso.paso6');
+            if (!is_array($config) || empty($config)) {
+                return redirect()->back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
+            }
+
+            $rutaBase = end($config)['rutaCompleta']; // Obtener la última ruta configurada
+
+            // 3. Procesar archivos locales (si existen)
+            $rutasArchivos = [];
+
+            if ($request->hasFile('DigitalLocal')) {
+                $archivo = $request->file('DigitalLocal');
+                $nombreArchivo = time() . '_digital_' . $archivo->getClientOriginalName(); // Nombre único para el archivo
+                $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . 'Digital'; // Ruta específica para "Digital"
+
+                // Crear la carpeta si no existe
+                if (!File::exists($rutaCarpeta)) {
+                    File::makeDirectory($rutaCarpeta, 0755, true);
+                }
+
+                // Mover el archivo a la carpeta correspondiente
+                $archivo->move($rutaCarpeta, $nombreArchivo);
+
+                // Guardar la ruta relativa del archivo en el array de rutas
+                $rutasArchivos['DigitalLocal'] = 'Digital/' . $nombreArchivo;
+            }
+
+            // 4. Guardar los datos del Paso 5 en sesión
+            session(['cursos_paso5' => array_merge($validated, $rutasArchivos)]);
+
+            // 5. Redirigir al siguiente paso
+            return redirect()->route('curso.paso6');
+
+        } catch (\Exception $e) {
+            // Manejar errores y redirigir con un mensaje de error
+            return back()
+                ->withInput()
+                ->with('error', 'Error al guardar los datos del Paso 5: ' . $e->getMessage());
+        }
     }
 
     // Mostrar el formulario del Paso 6
