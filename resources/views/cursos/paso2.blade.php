@@ -133,7 +133,7 @@
                 <div class="mb-3 d-flex justify-content-between">
                     <button type="submit" class="btn btn-success">Siguiente</button>
                     <a href="{{ route('curso.paso3') }}" class="btn btn-secondary">Atrás</a>
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
                 </div>
             </form>
         </div>

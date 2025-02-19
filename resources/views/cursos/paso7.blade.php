@@ -224,7 +224,7 @@
                         <!-- Botón Atrás -->
                         <a href="{{ route('curso.paso6') }}" class="btn btn-secondary">Atrás</a>
                         <!-- Botón Cancelar -->
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
                     </div>
                 </form>
                 <!-- Modal -->
