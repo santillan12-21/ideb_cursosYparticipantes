@@ -299,6 +299,36 @@
                         <h5 class="card-title">Ruta de Archivos</h5>
                     </div>
                     <div class="card-body">
+                        <!-- Botón para mostrar/ocultar las opciones -->
+                        <button id="editar-ruta-carpetas" class="btn btn-secondary mb-3">Editar Ruta de Carpetas</button>
+
+                        <!-- Contenedor de opciones (inicialmente oculto) -->
+                        <div id="opciones-rutas" style="display: none;">
+                            <p>Este botón abre la carpeta de archivos que especifique.</p>
+
+                           <!-- Opción 1: Cargar Última Ruta o Escribir Manualmente -->
+                            <div class="mb-3">
+                                <label for="ruta_archivos_manual" class="form-label">Ruta de la Carpeta:</label>
+                                <div class="input-group">
+                                    <!-- Campo editable para ingresar la ruta manualmente -->
+                                    <input type="text" id="ruta_archivos_manual" class="form-control" placeholder="Ejemplo: C:/cursos/archivos">
+                                    <button id="cargar-ultima-ruta" class="btn btn-secondary">Cargar Última Ruta</button>
+                                    <button id="abrir-carpeta" class="btn btn-primary">Abrir Carpeta</button>
+                                </div>
+                            </div>
+                            <!-- Opción 2: Seleccionar una Ruta -->
+                            <div class="mb-3">
+                                <label for="lista-rutas" class="form-label">Selecciona una Ruta:</label>
+                                <div class="input-group">
+                                    <select id="lista-rutas" class="form-select">
+                                        <option value="">-- Selecciona una ruta --</option>
+                                    </select>
+                                    <button id="abrir-carpeta-seleccionada" class="btn btn-primary">Abrir Carpeta</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
                         <form id="rutaArchivosForm">
                             <div class="mb-3">
                                 <label for="nombreCarpeta" class="form-label">Nombre de la Carpeta</label>
@@ -309,11 +339,14 @@
                                 <input type="text" class="form-control" id="rutaCarpeta" required>
                                 <small class="text-muted">Selecciona la ruta donde se almacenarán los archivos de los cursos.</small>
                             </div>
+
                             <button type="submit" class="btn btn-primary">Guardar Ruta</button>
+
                         </form>
                     </div>
                 </div>
             </div>
+
         <!-- Ícono de configuraciones en la esquina inferior derecha -->
         <div id="configButton" style="position: fixed; bottom: 20px; right: 20px; cursor: pointer; z-index: 1000;">
             <img src="{{ asset('images/imagenuerca2.png') }}" alt="Configuraciones" style="width: 40px; height: 40px;">
@@ -637,7 +670,131 @@
         });
     });
 
+        document.addEventListener('DOMContentLoaded', function () {
+        const editarRutaBtn = document.getElementById('editar-ruta-carpetas');
+        const opcionesRutas = document.getElementById('opciones-rutas');
+        const listaRutas = document.getElementById('lista-rutas');
+        const rutaInput = document.getElementById('ruta_archivos_manual');
+        const cargarRutaBtn = document.getElementById('cargar-ultima-ruta');
+        const abrirCarpetaBtn = document.getElementById('abrir-carpeta');
+        const abrirCarpetaSeleccionadaBtn = document.getElementById('abrir-carpeta-seleccionada');
 
+        // Mostrar/ocultar las opciones al hacer clic en "Editar Ruta de Carpetas"
+        editarRutaBtn.addEventListener('click', function () {
+            if (opcionesRutas.style.display === 'none' || opcionesRutas.style.display === '') {
+                opcionesRutas.style.display = 'block';
+                editarRutaBtn.textContent = 'Ocultar Opciones';
+            } else {
+                opcionesRutas.style.display = 'none';
+                editarRutaBtn.textContent = 'Editar Ruta de Carpetas';
+            }
+        });
+
+        // Cargar la última ruta desde el backend
+        cargarRutaBtn.addEventListener('click', function () {
+            fetch('/obtener-ultima-ruta')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        rutaInput.value = data.data; // Mostrar la última ruta en el campo de entrada
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ocurrió un error al cargar la última ruta.');
+                });
+        });
+
+        // Cargar todas las rutas en la lista desplegable
+        fetch('/obtener-todas-las-rutas')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const rutas = data.data;
+
+                    // Limpiar la lista desplegable
+                    listaRutas.innerHTML = '<option value="">-- Selecciona una ruta --</option>';
+
+                    // Agregar cada ruta a la lista desplegable
+                    rutas.forEach(ruta => {
+                        const option = document.createElement('option');
+                        option.value = ruta.rutaCompleta;
+                        option.textContent = `${ruta.nombreCarpeta} (${ruta.rutaCompleta})`;
+                        listaRutas.appendChild(option);
+                    });
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al cargar las rutas.');
+            });
+
+        // Abrir la carpeta desde el campo de entrada
+        abrirCarpetaBtn.addEventListener('click', function () {
+            const ruta = rutaInput.value.trim();
+
+            if (!ruta) {
+                alert('La ruta está vacía. Por favor, carga una ruta válida.');
+                return;
+            }
+
+            fetch('/abrir-carpeta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ ruta: ruta })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al abrir la carpeta.');
+            });
+        });
+
+        // Abrir la carpeta seleccionada de la lista desplegable
+        abrirCarpetaSeleccionadaBtn.addEventListener('click', function () {
+            const rutaSeleccionada = listaRutas.value.trim();
+
+            if (!rutaSeleccionada) {
+                alert('Por favor, selecciona una ruta válida.');
+                return;
+            }
+
+            fetch('/abrir-carpeta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ ruta: rutaSeleccionada })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al abrir la carpeta.');
+            });
+        });
+    });
     </script>
 </body>
 </html>

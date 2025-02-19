@@ -176,3 +176,11 @@ Route::post('/guardar-ruta-archivos', [RutaArchivosController::class, 'guardar']
 Route::get('/obtener-ruta-archivos', [RutaArchivosController::class, 'obtenerRuta'])->name('obtener.ruta.archivos');
 Route::post('/crear-carpeta', [CursoController::class, 'crearCarpeta'])->name('crear.carpeta');
 Route::post('/subir-archivo', [CursoController::class, 'subirArchivo'])->name('subir.archivo');
+
+//Obtener ruta
+Route::get('/obtener-ruta', [RutaArchivosController::class, 'obtenerRuta'])->name('ruta.obtener');
+Route::get('/verificar-ruta', [RutaArchivosController::class, 'verificarRuta'])->name('ruta.verificar');
+Route::post('/abrir-carpeta', [RutaArchivosController::class, 'abrirCarpeta'])->name('ruta.abrir');
+Route::get('/obtener-ultima-ruta', [RutaArchivosController::class, 'obtenerUltimaRuta'])->name('ruta.obtenerUltima');
+Route::get('/obtener-todas-las-rutas', [RutaArchivosController::class, 'obtenerTodasLasRutas'])->name('ruta.obtenerTodas');
+
