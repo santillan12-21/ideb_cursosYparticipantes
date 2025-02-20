@@ -16,6 +16,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\ArchivosController;
 use App\Http\Controllers\RutaCursosController;
 use App\Http\Controllers\RutaArchivosController;
+use App\Http\Controllers\ProfileController;
 
 
 //Rutas de inicio de sesion:
@@ -184,3 +185,8 @@ Route::post('/abrir-carpeta', [RutaArchivosController::class, 'abrirCarpeta'])->
 Route::get('/obtener-ultima-ruta', [RutaArchivosController::class, 'obtenerUltimaRuta'])->name('ruta.obtenerUltima');
 Route::get('/obtener-todas-las-rutas', [RutaArchivosController::class, 'obtenerTodasLasRutas'])->name('ruta.obtenerTodas');
 
+// Rutas para permisos
+Route::middleware(['auth'])->group(function () {
+    Route::get('/permissions', [App\Http\Controllers\RolePermissionController::class, 'getPermissions']);
+    Route::post('/check-view-permissions', [App\Http\Controllers\RolePermissionController::class, 'checkViewPermissions']);
+});

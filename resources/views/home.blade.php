@@ -192,11 +192,16 @@
       gap: 20px;
       justify-items: center;
     }
+    /* Clase para ocultar elementos basado en el rol */
+    .role-restricted {
+      display: none;
+    }
   </style>
 </head>
 <body>
   @php
     use Illuminate\Support\Facades\Auth;
+    $userRole = auth()->user()->puesto ?? 'guest';
   @endphp
 
   <header>
@@ -235,25 +240,27 @@
           </div>
         </div>
       </div>
-      <a href="{{ route('configuraciones.index') }}">
+      @if(auth()->user()->puesto == 'Programador')
+      <a href="{{ route('configuraciones.index') }}" id="config-link">
         <img src="{{ asset('images/imagenuerca2.png') }}" alt="Configuraciones" class="config-icon">
       </a>
+      @endif
       @endauth
     </div>
   </header>
 
   <div class="sidebar" id="sidebar">
     <a style="color:#333">Trampa</a>
-    <a href="/users">Creación usuario</a>
+    <a href="/users" class="menu-item" data-restricted="Operacion">Creación usuario</a>
     <a href="/cursos">Cursos</a>
     <a href="/participantes">Participantes</a>
     <a href="/registro">Registro de curso</a>
-    <a href="{{ route('ruta.archivos') }}">Ruta archivos</a>
-    <a href="https://drive.google.com/drive/folders/1HRJ_UliysPgzUOm1_XvcLR4MSuAjdODD?usp=sharing" target="_blank" class="drive-link">
+    <a href="{{ route('ruta.archivos') }}" class="menu-item" data-restricted="Operacion">Ruta archivos</a>
+    <a href="https://drive.google.com/drive/folders/1HRJ_UliysPgzUOm1_XvcLR4MSuAjdODD?usp=sharing" target="_blank" class="drive-link menu-item" data-restricted="Operacion">
       <i class="fab fa-google-drive"></i> Carpeta de Drive
     </a>
-    <a href="/export-db">Exportar Base de Datos</a>
-    <a href="#" onclick="selectFile()" class="sidebar-import-link">
+    <a href="/export-db" class="menu-item" data-restricted="Operacion">Exportar Base de Datos</a>
+    <a href="#" onclick="selectFile()" class="sidebar-import-link menu-item" data-restricted="Operacion">
       Importar Base de Datos
     </a>
   </div>
@@ -273,7 +280,7 @@
     @csrf
   </form>
 
-  <!-- Scripts originales -->
+  <!-- Scripts originales con funciones adicionales para gestionar permisos -->
   <script>
     function selectFile() {
       const fileInput = document.getElementById('databaseFile');
@@ -324,7 +331,26 @@
       userDropdown.addEventListener('click', function(event) {
         event.stopPropagation();
       });
+
+      // Restricciones basadas en el rol
+      applyRoleRestrictions();
     });
+
+    function applyRoleRestrictions() {
+      // Obtiene el rol del usuario del elemento en el DOM
+      const userRoleElement = document.querySelector('.user-role');
+      if (!userRoleElement) return;
+
+      const userRole = userRoleElement.textContent.trim().toLowerCase();
+
+      // Ocultar elementos restringidos para el rol de Operacion
+      if (userRole === 'operacion') {
+        const restrictedItems = document.querySelectorAll('.menu-item[data-restricted="Operacion"]');
+        restrictedItems.forEach(item => {
+          item.style.display = 'none';
+        });
+      }
+    }
   </script>
 </body>
 </html>
