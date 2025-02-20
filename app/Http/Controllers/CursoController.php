@@ -235,11 +235,11 @@ class CursoController extends Controller
             // Validar los datos del formulario
             $validated = $request->validate([
                 'Temario' => 'required|string|max:255',
-                'DriveTemario' => 'required|string|max:255',
+                'DriveTemario' => 'nullable|string|max:255', // Changed to nullable
                 'Itinerario' => 'required|string|max:255',
-                'DriveItinerario' => 'required|string|max:255',
+                'DriveItinerario' => 'nullable|string|max:255', // Changed to nullable
                 'Planeación' => 'required|string|max:255',
-                'DrivePlaneación' => 'required|string|max:255',
+                'DrivePlaneación' => 'nullable|string|max:255', // Changed to nullable
                 'TemarioLocal' => 'nullable|file',
                 'ItinerarioLocal' => 'nullable|file',
                 'PlaneaciónLocal' => 'nullable|file',
@@ -315,10 +315,10 @@ class CursoController extends Controller
         try {
             // 1. Validar los datos del formulario
             $validated = $request->validate([
-                'Digital' => 'required|string|max:255', // Campo obligatorio para "Digital"
-                'DriveDigital' => 'required|string|max:255', // Campo obligatorio para "Drive Digital"
-                'Impreso_Presentable' => 'required|string|max:255', // Campo obligatorio para "Impreso Presentable"
-                'DigitalLocal' => 'nullable|file', // Archivo local opcional para "Digital"
+                'Digital' => 'required|string|max:255',
+                'DriveDigital' => 'nullable|string|max:255',
+                'Impreso_Presentable' => 'required|string|max:255',
+                'DigitalLocal' => 'nullable|file',
             ]);
 
             // 2. Obtener la configuración de ruta base desde el archivo JSON
@@ -401,16 +401,16 @@ class CursoController extends Controller
             // Validar los datos del paso 7
             $validatedPaso7 = $request->validate([
                 'FechadeRegistro_STPS' => 'nullable|date',
-                'Formato_DC5' => 'required|string|max:255',
+                'Formato_DC5' => 'nullable|string|max:255',
                 'Formato_DC5_Tienefirma' => 'required|string|in:Si,No',
                 'Certificadodecomprobacion' => 'required|string|max:255',
-                'DrivedeCertificadodecomprobacion' => 'required|string|max:255',
+                'DrivedeCertificadodecomprobacion' => 'nullable|string|max:255',
                 'Cartapoder_tienefirma' => 'required|string|in:Si,No',
-                'DriveCartapoder' => 'required|string|max:255',
+                'DriveCartapoder' => 'nullable|string|max:255',
                 'UDEMY' => 'required|string|max:255',
-                'FormatoDC5Local' => 'nullable|file', // Archivo local para Formato DC5
-                'CertificadoComprobacionLocal' => 'nullable|file', // Archivo local para Certificado de Comprobación
-                'CartaPoderLocal' => 'nullable|file', // Archivo local para Carta Poder
+                'FormatoDC5Local' => 'nullable|file',
+                'CertificadoComprobacionLocal' => 'nullable|file',
+                'CartaPoderLocal' => 'nullable|file',
             ]);
 
             // Obtener todos los datos de la sesión
@@ -696,7 +696,7 @@ class CursoController extends Controller
             if (File::exists($rutaCompleta)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'La carpeta ya existe.'
+                    'message' => 'La carpeta ya existe. Crea otra carpeta para guardar la informacion o omite este paso.'
                 ], 400);
             }
 

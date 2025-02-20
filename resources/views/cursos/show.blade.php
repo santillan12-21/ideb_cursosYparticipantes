@@ -105,7 +105,9 @@
         <h1>Detalles del Curso: {{ $curso->NombredelCurso }}</h1>
 
         <div class="mb-4">
+            @if(auth()->user()->puesto != 'Operacion')
             <a href="{{ route('cursos.pdf', $curso->id) }}" class="btn btn-secondary">Descargar PDF</a>
+            @endif
             <a href="{{ route('cursos.index') }}" class="btn btn-primary">Regresar a la Lista de Cursos</a>
         </div>
 

@@ -103,7 +103,7 @@
                     <div class="form-section">
                         <h5>Temario</h5>
                         <div class="mb-3">
-                            <label class="form-label">Descripción del Temario</label>
+                            <label class="form-label">Porcentaje del Temario</label>
                             <input type="text" name="Temario" class="form-control" value="{{ old('Temario') }}" required>
                         </div>
                         <div class="mb-3">
@@ -128,7 +128,7 @@
                     <div class="form-section">
                         <h5>Itinerario</h5>
                         <div class="mb-3">
-                            <label class="form-label">Descripción del Itinerario</label>
+                            <label class="form-label">Porcentaje del Itinerario</label>
                             <input type="text" name="Itinerario" class="form-control" value="{{ old('Itinerario') }}" required>
                         </div>
                         <div class="mb-3">
@@ -153,7 +153,7 @@
                     <div class="form-section">
                         <h5>Planeación</h5>
                         <div class="mb-3">
-                            <label class="form-label">Descripción de la Planeación</label>
+                            <label class="form-label">Porcentaje de la Planeación</label>
                             <input type="text" name="Planeación" class="form-control" value="{{ old('Planeación') }}" required>
                         </div>
                         <div class="mb-3">

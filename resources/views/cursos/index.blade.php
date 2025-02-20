@@ -248,7 +248,6 @@
                 </label>
             </div>
         </div>
-
         <div class="filter-section">
             <h6>Filtros Adicionales</h6>
             <div class="mb-3">
@@ -264,7 +263,6 @@
                 </select>
             </div>
 
-
             <div class="mb-3">
                 <label for="costoFilter" class="form-label">Rango de Costo</label>
                 <div class="input-group">
@@ -274,7 +272,6 @@
             </div>
         </div>
     </div>
-
     <header>
         <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
         <nav>
@@ -289,10 +286,10 @@
             <button id="toggleSidebar" class="btn btn-success">Mostrar/Ocultar Filtros</button>
         </div>
     </header>
-
     <div class="content">
         <div class="container-fluid table-container">
             <!-- Sección de Ruta de Archivos (oculta inicialmente) -->
+            @if(auth()->user()->puesto != 'Operacion')
             <div id="rutaArchivosSection" style="display: none;">
                 <div class="card mb-4">
                     <div class="card-header">
@@ -301,11 +298,9 @@
                     <div class="card-body">
                         <!-- Botón para mostrar/ocultar las opciones -->
                         <button id="editar-ruta-carpetas" class="btn btn-secondary mb-3">Editar Ruta de Carpetas</button>
-
                         <!-- Contenedor de opciones (inicialmente oculto) -->
                         <div id="opciones-rutas" style="display: none;">
                             <p>Este botón abre la carpeta de archivos que especifique.</p>
-
                            <!-- Opción 1: Cargar Última Ruta o Escribir Manualmente -->
                             <div class="mb-3">
                                 <label for="ruta_archivos_manual" class="form-label">Ruta de la Carpeta:</label>
@@ -339,24 +334,27 @@
                                 <input type="text" class="form-control" id="rutaCarpeta" required>
                                 <small class="text-muted">Selecciona la ruta donde se almacenarán los archivos de los cursos.</small>
                             </div>
-
                             <button type="submit" class="btn btn-primary">Guardar Ruta</button>
-
                         </form>
                     </div>
                 </div>
             </div>
+            @endif
 
-        <!-- Ícono de configuraciones en la esquina inferior derecha -->
-        <div id="configButton" style="position: fixed; bottom: 20px; right: 20px; cursor: pointer; z-index: 1000;">
-            <img src="{{ asset('images/imagenuerca2.png') }}" alt="Configuraciones" style="width: 40px; height: 40px;">
-            <div style="text-align: center; font-size: 12px; color: #333; margin-top: 5px;">Ruta de Archivos</div>
+            <!-- Ícono de configuraciones en la esquina inferior derecha -->
+            @if(auth()->user()->puesto != 'Operacion')
+            <div id="configButton" style="position: fixed; bottom: 20px; right: 20px; cursor: pointer; z-index: 1000;">
+                <img src="{{ asset('images/imagenuerca2.png') }}" alt="Configuraciones" style="width: 40px; height: 40px;">
+                <div style="text-align: center; font-size: 12px; color: #333; margin-top: 5px;">Ruta de Archivos</div>
+            </div>
+            @endif
         </div>
         <div class="container-fluid table-container">
             <h2 class="text-center mb-4">Lista de Cursos</h2>
-
+            @if(auth()->user()->puesto != 'Operacion')
             <a href="{{ route('exportar.cursos.excel') }}" class="btn btn-success">Exportar a Excel</a>
             <a href="{{ route('exportar.cursos.csv') }}" class="btn btn-primary">Exportar a CSV</a>
+            @endif
 
             <table id="cursosTable" class="table table-bordered table-striped">
                 <thead class="table-dark">
@@ -449,18 +447,21 @@
                             </td>
                             <td>
                                 <a href="{{ route('cursos.show', $curso->id) }}" class="btn btn-sm btn-info">Ver</a>
-                                <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-warning">Editar Curso</a>
+                                @if(auth()->user()->puesto != 'Operacion') <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-warning">Editar Curso</a>
                                 <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este curso?')">Eliminar</button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            @if(auth()->user()->puesto != 'Operacion')
             <a href="{{ route('curso.paso1') }}" class="btn btn-success">Crear Nuevo Curso</a>
+            @endif
         </div>
     </div>
 

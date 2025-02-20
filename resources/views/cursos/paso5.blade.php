@@ -104,12 +104,12 @@
                     @csrf
                     <!-- Digital -->
                     <div class="mb-3">
-                        <label class="form-label">Digital</label>
+                        <label class="form-label">Porcentaje de material digital</label>
                         <input type="text" name="Digital" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Drive Digital</label>
-                        <input type="text" name="DriveDigital" class="form-control" required>
+                        <label class="form-label">URL Drive (opcional)</label>
+                        <input type="text" name="DriveDigital" class="form-control" >
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local - Digital</label>
@@ -125,7 +125,7 @@
                     </div>
                     <!-- Impreso Presentable -->
                     <div class="mb-3">
-                        <label class="form-label">Impreso Presentable</label>
+                        <label class="form-label">Porcentaje del material impreso y presentable</label>
                         <input type="text" name="Impreso_Presentable" class="form-control" required>
                     </div>
                     <!-- Botones -->

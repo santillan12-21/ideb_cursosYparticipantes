@@ -109,22 +109,22 @@
                     @csrf
 
                     <div class="mb-3">
-                        <label class="form-label">Presentación</label>
+                        <label class="form-label">Porcentaje de la Presentación</label>
                         <input type="text" name="Presentación" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Evaluación Diagnóstica</label>
+                        <label class="form-label">Porcentaje de la Evaluación Diagnóstica</label>
                         <input type="text" name="Evaluación_diagnostica" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Evaluación de Satisfacción</label>
+                        <label class="form-label">Porcentaje de la Evaluación de Satisfacción</label>
                         <input type="text" name="EvaluaciondeSatisfacción" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Evaluación Final</label>
+                        <label class="form-label">Porcentaje de la Evaluación Final</label>
                         <input type="text" name="EvaluacionFinal" class="form-control" required>
                     </div>
 

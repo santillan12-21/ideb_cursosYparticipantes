@@ -113,14 +113,14 @@
                     </div>
                     <!-- Formato DC5 -->
                     <div class="mb-3">
-                        <label class="form-label">Formato DC5</label>
-                        <input type="text" name="Formato_DC5" class="form-control" required value="{{ old('Formato_DC5') }}">
+                        <label class="form-label">URL Drive (opcional) de DC5</label>
+                        <input type="text" name="Formato_DC5" class="form-control"  value="{{ old('Formato_DC5') }}">
                         @error('Formato_DC5')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Archivo Local - Formato DC5</label>
+                        <label class="form-label">Archivo Local (opcional)</label>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('FormatoDC5')">Crear carpeta local</button>
                         <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
                             <input type="file" name="FormatoDC5Local" class="form-control">
@@ -156,14 +156,14 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Drive de Certificado de Comprobación</label>
-                        <input type="text" name="DrivedeCertificadodecomprobacion" class="form-control" required value="{{ old('DrivedeCertificadodecomprobacion') }}">
+                        <label class="form-label">URL Drive (opcional) de Certificado de Comprobación</label>
+                        <input type="text" name="DrivedeCertificadodecomprobacion" class="form-control" value="{{ old('DrivedeCertificadodecomprobacion') }}">
                         @error('DrivedeCertificadodecomprobacion')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Archivo Local - Drive de Certificado de Comprobación</label>
+                        <label class="form-label">Archivo Local (opcional)</label>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CertificadoComprobacion')">Crear carpeta local</button>
                         <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
                             <input type="file" name="CertificadoComprobacionLocal" class="form-control">
@@ -187,14 +187,14 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Drive Carta Poder</label>
-                        <input type="text" name="DriveCartapoder" class="form-control" required value="{{ old('DriveCartapoder') }}">
+                        <label class="form-label">URL Drive (opcional) de Carta Poder</label>
+                        <input type="text" name="DriveCartapoder" class="form-control" value="{{ old('DriveCartapoder') }}">
                         @error('DriveCartapoder')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Archivo Local - Drive Carta Poder</label>
+                        <label class="form-label">Archivo Local (opcional)</label>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CartaPoder')">Crear carpeta local</button>
                         <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
                             <input type="file" name="CartaPoderLocal" class="form-control">
