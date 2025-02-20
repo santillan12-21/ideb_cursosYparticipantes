@@ -251,10 +251,14 @@
 
   <div class="sidebar" id="sidebar">
     <a style="color:#333">Trampa</a>
+    @if(auth()->user()->puesto != 'Mantenimiento')
     <a href="/users" class="menu-item" data-restricted="Operacion">Creación usuario</a>
+    @endif
     <a href="/cursos">Cursos</a>
     <a href="/participantes">Participantes</a>
+    @if(auth()->user()->puesto != 'Operacion')
     <a href="/registro">Registro de curso</a>
+    @endif
     <a href="{{ route('ruta.archivos') }}" class="menu-item" data-restricted="Operacion">Ruta archivos</a>
     <a href="https://drive.google.com/drive/folders/1HRJ_UliysPgzUOm1_XvcLR4MSuAjdODD?usp=sharing" target="_blank" class="drive-link menu-item" data-restricted="Operacion">
       <i class="fab fa-google-drive"></i> Carpeta de Drive

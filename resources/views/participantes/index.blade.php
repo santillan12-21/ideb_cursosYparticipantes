@@ -145,10 +145,12 @@
         </div>
 
         <!-- Botones de Exportación -->
-
+        @if(auth()->user()->puesto != 'Operacion')
         <a href="{{ route('exportar.excel') }}" class="btn btn-success">Exportar a Excel</a>
+        @endif
+        @if(auth()->user()->puesto != 'Operacion')
         <a href="{{ route('exportar.csv') }}" class="btn btn-primary">Exportar a CSV</a>
-
+        @endif
         <!-- Contenedor responsivo para la tabla -->
         <div class="table-container">
             <table id="participantesTable" class="table table-bordered table-striped">
@@ -211,10 +213,13 @@
                             <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn btn-sm btn-info" target="_blank">
                                 <i class="fas fa-eye"></i> Ver
                             </a>
+                            @if(auth()->user()->puesto != 'Operacion')
                             <!-- Botón Editar -->
                             <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn btn-sm btn-primary">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
+                            @endif
+                            @if(auth()->user()->puesto != 'Operacion')
                             <!-- Botón Eliminar -->
                             <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
                                 @csrf
@@ -223,6 +228,7 @@
                                     <i class="fas fa-trash"></i> Eliminar
                                 </button>
                             </form>
+                            @endif
                         </td>
                     </tr>
                     @empty

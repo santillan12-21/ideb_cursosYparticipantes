@@ -36,9 +36,11 @@
         </div>
     </div>
     <div class="text-center mt-4">
+        @if(auth()->user()->puesto != 'Operacion')
         <a href="{{ route('participantes.descargar-pdf', ['id' => $participante->id]) }}" class="btn btn-primary">
             <i class="fas fa-download"></i> Descargar PDF
         </a>
+        @endif
         <a href="{{ url()->previous() }}" class="btn btn-secondary">Regresar</a>
     </div>
 </div>
