@@ -184,9 +184,18 @@ Route::get('/verificar-ruta', [RutaArchivosController::class, 'verificarRuta'])-
 Route::post('/abrir-carpeta', [RutaArchivosController::class, 'abrirCarpeta'])->name('ruta.abrir');
 Route::get('/obtener-ultima-ruta', [RutaArchivosController::class, 'obtenerUltimaRuta'])->name('ruta.obtenerUltima');
 Route::get('/obtener-todas-las-rutas', [RutaArchivosController::class, 'obtenerTodasLasRutas'])->name('ruta.obtenerTodas');
+Route::post('/verificar-carpeta', [CursoController::class, 'verificarCarpeta'])->name('curso.verificarCarpeta');
 
 // Rutas para permisos
 Route::middleware(['auth'])->group(function () {
     Route::get('/permissions', [App\Http\Controllers\RolePermissionController::class, 'getPermissions']);
     Route::post('/check-view-permissions', [App\Http\Controllers\RolePermissionController::class, 'checkViewPermissions']);
 });
+
+// Ruta para exportar las tablas
+Route::get('/exportar-cursos', [ConfigController::class, 'exportCursos'])->name('exportar.cursos');
+Route::get('/exportar-participantes', [ConfigController::class, 'exportParticipantes'])->name('exportar.participantes');
+
+//Abrir visual code
+Route::get('/abrir-vscode', [ConfigController::class, 'openInVsCode'])->name('abrir.vscode');
+

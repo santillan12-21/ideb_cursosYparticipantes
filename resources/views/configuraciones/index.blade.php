@@ -52,5 +52,21 @@
 
         <button type="submit" class="btn btn-success">Guardar Cambios</button>
     </form>
+    <div>
+        <a href="{{ route('exportar.cursos') }}" class="btn btn-primary">
+            Exportar Cursos
+        </a>
+    </div>
+    <br>
+    <div>
+        <a href="{{ route('exportar.participantes') }}" class="btn btn-success">
+            Exportar Participantes
+        </a>
+    </div>
+    <div>
+        <a href="{{ route('abrir.vscode') }}" class="btn btn-info">
+            Abrir Proyecto en VS Code
+        </a>
+    </div>
 </div>
 @endsection

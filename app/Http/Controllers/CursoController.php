@@ -779,5 +779,32 @@ class CursoController extends Controller
             ], 500);
         }
     }
+
+    public function verificarCarpeta(Request $request)
+    {
+        try {
+            // Obtener la ruta seleccionada desde la solicitud
+            $rutaSeleccionada = $request->input('rutaSeleccionada');
+
+            // Verificar si la carpeta ya tiene subcarpetas
+            if (File::exists($rutaSeleccionada) && count(File::directories($rutaSeleccionada)) > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Esta carpeta ya tiene subcarpetas creadas. Se recomienda crear una nueva carpeta para el curso.'
+                ], 400);
+            }
+
+            // Si no hay subcarpetas, retornar éxito
+            return response()->json([
+                'success' => true,
+                'message' => 'La carpeta está disponible para crear un nuevo curso.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al verificar la carpeta: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
 
