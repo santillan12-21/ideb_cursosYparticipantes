@@ -153,6 +153,7 @@ class cursos extends Model
         'DriveCartapoder',
         'UDEMY',
         'Duracioncurso',
+        'status',
     ];
 
     protected $dates = [

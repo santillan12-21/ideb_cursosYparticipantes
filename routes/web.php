@@ -199,3 +199,7 @@ Route::get('/exportar-participantes', [ConfigController::class, 'exportParticipa
 //Abrir visual code
 Route::get('/abrir-vscode', [ConfigController::class, 'openInVsCode'])->name('abrir.vscode');
 
+//Actualizar el logo
+Route::post('/configuraciones/update-logo', [ConfigController::class, 'updateLogo'])->name('configuraciones.updateLogo');
+Route::post('/configuraciones/update-logo-from-list', [ConfigController::class, 'updateLogoFromList'])->name('configuraciones.updateLogoFromList');
+

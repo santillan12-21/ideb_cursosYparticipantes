@@ -1,3 +1,8 @@
+@php
+    // Obtener el logo desde la configuración
+    $setting = \App\Models\Setting::first();
+    $logoPath = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -53,7 +58,7 @@
 
         header {
             background-color: #000000;
-            padding: 15px 20px;
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -71,6 +76,7 @@
             height: auto;
             margin-right: 20px;
         }
+
 
         nav {
             display: flex;
@@ -273,15 +279,9 @@
         </div>
     </div>
     <header>
-        <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
-        <nav>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="logout-button">Salir</button>
-            </form>
-            <a href="/Inicio">Inicio</a>
-            <a href="{{ route('profile') }}">Mi Perfil</a>
-        </nav>
+        <a href="/Inicio">
+            <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="width: 200px; height: 70px;">
+        </a>
         <div class="button-container">
             <button id="toggleSidebar" class="btn btn-success">Mostrar/Ocultar Filtros</button>
         </div>

@@ -1,3 +1,9 @@
+@php
+    // Obtener el logo desde la configuración
+    $setting = \App\Models\Setting::first();
+    $logoPath = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
+@endphp
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -153,7 +159,7 @@
       box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
     }
     .config-icon {
-      width: 30px;
+      width: 80px;
       height: auto;
       cursor: pointer;
     }
@@ -207,7 +213,7 @@
   <header>
     <div class="header-left">
       <a href="/Inicio">
-        <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
+        <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="max-width: 150px;">
       </a>
     </div>
     <div class="header-center">
@@ -250,7 +256,7 @@
   </header>
 
   <div class="sidebar" id="sidebar">
-    <a style="color:#333">Trampa</a>
+    <a>Truco XD</a>
     @if(auth()->user()->puesto != 'Mantenimiento')
     <a href="/users" class="menu-item" data-restricted="Operacion">Creación usuario</a>
     @endif

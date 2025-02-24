@@ -17,11 +17,16 @@ class ConfigController extends Controller
         $currentCurrency = env('CURRENCY', 'MXN');
         $currentDbConnection = env('DB_CONNECTION', 'mysql');
 
+        // Obtener el logo actual
+        $setting = \App\Models\Setting::first();
+        $currentLogo = $setting ? $setting->logo : null;
+
         return view('configuraciones.index', compact(
             'currentTimezone',
             'currentLanguage',
             'currentCurrency',
-            'currentDbConnection'
+            'currentDbConnection',
+            'currentLogo'
         ));
     }
 
@@ -126,4 +131,52 @@ class ConfigController extends Controller
             return redirect()->back()->with('error', 'No se pudo abrir Visual Studio Code: ' . $e->getMessage());
         }
     }
+
+    public function updateLogo(Request $request)
+    {
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validar que sea una imagen válida
+        ]);
+
+        // Subir el archivo al directorio de almacenamiento
+        if ($request->hasFile('logo')) {
+            $path = $request->file('logo')->store('logos', 'public');
+
+            // Guardar la ruta del logo en la base de datos
+            $setting = \App\Models\Setting::firstOrNew(['id' => 1]);
+            $setting->logo = $path;
+            $setting->save();
+
+            return redirect()->back()->with('success', 'Logo actualizado correctamente.');
+        }
+
+        return redirect()->back()->with('error', 'No se pudo actualizar el logo.');
+    }
+
+    public function updateLogoFromList(Request $request)
+    {
+        $request->validate([
+            'selected_logo' => 'required|string', // Validar que se haya seleccionado un logo
+        ]);
+
+        // Obtener el nombre del logo seleccionado
+        $selectedLogo = $request->input('selected_logo');
+
+        // Construir la ruta relativa dentro de storage/app/public
+        $logoPath = 'logos/' . $selectedLogo;
+
+        // Verificar que el archivo exista en la carpeta de logos
+        if (!file_exists(storage_path('app/public/' . $logoPath))) {
+            return redirect()->back()->with('error', 'El logo seleccionado no existe.');
+        }
+
+        // Guardar la ruta del logo en la base de datos
+        $setting = \App\Models\Setting::firstOrNew(['id' => 1]);
+        $setting->logo = $logoPath; // Guardar la ruta relativa
+        $setting->save();
+
+        return redirect()->back()->with('success', 'Logo actualizado correctamente.');
+    }
+
+
 }

@@ -17,7 +17,10 @@ class CursoController extends Controller
      */
     public function index()
     {
-        $cursos = Cursos::all();
+        // Obtener solo los cursos con status = 1 (activos)
+        $cursos = Cursos::where('status', 1)->get();
+
+        // Pasar los cursos a la vista
         return view('cursos.index', compact('cursos'));
     }
 
@@ -70,14 +73,19 @@ class CursoController extends Controller
     public function destroy(string $id)
     {
         try {
+            // Buscar el curso por ID
             $curso = Cursos::findOrFail($id);
-            $curso->delete();
 
+            // Actualizar el campo 'status' a 0 (inactivo)
+            $curso->update(['status' => 0]);
+
+            // Redirigir con mensaje de éxito
             return redirect()->route('cursos.index')
-                ->with('success', 'Curso eliminado exitosamente');
+                ->with('success', 'Curso desactivado exitosamente');
         } catch (\Exception $e) {
+            // Redirigir con mensaje de error en caso de excepción
             return back()
-                ->with('error', 'Error al eliminar el curso: ' . $e->getMessage());
+                ->with('error', 'Error al desactivar el curso: ' . $e->getMessage());
         }
     }
 

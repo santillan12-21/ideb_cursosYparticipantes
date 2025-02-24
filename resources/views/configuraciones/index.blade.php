@@ -68,5 +68,51 @@
             Abrir Proyecto en VS Code
         </a>
     </div>
+    <h2>Configuración del Logo</h2>
+    <form action="{{ route('configuraciones.updateLogo') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="form-group">
+            <label for="logo">Seleccionar Logo</label>
+            <input type="file" name="logo" id="logo" class="form-control-file">
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Logo</button>
+    </form>
+
+    <h2>Seleccionar Logo desde la Lista</h2>
+    <form action="{{ route('configuraciones.updateLogoFromList') }}" method="POST">
+        @csrf
+        <div class="form-group">
+            <label for="selected_logo">Seleccionar Logo</label>
+            <select name="selected_logo" id="selected_logo" class="form-control">
+                @php
+                    // Leer los archivos de la carpeta logos
+                    $logos = glob(storage_path('app/public/logos/*.{jpg,jpeg,png,gif}'), GLOB_BRACE);
+                    $logoNames = array_map(fn($path) => basename($path), $logos);
+                @endphp
+                @foreach ($logoNames as $logo)
+                    <option value="{{ $logo }}" {{ $currentLogo && strpos($currentLogo, $logo) !== false ? 'selected' : '' }}>
+                        {{ $logo }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Logo</button>
+    </form>
+
+       <!-- Mostrar el logo actual -->
+        @if ($currentLogo)
+        <h3>Logo Actual:</h3>
+        <img src="{{ asset('storage/' . $currentLogo) }}" alt="Logo Actual" style="max-width: 200px;">
+        @else
+        <p>No hay un logo configurado.</p>
+        @endif
+
+    <!-- Mostrar el logo actual -->
+        @if ($currentLogo)
+        <h3>Logo Actual:</h3>
+        <img src="{{ asset('storage/' . $currentLogo) }}" alt="Logo Actual" style="max-width: 200px;">
+        @else
+        <p>No hay un logo configurado.</p>
+        @endif
 </div>
 @endsection

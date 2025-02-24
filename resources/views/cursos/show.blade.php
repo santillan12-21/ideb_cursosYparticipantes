@@ -1,3 +1,9 @@
+@php
+    // Obtener el logo desde la configuración
+    $setting = \App\Models\Setting::first();
+    $logoPath = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
+@endphp
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -98,7 +104,9 @@
 </head>
 <body>
     <header>
-        <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
+        <a href="/Inicio">
+            <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="width: 200px; height: 70px;">
+        </a>
     </header>
 
     <div class="container py-5">
