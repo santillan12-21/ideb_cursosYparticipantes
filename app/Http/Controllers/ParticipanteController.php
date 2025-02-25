@@ -11,6 +11,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParticipantesExport;
 use Illuminate\Support\Facades\Log;
+use App\Models\ParticipantActionLog;
+use Illuminate\Support\Facades\Auth;
 
 class ParticipanteController extends Controller
 {
@@ -19,8 +21,13 @@ class ParticipanteController extends Controller
      */
     public function index()
     {
+        // Obtener todos los cursos
         $cursos = Cursos::all();
-        $participantes = Participantes::with('cursos')->get(); // Cargar la relación 'cursos'
+
+        // Obtener solo los participantes con estatus = 1 y cargar la relación 'cursos'
+        $participantes = Participantes::where('estatus', 1)->with('cursos')->get();
+
+        // Pasar los datos a la vista
         return view('participantes.index', compact('cursos', 'participantes'));
     }
 
@@ -78,6 +85,17 @@ class ParticipanteController extends Controller
         // Actualizar los datos del participante
         $participante->update($validated);
 
+        // Registrar la acción en el historial
+        ParticipantActionLog::create([
+            'participant_id' => $participante->id,
+            'nombre_postulante' => $participante->NombredelPostulante,
+            'correo' => $participante->Correo,
+            'accion' => 'Editado',
+            'user_id' => Auth::id(),
+            'detalles' => 'Datos del participante actualizados.',
+            'fecha_accion' => now(),
+        ]);
+
         // Actualizar los cursos asociados al participante
         $participante->cursos()->sync($validated['cursos']);
 
@@ -113,6 +131,16 @@ class ParticipanteController extends Controller
     // Crear el participante
     $participante = new Participantes();
     $participante->fill($validated);
+    // Registrar la acción en el historial
+    ParticipantActionLog::create([
+        'participant_id' => $participante->id,
+        'nombre_postulante' => $participante->NombredelPostulante,
+        'correo' => $participante->Correo,
+        'accion' => 'Creado',
+        'user_id' => Auth::id(),
+        'detalles' => 'Nuevo participante registrado.',
+        'fecha_accion' => now(),
+    ]);
     $participante->save();
 
     // Guardar las inscripciones en la tabla intermedia
@@ -131,14 +159,23 @@ class ParticipanteController extends Controller
      */
     public function destroy($id)
     {
-        // Buscar el participante por su ID
         $participante = Participantes::findOrFail($id);
 
-        // Eliminar el participante
-        $participante->delete();
+        // Cambiar el estado a inactivo
+        $participante->update(['estatus' => 0]);
 
-        // Redireccionar con mensaje de éxito
-        return redirect()->route('participantes.index')->with('success', 'Participante eliminado correctamente.');
+        // Registrar la acción en el historial
+        ParticipantActionLog::create([
+            'participant_id' => $participante->id,
+            'nombre_postulante' => $participante->NombredelPostulante,
+            'correo' => $participante->Correo,
+            'accion' => 'Eliminado',
+            'user_id' => Auth::id(),
+            'detalles' => 'Participante desactivado.',
+            'fecha_accion' => now(),
+        ]);
+
+        return redirect()->route('participantes.index')->with('success', 'Participante desactivado exitosamente.');
     }
 
     /**

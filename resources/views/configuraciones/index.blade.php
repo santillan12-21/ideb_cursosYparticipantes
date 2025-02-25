@@ -125,6 +125,40 @@
         </tbody>
     </table>
 
+            <h2>Historial de Acciones de Participantes</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre del Postulante</th>
+                    <th>Correo</th>
+                    <th>Acción</th>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                    <th>Detalles</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if ($participantLogs->isEmpty())
+                    <tr>
+                        <td colspan="7" class="text-center">No hay registros disponibles.</td>
+                    </tr>
+                @else
+                    @foreach ($participantLogs as $log)
+                        <tr>
+                            <td>{{ $log->id }}</td>
+                            <td>{{ $log->nombre_postulante }}</td>
+                            <td>{{ $log->correo }}</td>
+                            <td>{{ $log->accion }}</td>
+                            <td>{{ $log->user?->name }}</td>
+                            <td>{{ \Carbon\Carbon::parse($log->fecha_accion)->format('d/m/Y h:i A') }}</td>
+                            <td>{{ $log->detalles }}</td>
+                        </tr>
+                    @endforeach
+                @endif
+            </tbody>
+        </table>
+
     <!-- Configuración de Base de Datos -->
     <h2>Configuración de Base de Datos</h2>
     <form action="{{ route('configuraciones.guardar') }}" method="POST">

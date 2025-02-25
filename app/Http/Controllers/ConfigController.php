@@ -10,6 +10,7 @@ use App\Models\CourseActionLog;
 use Illuminate\Support\Facades\Auth;
 use App\Models\cursos;
 use App\Models\Setting;
+use App\Models\ParticipantActionLog;
 
 class ConfigController extends Controller
 {
@@ -18,6 +19,7 @@ class ConfigController extends Controller
 
         // Obtener la conexión de base de datos actual
         $cursos = Cursos::all(); // Obtener todos los cursos
+        $participantLogs = ParticipantActionLog::all(); // Historial de participantes
         $currentDbConnection = Config::get('database.default');
         $setting = Setting::first();
         $currentLogo = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
@@ -27,7 +29,7 @@ class ConfigController extends Controller
         $logs = CourseActionLog::with(['curso', 'user'])->get();
 
         // Pasar los logs a la vista
-        return view('configuraciones.index', compact('logs', 'currentDbConnection', 'currentLogo','cursos'));
+        return view('configuraciones.index', compact('logs', 'currentDbConnection', 'currentLogo','cursos', 'participantLogs'));
     }
 
     public function store(Request $request)

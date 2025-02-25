@@ -79,7 +79,8 @@ class participantes extends Model
         'Puesto',
         'Pago',
         'EstadoDePago',
-        'FechadelCurso'
+        'FechadelCurso',
+        'estatus'
     ];
 
     public function setEstadoDePagoAttribute($value)
