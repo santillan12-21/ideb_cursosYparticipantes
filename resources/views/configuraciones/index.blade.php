@@ -1,46 +1,134 @@
 @extends('layouts.app')
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
 @section('content')
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS (con Popper.js incluido) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <div class="container">
     <h1>Configuraciones</h1>
 
+    <!-- Mostrar mensaje de éxito si existe -->
     @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-    <form action="{{ route('configuraciones.store') }}" method="POST">
+    <!-- Historial de Acciones -->
+    <h2>Historial de Acciones</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre del Curso</th>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+                <th>Detalles</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if ($logs->isEmpty())
+                <tr>
+                    <td colspan="7" class="text-center">No hay registros disponibles.</td>
+                </tr>
+            @else
+                @foreach ($logs as $log)
+                    <tr>
+                        <td>{{ $log->id }}</td>
+                        <td>{{ $log->nombre_curso }}</td>
+                        <td>{{ $log->accion }}</td>
+                        <td>{{ $log->user?->name }}</td>
+                        <td>{{ \Carbon\Carbon::parse($log->fecha_accion)->format('d/m/Y h:i A') }}</td>
+                        <td>{{ $log->detalles }}</td>
+                        <td>
+                            @if ($log->curso)
+                                <a href="{{ route('cursos.show', ['curso' => $log->curso->id]) }}" class="btn btn-info">
+                                    Ver Detalles
+                                </a>
+                            @else
+                                <span class="text-muted">Sin curso asociado</span>
+                            @endif
+
+                            <!-- Botones condicionales -->
+                            @if ($log->accion === 'Eliminado' && isset($log->curso))
+                                <!-- Botón para activar el curso nuevamente -->
+                                <form action="{{ route('cursos.activar', ['id' => $log->curso->id]) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success">Activar Curso</button>
+                                </form>
+                                <!-- Botón para Abrir el Modal -->
+                                <!-- Botón para Abrir el Primer Modal -->
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#initialConfirmModal{{ $log->id }}">
+                                    Eliminar Definitivamente
+                                </button>
+
+                                <!-- Primer Modal: Confirmación Inicial -->
+                                <div class="modal fade" id="initialConfirmModal{{ $log->id }}" tabindex="-1" aria-labelledby="initialConfirmModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="initialConfirmModalLabel">Confirmar Eliminación</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>¿Estás seguro de que deseas eliminar este curso definitivamente?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="openPasswordModal({{ $log->id }})">Sí, estoy seguro</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Segundo Modal: Ingreso de Contraseña -->
+                                <div class="modal fade" id="confirmDeleteModal{{ $log->id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Ingresa tu contraseña para confirmar la eliminación:</p>
+                                                <form id="deleteForm{{ $log->id }}" action="{{ route('cursos.eliminar-definitivo', ['id' => $log->curso->id]) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <div class="mb-3">
+                                                        <label for="password{{ $log->id }}" class="form-label">Contraseña:</label>
+                                                        <input type="password" class="form-control" id="password{{ $log->id }}" name="password" required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            @endif
+        </tbody>
+    </table>
+
+    <!-- Configuración de Base de Datos -->
+    <h2>Configuración de Base de Datos</h2>
+    <form action="{{ route('configuraciones.guardar') }}" method="POST">
         @csrf
-
-        <h2>Parámetros Generales</h2>
-        <div class="form-group">
-            <label for="timezone">Zona Horaria</label>
-            <select name="timezone" id="timezone" class="form-control">
-                <option value="UTC" {{ $currentTimezone == 'UTC' ? 'selected' : '' }}>UTC</option>
-                <option value="America/Mexico_City" {{ $currentTimezone == 'America/Mexico_City' ? 'selected' : '' }}>México</option>
-                <option value="Europe/Madrid" {{ $currentTimezone == 'Europe/Madrid' ? 'selected' : '' }}>España</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="language">Idioma</label>
-            <select name="language" id="language" class="form-control">
-                <option value="es" {{ $currentLanguage == 'es' ? 'selected' : '' }}>Español</option>
-                <option value="en" {{ $currentLanguage == 'en' ? 'selected' : '' }}>Inglés</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="currency">Moneda</label>
-            <select name="currency" id="currency" class="form-control">
-                <option value="MXN" {{ $currentCurrency == 'MXN' ? 'selected' : '' }}>Peso Mexicano (MXN)</option>
-                <option value="USD" {{ $currentCurrency == 'USD' ? 'selected' : '' }}>Dólar Estadounidense (USD)</option>
-                <option value="EUR" {{ $currentCurrency == 'EUR' ? 'selected' : '' }}>Euro (EUR)</option>
-            </select>
-        </div>
-
-        <h2>Configuración de Base de Datos</h2>
         <div class="form-group">
             <label for="db_connection">Tipo de Conexión</label>
             <select name="db_connection" id="db_connection" class="form-control">
@@ -49,25 +137,33 @@
                 <option value="sqlite" {{ $currentDbConnection == 'sqlite' ? 'selected' : '' }}>SQLite</option>
             </select>
         </div>
-
         <button type="submit" class="btn btn-success">Guardar Cambios</button>
     </form>
+
+    <!-- Exportar Cursos -->
     <div>
         <a href="{{ route('exportar.cursos') }}" class="btn btn-primary">
             Exportar Cursos
         </a>
     </div>
     <br>
+
+    <!-- Exportar Participantes -->
     <div>
         <a href="{{ route('exportar.participantes') }}" class="btn btn-success">
             Exportar Participantes
         </a>
     </div>
+    <br>
+
+    <!-- Abrir Proyecto en VS Code -->
     <div>
         <a href="{{ route('abrir.vscode') }}" class="btn btn-info">
             Abrir Proyecto en VS Code
         </a>
     </div>
+
+    <!-- Configuración del Logo -->
     <h2>Configuración del Logo</h2>
     <form action="{{ route('configuraciones.updateLogo') }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -78,6 +174,7 @@
         <button type="submit" class="btn btn-primary">Actualizar Logo</button>
     </form>
 
+    <!-- Seleccionar Logo desde la Lista -->
     <h2>Seleccionar Logo desde la Lista</h2>
     <form action="{{ route('configuraciones.updateLogoFromList') }}" method="POST">
         @csrf
@@ -99,20 +196,26 @@
         <button type="submit" class="btn btn-primary">Actualizar Logo</button>
     </form>
 
-       <!-- Mostrar el logo actual -->
-        @if ($currentLogo)
-        <h3>Logo Actual:</h3>
-        <img src="{{ asset('storage/' . $currentLogo) }}" alt="Logo Actual" style="max-width: 200px;">
-        @else
-        <p>No hay un logo configurado.</p>
-        @endif
-
     <!-- Mostrar el logo actual -->
-        @if ($currentLogo)
-        <h3>Logo Actual:</h3>
+    <h3>Logo Actual:</h3>
+    @if ($currentLogo)
         <img src="{{ asset('storage/' . $currentLogo) }}" alt="Logo Actual" style="max-width: 200px;">
-        @else
+    @else
         <p>No hay un logo configurado.</p>
-        @endif
+    @endif
 </div>
+<script>
+    function openPasswordModal(logId) {
+        // Cerrar el primer modal
+        const initialModal = bootstrap.Modal.getInstance(document.getElementById(`initialConfirmModal${logId}`));
+        if (initialModal) {
+            initialModal.hide();
+        }
+
+        // Abrir el segundo modal
+        const passwordModal = new bootstrap.Modal(document.getElementById(`confirmDeleteModal${logId}`));
+        passwordModal.show();
+    }
+</script>
+
 @endsection

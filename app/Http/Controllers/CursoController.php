@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Cursos;
 use Illuminate\Support\Facades\Log;
@@ -9,6 +10,9 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CursosExport;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use App\Models\CourseActionLog;
+use Illuminate\Support\Facades\Hash;
+
 
 class CursoController extends Controller
 {
@@ -78,6 +82,16 @@ class CursoController extends Controller
 
             // Actualizar el campo 'status' a 0 (inactivo)
             $curso->update(['status' => 0]);
+
+            // Registrar la acción de eliminación
+            CourseActionLog::create([
+                'curso_id' => $curso->id,
+                'nombre_curso' => $curso->NombredelCurso,
+                'user_id' => Auth::id(),
+                'accion' => 'Eliminado',
+                'detalles' => 'Curso desactivado por el usuario.',
+                'fecha_accion' => now(),
+            ]);
 
             // Redirigir con mensaje de éxito
             return redirect()->route('cursos.index')
@@ -503,6 +517,16 @@ class CursoController extends Controller
             // Crear el nuevo curso
             $curso = Cursos::create($cursoData);
 
+            // Registrar la acción de creación
+            CourseActionLog::create([
+                'curso_id' => $curso->id,
+                'nombre_curso' => $curso->NombredelCurso,
+                'user_id' => Auth::id(),
+                'accion' => 'Creado',
+                'detalles' => 'Curso creado por el usuario.',
+                'fecha_accion' => now(),
+            ]);
+
             if (!$curso) {
                 throw new \Exception('No se pudo crear el curso');
             }
@@ -635,6 +659,15 @@ class CursoController extends Controller
             }
 
             $curso->update($validated);
+            // Registrar la acción de edición
+            CourseActionLog::create([
+                'curso_id' => $curso->id,
+                'nombre_curso' => $curso->NombredelCurso,
+                'user_id' => Auth::id(),
+                'accion' => 'Editado',
+                'detalles' => "El paso $paso del curso fue actualizado.",
+                'fecha_accion' => now(),
+            ]);
 
             return redirect()->route('cursos.edit', $curso->id)
                 ->with('success', "Paso $paso actualizado exitosamente");
@@ -814,5 +847,65 @@ class CursoController extends Controller
             ], 500);
         }
     }
+
+    public function mostrarLogs()
+    {
+        $logs = CourseActionLog::with(['curso', 'user'])->get();
+        return view('configuraciones.show-log', compact('logs'));
+    }
+
+    public function activarCurso($id)
+    {
+        try {
+            // Buscar el curso por ID
+            $curso = Cursos::findOrFail($id);
+
+            // Actualizar el campo 'status' a 1 (activo)
+            $curso->update(['status' => 1]);
+
+            // Redirigir con mensaje de éxito
+            return redirect()->route('configuraciones.index')
+                ->with('success', 'Curso activado exitosamente');
+        } catch (\Exception $e) {
+            // Redirigir con mensaje de error en caso de excepción
+            return back()
+                ->with('error', 'Error al activar el curso: ' . $e->getMessage());
+        }
+    }
+
+    public function eliminarDefinitivo(Request $request, $id)
+    {
+        try {
+            // Verificar que el usuario esté autenticado
+            if (!Auth::check()) {
+                return back()->with('error', 'Debes iniciar sesión para realizar esta acción.');
+            }
+
+            // Validar la solicitud
+            $request->validate([
+                'password' => 'required|string',
+            ]);
+
+            // Verificar que la contraseña sea correcta
+            if (!Hash::check($request->password, Auth::user()->password)) {
+                return back()->with('error', 'Contraseña incorrecta. No se pudo eliminar el curso.');
+            }
+
+            // Buscar el curso por ID
+            $curso = Cursos::findOrFail($id);
+
+            // Eliminar el curso definitivamente
+            $curso->forceDelete();
+
+            // Redirigir con mensaje de éxito
+            return redirect()->route('configuraciones.index')
+                ->with('success', 'Curso eliminado definitivamente.');
+        } catch (\Exception $e) {
+            // Redirigir con mensaje de error en caso de excepción
+            return back()->with('error', 'Error al eliminar el curso: ' . $e->getMessage());
+        }
+    }
+
+
 }
 

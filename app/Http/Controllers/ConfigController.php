@@ -6,53 +6,52 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use App\Models\CourseActionLog;
+use Illuminate\Support\Facades\Auth;
+use App\Models\cursos;
+use App\Models\Setting;
 
 class ConfigController extends Controller
 {
     public function index()
     {
-        // Obtener configuraciones actuales
-        $currentTimezone = config('app.timezone');
-        $currentLanguage = config('app.locale');
-        $currentCurrency = env('CURRENCY', 'MXN');
-        $currentDbConnection = env('DB_CONNECTION', 'mysql');
 
-        // Obtener el logo actual
-        $setting = \App\Models\Setting::first();
-        $currentLogo = $setting ? $setting->logo : null;
+        // Obtener la conexión de base de datos actual
+        $cursos = Cursos::all(); // Obtener todos los cursos
+        $currentDbConnection = Config::get('database.default');
+        $setting = Setting::first();
+        $currentLogo = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
 
-        return view('configuraciones.index', compact(
-            'currentTimezone',
-            'currentLanguage',
-            'currentCurrency',
-            'currentDbConnection',
-            'currentLogo'
-        ));
+
+        // Obtener todos los registros de logs con relaciones
+        $logs = CourseActionLog::with(['curso', 'user'])->get();
+
+        // Pasar los logs a la vista
+        return view('configuraciones.index', compact('logs', 'currentDbConnection', 'currentLogo','cursos'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'timezone' => 'required|string',
-            'language' => 'required|string',
-            'currency' => 'required|string',
-            'db_connection' => 'required|string',
-        ]);
+        try {
+            // Validar los datos del formulario
+            $validated = $request->validate([
+                'nombre_configuracion' => 'required|string|max:255',
+                'valor_configuracion' => 'required|string|max:255',
+            ]);
 
-        // Guardar configuraciones en sesión
-        Session::put('language', $request->input('language'));
+            // Guardar los datos (aquí puedes agregar la lógica para guardar en la base de datos)
+            // Ejemplo: Configuracion::create($validated);
 
-        // Actualizar .env
-        $this->updateEnv([
-            'APP_TIMEZONE' => $request->input('timezone'),
-            'APP_LOCALE' => $request->input('language'),
-            'CURRENCY' => $request->input('currency'),
-            'DB_CONNECTION' => $request->input('db_connection'),
-        ]);
-
-        return redirect()->route('configuraciones.index')
-            ->with('success', 'Configuraciones actualizadas correctamente.');
+            // Redirigir con mensaje de éxito
+            return redirect()->route('configuraciones.index')
+                ->with('success', 'Configuración guardada exitosamente');
+        } catch (\Exception $e) {
+            // Redirigir con mensaje de error en caso de excepción
+            return back()
+                ->with('error', 'Error al guardar la configuración: ' . $e->getMessage());
+        }
     }
+
 
     private function updateEnv($data = [])
     {
@@ -177,6 +176,95 @@ class ConfigController extends Controller
 
         return redirect()->back()->with('success', 'Logo actualizado correctamente.');
     }
+
+    public function mostrarLogs()
+    {
+        // Obtener todos los registros de logs con relaciones
+        $logs = CourseActionLog::with(['curso', 'user'])->get();
+
+        // Pasar los logs a la vista
+        return view('configuraciones.show-log.blade', compact('logs'));
+    }
+
+    /**
+     * Mostrar los detalles de un log específico.
+     */
+    public function mostrarDetallesLog($id)
+    {
+        // Buscar el registro por ID
+        $log = CourseActionLog::with(['curso', 'user'])->findOrFail($id);
+
+        // Pasar el log a la vista
+        return view('configuraciones.show-log.blade', compact('log'));
+    }
+
+            /**
+             * Activar un curso eliminado.
+             */
+
+        public function activarCurso($id)
+        {
+            try {
+                // Buscar el curso por ID
+                $curso = Cursos::findOrFail($id);
+
+                // Actualizar el campo 'status' a 1 (activo)
+                $curso->update(['status' => 1]);
+
+                // Redirigir con mensaje de éxito
+                return redirect()->route('configuraciones.index')
+                    ->with('success', 'Curso activado exitosamente');
+            } catch (\Exception $e) {
+                // Redirigir con mensaje de error en caso de excepción
+                return back()
+                    ->with('error', 'Error al activar el curso: ' . $e->getMessage());
+            }
+        }
+
+        /**
+         * Eliminar definitivamente un curso.
+         */
+        public function eliminarDefinitivo($id)
+        {
+            try {
+                // Buscar el curso por ID
+                $curso = Cursos::findOrFail($id);
+
+                // Eliminar el curso
+                $curso->delete();
+
+                // Redirigir con mensaje de éxito
+                return redirect()->route('configuraciones.index')
+                    ->with('success', 'Curso eliminado definitivamente');
+            } catch (\Exception $e) {
+                // Redirigir con mensaje de error en caso de excepción
+                return back()
+                    ->with('error', 'Error al eliminar el curso: ' . $e->getMessage());
+            }
+        }
+
+        /**
+         * Mostrar detalles de un registro de log.
+         */
+        public function showLog($id)
+        {
+            // Buscar el registro por ID
+            $log = CourseActionLog::with(['curso', 'user'])->findOrFail($id);
+
+            // Pasar el log a la vista principal de configuraciones
+            return view('configuraciones.show-log', compact('log'));
+        }
+
+            public function show($id)
+            {
+                // Buscar el curso por ID
+                $curso = Cursos::findOrFail($id);
+
+                // Pasar el curso a la vista
+                return view('cursos.show', compact('curso'));
+            }
+
+
 
 
 }

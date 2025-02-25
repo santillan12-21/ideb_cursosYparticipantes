@@ -17,6 +17,7 @@ use App\Http\Controllers\ArchivosController;
 use App\Http\Controllers\RutaCursosController;
 use App\Http\Controllers\RutaArchivosController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CourseActionLogController;
 
 
 //Rutas de inicio de sesion:
@@ -101,10 +102,29 @@ Route::delete('/cursos/{curso}', [CursoController::class, 'destroy'])->name('cur
 
 Route::get('/configuraciones', [ConfigController::class, 'index'])->name('configuraciones.index');
 Route::post('/configuraciones', [ConfigController::class, 'store'])->name('configuraciones.store');
+
+
 Route::get('/users/show', [UserController::class, 'show'])->name('users.show');
 
-Route::get('/configuraciones', [ConfigController::class, 'index'])->name('configuraciones.index');
-Route::post('/configuraciones', [ConfigController::class, 'store'])->name('configuraciones.store');
+Route::middleware('auth')->group(function () {
+    // Pantalla principal de configuraciones (incluye logs)
+    Route::get('/configuraciones', [ConfigController::class, 'index'])->name('configuraciones.index');
+
+    // Activar un curso eliminado
+    Route::post('/cursos/{id}/activar', [CursoController::class, 'activarCurso'])->name('cursos.activar');
+
+    Route::post('/configuraciones', [ConfigController::class, 'store'])->name('configuraciones.store');
+
+
+    Route::get('/configuraciones/logs/{id}', [ConfigController::class, 'showLog'])->name('configuraciones.show-log');
+
+    // Guardar los datos de configuración
+    Route::post('/configuraciones/guardar', [ConfigController::class, 'store'])->name('configuraciones.guardar');
+
+    Route::get('/cursos/{curso}', [CursoController::class, 'show'])->name('cursos.show');
+
+    Route::delete('/cursos/{id}/eliminar-definitivo', [CursoController::class, 'eliminarDefinitivo'])->name('cursos.eliminar-definitivo');
+});
 
 // Ruta para mostrar el formulario de registro
 Route::get('/registro', [RegistroController::class, 'index'])->name('registro.index');
@@ -202,4 +222,5 @@ Route::get('/abrir-vscode', [ConfigController::class, 'openInVsCode'])->name('ab
 //Actualizar el logo
 Route::post('/configuraciones/update-logo', [ConfigController::class, 'updateLogo'])->name('configuraciones.updateLogo');
 Route::post('/configuraciones/update-logo-from-list', [ConfigController::class, 'updateLogoFromList'])->name('configuraciones.updateLogoFromList');
+Route::get('/course-action-logs', [CourseActionLogController::class, 'index'])->name('course-action-logs.index');
 
