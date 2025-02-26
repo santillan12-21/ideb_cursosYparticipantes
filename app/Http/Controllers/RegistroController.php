@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\Participantes;
 use App\Models\Cursos;
 use App\Models\Inscripcion;
+use Illuminate\Support\Facades\DB;
 
 class RegistroController extends Controller
 {
@@ -23,10 +24,10 @@ class RegistroController extends Controller
             'Edad' => 'required|integer',
             'Direccion' => 'required|string|max:255',
             'Escolaridad' => 'required|string|max:255',
-            'Curp' => 'required|string|max:255',
-            'RazónSocial' => 'nullable|string|max:200',
+            'Curp' => 'required|string|max:18',
+            'RazónSocial' => 'required|string|max:200',
             'Empresa' => 'required|string|max:255',
-            'RFCEmpresa' => 'nullable|string|max:100',
+            'RFCEmpresa' => 'required|string|max:100',
             'Puesto' => 'required|string|max:255',
             'EstadoDePago' => 'required|string|max:255',
             'cursos' => 'required|array|min:1',
@@ -40,9 +41,30 @@ class RegistroController extends Controller
 
         $validated = $request->validate($rules);
 
+        // Generar el código autoincremental (N)
+        $year = date('y'); // Obtiene los dos últimos dígitos del año actual
+        $lastParticipante = DB::table('participantes')
+            ->where('N', 'like', "IC-{$year}%")
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastParticipante) {
+            // Obtener el último número y aumentarlo en 1
+            $lastNumber = intval(substr($lastParticipante->N, 5));
+            $newNumber = $lastNumber + 1;
+        } else {
+            // Si no hay registros previos, comenzar desde 1
+            $newNumber = 1;
+        }
+
+        // Formatear el número con ceros a la izquierda (4 dígitos)
+        $formattedNumber = str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        $nValue = "IC-{$year}{$formattedNumber}";
+
         $participante = new Participantes();
         $participante->fill($validated);
         $participante->Pago = $request->Pago ?? null;
+        $participante->N = $nValue; // Asignar el valor generado
 
         $inscripciones = [];
         foreach ($request->cursos as $curso_id) {

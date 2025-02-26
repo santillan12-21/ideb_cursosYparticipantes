@@ -205,6 +205,7 @@
                             @endif
                         </div>
                     </div>
+
                     <!-- UDEMY -->
                     <div class="mb-3">
                         <label class="form-label">UDEMY</label>
@@ -216,6 +217,18 @@
                         @error('UDEMY')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local (opcional)</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Udemy')">Crear carpeta local</button>
+                        <div id="archivoUdemyContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="UdemyLocal" class="form-control">
+                            @if(session('cursos_paso7.UdemyLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso7.UdemyLocal') }}
+                                </div>
+                            @endif
+                        </div>
                     </div>
                     <!-- Botones -->
                     <div class="mb-3 d-flex justify-content-between">

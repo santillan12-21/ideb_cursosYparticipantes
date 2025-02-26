@@ -112,20 +112,68 @@
                         <label class="form-label">Porcentaje de la Presentación</label>
                         <input type="text" name="Presentación" class="form-control" required>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Presentación</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Presentacion')">Crear carpeta local</button>
+                        <div id="archivoPresentacionContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="PresentacionLocal" class="form-control">
+                            @if(session('cursos_paso6.PresentacionLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso6.PresentacionLocal') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de la Evaluación Diagnóstica</label>
                         <input type="text" name="Evaluación_diagnostica" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Evaluación Diagnóstica</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionDiagnostica')">Crear carpeta local</button>
+                        <div id="archivoEvaluacionDiagnosticaContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="EvaluacionDiagnosticaLocal" class="form-control">
+                            @if(session('cursos_paso6.EvaluacionDiagnosticaLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso6.EvaluacionDiagnosticaLocal') }}
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de la Evaluación de Satisfacción</label>
                         <input type="text" name="EvaluaciondeSatisfacción" class="form-control" required>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Evaluación de Satisfacción</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionSatisfaccion')">Crear carpeta local</button>
+                        <div id="archivoEvaluacionSatisfaccionContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="EvaluacionSatisfaccionLocal" class="form-control">
+                            @if(session('cursos_paso6.EvaluacionSatisfaccionLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso6.EvaluacionSatisfaccionLocal') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de la Evaluación Final</label>
                         <input type="text" name="EvaluacionFinal" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Evaluación Final</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionFinal')">Crear carpeta local</button>
+                        <div id="archivoEvaluacionFinalContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="EvaluacionFinalLocal" class="form-control">
+                            @if(session('cursos_paso6.EvaluacionFinalLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso6.EvaluacionFinalLocal') }}
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -192,6 +240,36 @@
             </div>
         </div>
     </div>
-
+    <script>
+        function crearCarpeta(tipo) {
+            fetch('/crear-carpeta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    tipo: tipo,
+                    nombreCarpeta: tipo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Carpeta creada exitosamente: ' + data.ruta);
+                    // Mostrar el contenedor de archivos correspondiente
+                    const contenedor = document.getElementById(`archivo${tipo.replace('ó', 'o')}Container`);
+                    if (contenedor) {
+                        contenedor.style.display = 'block';
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>

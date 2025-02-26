@@ -128,6 +128,18 @@
                         <label class="form-label">Porcentaje del material impreso y presentable</label>
                         <input type="text" name="Impreso_Presentable" class="form-control" required>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local - Impreso Presentable</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('ImpresoPresentable')">Crear carpeta local</button>
+                        <div id="archivoImpresoPresentableContainer" style="display: none;" class="mt-2">
+                            <input type="file" name="ImpresoPresentableLocal" class="form-control">
+                            @if(session('cursos_paso5.ImpresoPresentableLocal'))
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso5.ImpresoPresentableLocal') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     <!-- Botones -->
                     <div class="mb-3 d-flex justify-content-between">
                         <!-- Botón Siguiente -->
