@@ -13,6 +13,7 @@ use App\Exports\ParticipantesExport;
 use Illuminate\Support\Facades\Log;
 use App\Models\ParticipantActionLog;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class ParticipanteController extends Controller
 {
@@ -265,5 +266,60 @@ class ParticipanteController extends Controller
         $participantes = Participantes::with('cursos')->get();
         return Excel::download(new ParticipantesExport($participantes), 'participantes.csv');
     }
+
+        public function activar($id)
+        {
+            try {
+                $participante = Participantes::findOrFail($id);
+
+                // Cambiar el estado a activo (estatus = 1)
+                $participante->update(['estatus' => 1]);
+
+                // Registrar la acción en el historial
+                ParticipantActionLog::create([
+                    'participant_id' => $participante->id,
+                    'nombre_postulante' => $participante->NombredelPostulante,
+                    'correo' => $participante->Correo,
+                    'accion' => 'Activado',
+                    'user_id' => Auth::id(),
+                    'detalles' => 'Participante activado nuevamente.',
+                    'fecha_accion' => now(),
+                ]);
+
+                return redirect()->route('configuraciones.index')->with('success', 'Participante activado exitosamente.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error al activar el participante: ' . $e->getMessage());
+            }
+        }
+        public function eliminarDefinitivo(Request $request, $id)
+            {
+                try {
+                    // Validar la contraseña del usuario autenticado
+                    if (!Hash::check($request->password, Auth::user()->password)) {
+                        return back()->with('error', 'Contraseña incorrecta.');
+                    }
+
+                    // Buscar el participante por ID
+                    $participante = Participantes::findOrFail($id);
+
+                    // Eliminar el participante de la base de datos
+                    $participante->delete();
+
+                    // Registrar la acción en el historial
+                    ParticipantActionLog::create([
+                        'participant_id' => $participante->id,
+                        'nombre_postulante' => $participante->NombredelPostulante,
+                        'correo' => $participante->correo,
+                        'accion' => 'Eliminado Definitivamente',
+                        'user_id' => Auth::id(),
+                        'detalles' => 'Participante eliminado definitivamente.',
+                        'fecha_accion' => now(),
+                    ]);
+
+                    return redirect()->route('configuraciones.index')->with('success', 'Participante eliminado definitivamente.');
+                } catch (\Exception $e) {
+                    return back()->with('error', 'Error al eliminar el participante: ' . $e->getMessage());
+                }
+            }
 
 }

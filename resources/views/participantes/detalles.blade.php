@@ -7,6 +7,7 @@
     <div class="card mt-4">
         <div class="card-body">
             <h5 class="card-title">{{ $participante->NombredelPostulante }}</h5>
+            <p><strong>Id:</strong> {{ $participante->N }}</p>
             <p><strong>Correo:</strong> {{ $participante->Correo }}</p>
             <p><strong>Teléfono:</strong> {{ $participante->Telefono }}</p>
             <p><strong>Edad:</strong> {{ $participante->Edad }}</p>

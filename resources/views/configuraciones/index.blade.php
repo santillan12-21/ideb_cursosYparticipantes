@@ -25,7 +25,7 @@
     @endif
 
     <!-- Historial de Acciones -->
-    <h2>Historial de Acciones</h2>
+    <h2>Historial de Acciones de cursos</h2>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -58,7 +58,7 @@
                                     Ver Detalles
                                 </a>
                             @else
-                                <span class="text-muted">Sin curso asociado</span>
+                                <span class="text-muted">El curso fue eliminado</span>
                             @endif
 
                             <!-- Botones condicionales -->
@@ -125,39 +125,114 @@
         </tbody>
     </table>
 
-            <h2>Historial de Acciones de Participantes</h2>
-        <table class="table table-bordered">
-            <thead>
+    <h2>Historial de Acciones de Participantes</h2>
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre del Postulante</th>
+                <th>Correo</th>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+                <th>Detalles</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if ($participantLogs->isEmpty())
                 <tr>
-                    <th>ID</th>
-                    <th>Nombre del Postulante</th>
-                    <th>Correo</th>
-                    <th>Acción</th>
-                    <th>Usuario</th>
-                    <th>Fecha</th>
-                    <th>Detalles</th>
+                    <td colspan="8" class="text-center">No hay registros disponibles.</td>
                 </tr>
-            </thead>
-            <tbody>
-                @if ($participantLogs->isEmpty())
+            @else
+                @foreach ($participantLogs as $log)
                     <tr>
-                        <td colspan="7" class="text-center">No hay registros disponibles.</td>
+                        <td>{{ $log->id }}</td>
+                        <td>{{ $log->nombre_postulante }}</td>
+                        <td>{{ $log->correo }}</td>
+                        <td>{{ $log->accion }}</td>
+                        <td>{{ $log->user?->name }}</td>
+                        <td>{{ \Carbon\Carbon::parse($log->fecha_accion)->format('d/m/Y h:i A') }}</td>
+                        <td>{{ $log->detalles }}</td>
+                        <td>
+                            <!-- Botón para Ver Detalles -->
+                            @if ($log->participant)
+                                <a href="{{ route('participantes.detalles', ['id' => $log->participant_id]) }}" class="btn btn-info btn-sm" target="_blank">
+                                    Ver Detalles
+                                </a>
+                            @else
+                                El participante fue eliminado
+                            @endif
+
+                            <!-- Botón para Activar Participante -->
+                            @if ($log->accion === 'Eliminado' && isset($log->participant) && $log->participant->estatus == 0)
+                                <form action="{{ route('participantes.activar', ['id' => $log->participant_id]) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">Activar Participante</button>
+                                </form>
+                            @endif
+
+                            <!-- Botón para Eliminar Definitivamente -->
+                            @if ($log->accion === 'Eliminado' && isset($log->participant))
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#initialConfirmModal{{ $log->id }}">
+                                    Eliminar Definitivamente
+                                </button>
+
+                                <!-- Primer Modal: Confirmación Inicial -->
+                                <div class="modal fade" id="initialConfirmModal{{ $log->id }}" tabindex="-1" aria-labelledby="initialConfirmModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="initialConfirmModalLabel">Confirmar Eliminación</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>¿Estás seguro de que deseas eliminar este participante definitivamente?</p>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="button" class="btn btn-danger" onclick="openPasswordModal({{ $log->id }})">Sí, estoy seguro</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Segundo Modal: Confirmación con Contraseña -->
+                                <div class="modal fade" id="confirmDeleteModal{{ $log->id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Ingresa tu contraseña para confirmar la eliminación:</p>
+                                                <form id="deleteForm{{ $log->id }}" action="{{ route('participantes.eliminar-definitivo', ['id' => $log->participant_id]) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <div class="mb-3">
+                                                        <label for="password{{ $log->id }}" class="form-label">Contraseña:</label>
+                                                        <input type="password" class="form-control" id="password{{ $log->id }}" name="password" required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </td>
                     </tr>
-                @else
-                    @foreach ($participantLogs as $log)
-                        <tr>
-                            <td>{{ $log->id }}</td>
-                            <td>{{ $log->nombre_postulante }}</td>
-                            <td>{{ $log->correo }}</td>
-                            <td>{{ $log->accion }}</td>
-                            <td>{{ $log->user?->name }}</td>
-                            <td>{{ \Carbon\Carbon::parse($log->fecha_accion)->format('d/m/Y h:i A') }}</td>
-                            <td>{{ $log->detalles }}</td>
-                        </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
+                @endforeach
+            @endif
+        </tbody>
+    </table>
 
     <!-- Configuración de Base de Datos -->
     <h2>Configuración de Base de Datos</h2>
@@ -230,13 +305,8 @@
         <button type="submit" class="btn btn-primary">Actualizar Logo</button>
     </form>
 
-    <!-- Mostrar el logo actual -->
-    <h3>Logo Actual:</h3>
-    @if ($currentLogo)
-        <img src="{{ asset('storage/' . $currentLogo) }}" alt="Logo Actual" style="max-width: 200px;">
-    @else
-        <p>No hay un logo configurado.</p>
-    @endif
+
+
 </div>
 <script>
     function openPasswordModal(logId) {

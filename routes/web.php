@@ -124,6 +124,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/cursos/{curso}', [CursoController::class, 'show'])->name('cursos.show');
 
     Route::delete('/cursos/{id}/eliminar-definitivo', [CursoController::class, 'eliminarDefinitivo'])->name('cursos.eliminar-definitivo');
+
+    // Activar un participante eliminado
+Route::post('/participantes/{id}/activar', [ParticipanteController::class, 'activar'])->name('participantes.activar');
+
+// Eliminar definitivamente un participante
+Route::delete('/participantes/{id}/eliminar-definitivo', [ParticipanteController::class, 'eliminarDefinitivo'])->name('participantes.eliminar-definitivo');
 });
 
 // Ruta para mostrar el formulario de registro

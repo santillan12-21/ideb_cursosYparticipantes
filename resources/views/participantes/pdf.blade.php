@@ -156,6 +156,7 @@
     <div class="container">
         <div class="card details-card">
             <h5>Detalles del Participante: {{ $participante->NombredelPostulante }}</h5>
+            <p class="info-text"><span class="info-title">Id:</span> {{ $participante->N}}</p>
             <p class="info-text"><span class="info-title">Nombre:</span> {{ $participante->NombredelPostulante }}</p>
             <p class="info-text"><span class="info-title">Correo Electrónico:</span> {{ $participante->Correo }}</p>
             <p class="info-text"><span class="info-title">Teléfono:</span> {{ $participante->Telefono }}</p>
