@@ -104,7 +104,7 @@
                         <h5>Temario</h5>
                         <div class="mb-3">
                             <label class="form-label">Porcentaje del Temario</label>
-                            <input type="text" name="Temario" class="form-control" value="{{ old('Temario') }}" required>
+                            <input type="text" name="Temario" class="form-control" value="{{ old('Temario') }}" >
                         </div>
                         <div class="mb-3">
                             <label class="form-label">URL Drive (opcional)</label>
@@ -129,7 +129,7 @@
                         <h5>Itinerario</h5>
                         <div class="mb-3">
                             <label class="form-label">Porcentaje del Itinerario</label>
-                            <input type="text" name="Itinerario" class="form-control" value="{{ old('Itinerario') }}" required>
+                            <input type="text" name="Itinerario" class="form-control" value="{{ old('Itinerario') }}" >
                         </div>
                         <div class="mb-3">
                             <label class="form-label">URL Drive (opcional)</label>
@@ -154,7 +154,7 @@
                         <h5>Planeación</h5>
                         <div class="mb-3">
                             <label class="form-label">Porcentaje de la Planeación</label>
-                            <input type="text" name="Planeación" class="form-control" value="{{ old('Planeación') }}" required>
+                            <input type="text" name="Planeación" class="form-control" value="{{ old('Planeación') }}" >
                         </div>
                         <div class="mb-3">
                             <label class="form-label">URL Drive (opcional)</label>
@@ -179,6 +179,7 @@
                         <button type="submit" class="btn btn-success">Siguiente</button>
                         <a href="{{ route('curso.paso3') }}" class="btn btn-secondary">Atrás</a>
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
+                        <button type="button" class="btn btn-warning" id="finalizarForzadoBtn">Finalización Forzada</button>
                     </div>
                 </form>
 
@@ -248,6 +249,61 @@
                 console.error('Error:', error);
             });
         }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+            // Mostrar mensaje de confirmación
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, finalizar ahora',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Enviar los datos actuales del formulario mediante AJAX
+                    const formData = new FormData(document.querySelector('form'));
+
+                    fetch('/curso/finalizacion-forzada', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Curso guardado',
+                                text: 'El curso ha sido guardado como incompleto.'
+                            }).then(() => {
+                                window.location.href = "{{ route('cursos.index') }}";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error al procesar la solicitud.'
+                        });
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>

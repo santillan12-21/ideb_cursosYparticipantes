@@ -110,29 +110,30 @@
                     <input type="text" name="Nomenclatura" class="form-control" placeholder="Nomenclatura" required>
                 </div>
                 <div class="mb-3">
-                    <input type="text" name="NombredelCurso" class="form-control" placeholder="Nombre del Curso" required>
+                    <input type="text" name="NombredelCurso" class="form-control" placeholder="Nombre del Curso" >
                 </div>
                 <div class="mb-3">
-                    <textarea name="DescripciondeCurso" class="form-control" rows="3" placeholder="Descripción del Curso" required></textarea>
+                    <textarea name="DescripciondeCurso" class="form-control" rows="3" placeholder="Descripción del Curso" ></textarea>
                 </div>
                 <div class="mb-3">
-                    <input type="number" step="0.01" name="CostodelCurso" class="form-control" placeholder="Costo del Curso ($)" required>
+                    <input type="number" step="0.01" name="CostodelCurso" class="form-control" placeholder="Costo del Curso ($)" >
                 </div>
                 <div class="mb-3">
-                    <input type="text" name="InstructorResponsable" class="form-control" placeholder="Instructor Responsable" required>
+                    <input type="text" name="InstructorResponsable" class="form-control" placeholder="Instructor Responsable" >
                 </div>
                 <div class="mb-3">
-                    <input type="date" name="FechadeInicio" class="form-control" required>
+                    <input type="date" name="FechadeInicio" class="form-control" >
                 </div>
                 <div class="mb-3">
-                    <input type="date" name="FechadeTermino" class="form-control" required>
+                    <input type="date" name="FechadeTermino" class="form-control" >
                 </div>
                 <div class="mb-3">
-                    <input type="text" name="Duracioncurso" class="form-control" placeholder="Duración del Curso (ej: 9 horas)" required>
+                    <input type="text" name="Duracioncurso" class="form-control" placeholder="Duración del Curso (ej: 9 horas)" >
                 </div>
                 <div class="mb-3 d-flex justify-content-between">
                     <button type="submit" class="btn btn-success">Siguiente</button>
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" id="finalizarForzadoBtn">Finalización Forzada</button>
                 </div>
             </form>
         </div>
@@ -173,4 +174,59 @@
         </div>
     </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+        // Mostrar mensaje de confirmación
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, finalizar ahora',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Enviar los datos actuales del formulario mediante AJAX
+                const formData = new FormData(document.querySelector('form'));
+
+                fetch('/curso/finalizacion-forzada', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Curso guardado',
+                            text: 'El curso ha sido guardado como incompleto.'
+                        }).then(() => {
+                            window.location.href = "{{ route('cursos.index') }}";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al procesar la solicitud.'
+                    });
+                });
+            }
+        });
+    });
+</script>
 </html>

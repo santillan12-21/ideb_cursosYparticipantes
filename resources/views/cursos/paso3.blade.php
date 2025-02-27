@@ -88,7 +88,7 @@
                     <!-- Sin Fecha -->
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de Sin Fecha</label>
-                        <input type="text" name="SinFecha" class="form-control" required value="{{ old('SinFecha') }}">
+                        <input type="text" name="SinFecha" class="form-control" value="{{ old('SinFecha') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">URL Drive (opcional)</label>
@@ -110,7 +110,7 @@
                     <!-- Facebook -->
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de Facebook</label>
-                        <input type="text" name="Facebook" class="form-control" required value="{{ old('Facebook') }}">
+                        <input type="text" name="Facebook" class="form-control"  value="{{ old('Facebook') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">URL Drive (opcional)</label>
@@ -132,7 +132,7 @@
                     <!-- LinkedIn -->
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de LinkedIn</label>
-                        <input type="text" name="Linkedin" class="form-control" required value="{{ old('Linkedin') }}">
+                        <input type="text" name="Linkedin" class="form-control" value="{{ old('Linkedin') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">URL Drive (opcional)</label>
@@ -154,7 +154,7 @@
                     <!-- Instagram -->
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de Instagram</label>
-                        <input type="text" name="Instagram" class="form-control" required value="{{ old('Instagram') }}">
+                        <input type="text" name="Instagram" class="form-control" value="{{ old('Instagram') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">URL Drive (opcional)</label>
@@ -183,6 +183,7 @@
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
                             Cancelar
                         </button>
+                        <button type="button" class="btn btn-warning" id="finalizarForzadoBtn">Finalización Forzada</button>
                     </div>
                 </form>
 
@@ -252,6 +253,61 @@
                 console.error('Error:', error);
             });
         }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+            // Mostrar mensaje de confirmación
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, finalizar ahora',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Enviar los datos actuales del formulario mediante AJAX
+                    const formData = new FormData(document.querySelector('form'));
+
+                    fetch('/curso/finalizacion-forzada', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Curso guardado',
+                                text: 'El curso ha sido guardado como incompleto.'
+                            }).then(() => {
+                                window.location.href = "{{ route('cursos.index') }}";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error al procesar la solicitud.'
+                        });
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>

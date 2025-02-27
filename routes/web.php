@@ -230,3 +230,6 @@ Route::post('/configuraciones/update-logo', [ConfigController::class, 'updateLog
 Route::post('/configuraciones/update-logo-from-list', [ConfigController::class, 'updateLogoFromList'])->name('configuraciones.updateLogoFromList');
 Route::get('/course-action-logs', [CourseActionLogController::class, 'index'])->name('course-action-logs.index');
 
+//Forzado de finalizacion del curso
+Route::post('/curso/finalizacion-forzada', [CursoController::class, 'finalizacionForzada'])->name('curso.finalizacionForzada');
+

@@ -110,7 +110,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de la Presentación</label>
-                        <input type="text" name="Presentación" class="form-control" required>
+                        <input type="text" name="Presentación" class="form-control" >
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local - Presentación</label>
@@ -127,7 +127,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de la Evaluación Diagnóstica</label>
-                        <input type="text" name="Evaluación_diagnostica" class="form-control" required>
+                        <input type="text" name="Evaluación_diagnostica" class="form-control" >
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local - Evaluación Diagnóstica</label>
@@ -144,7 +144,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de la Evaluación de Satisfacción</label>
-                        <input type="text" name="EvaluaciondeSatisfacción" class="form-control" required>
+                        <input type="text" name="EvaluaciondeSatisfacción" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local - Evaluación de Satisfacción</label>
@@ -161,7 +161,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de la Evaluación Final</label>
-                        <input type="text" name="EvaluacionFinal" class="form-control" required>
+                        <input type="text" name="EvaluacionFinal" class="form-control" >
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local - Evaluación Final</label>
@@ -196,6 +196,7 @@
 
                         <!-- Botón Cancelar -->
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
+                        <button type="button" class="btn btn-warning" id="finalizarForzadoBtn">Finalización Forzada</button>
                     </div>
                 </form>
 
@@ -270,6 +271,61 @@
                 console.error('Error:', error);
             });
         }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+            // Mostrar mensaje de confirmación
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, finalizar ahora',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Enviar los datos actuales del formulario mediante AJAX
+                    const formData = new FormData(document.querySelector('form'));
+
+                    fetch('/curso/finalizacion-forzada', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Curso guardado',
+                                text: 'El curso ha sido guardado como incompleto.'
+                            }).then(() => {
+                                window.location.href = "{{ route('cursos.index') }}";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error al procesar la solicitud.'
+                        });
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
