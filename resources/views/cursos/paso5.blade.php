@@ -113,7 +113,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local - Digital</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Digital')">Crear carpeta local</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('2- Material de Apoyo (Digital)')">Crear carpeta local</button>
                         <div id="archivoDigitalContainer" style="display: none;" class="mt-2">
                             <input type="file" name="DigitalLocal" class="form-control">
                             @if(session('cursos_paso5.DigitalLocal'))
@@ -130,7 +130,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local - Impreso Presentable</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('ImpresoPresentable')">Crear carpeta local</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('4- Presentacion')">Crear carpeta local</button>
                         <div id="archivoImpresoPresentableContainer" style="display: none;" class="mt-2">
                             <input type="file" name="ImpresoPresentableLocal" class="form-control">
                             @if(session('cursos_paso5.ImpresoPresentableLocal'))

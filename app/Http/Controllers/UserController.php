@@ -104,22 +104,22 @@ class UserController extends Controller
 
     public function showPassword(Request $request, $id)
     {
-        // Obtener el administrador autenticado
+        // Obtener el usuario autenticado
         $admin = Auth::user();
 
-        // Verificar que el usuario autenticado sea un administrador
-        if ($admin->puesto !== 'Administrador') {
-            return response()->json(['error' => 'Acceso denegado. Solo los administradores pueden realizar esta acción.'], 403);
+        // Verificar que el usuario autenticado sea un administrador o programador
+        if (!in_array($admin->puesto, ['Administrador', 'Programador'])) {
+            return response()->json(['error' => 'Acceso denegado. Solo los administradores y programadores pueden realizar esta acción.'], 403);
         }
 
-        // Validar la contraseña del administrador
+        // Validar la contraseña del administrador/programador
         $request->validate([
             'admin_password' => 'required|string',
         ]);
 
-        // Verificar si la contraseña ingresada coincide con la del administrador autenticado
+        // Verificar si la contraseña ingresada es correcta
         if (!Hash::check($request->admin_password, $admin->password)) {
-            return response()->json(['error' => 'Tu contraseña de administrador incorrecta.'], 401);
+            return response()->json(['error' => 'Tu contraseña es incorrecta.'], 401);
         }
 
         // Obtener el usuario cuya contraseña se quiere ver
@@ -129,4 +129,5 @@ class UserController extends Controller
         $plainPassword = $user->plain_password ?? 'No disponible';
         return response()->json(['password' => $plainPassword]);
     }
+
 }

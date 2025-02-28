@@ -284,34 +284,34 @@ class CursoController extends Controller
             if ($request->hasFile('TemarioLocal')) {
                 $archivo = $request->file('TemarioLocal');
                 $nombreArchivo = time() . '_temario_' . $archivo->getClientOriginalName();
-                $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . 'Temario';
+                $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . '1- Temario';
                 if (!File::exists($rutaCarpeta)) {
                     File::makeDirectory($rutaCarpeta, 0755, true);
                 }
                 $archivo->move($rutaCarpeta, $nombreArchivo);
-                $rutasArchivos['TemarioLocal'] = 'Temario/' . $nombreArchivo;
+                $rutasArchivos['TemarioLocal'] = '1- Temario/' . $nombreArchivo;
             }
 
             if ($request->hasFile('ItinerarioLocal')) {
                 $archivo = $request->file('ItinerarioLocal');
                 $nombreArchivo = time() . '_itinerario_' . $archivo->getClientOriginalName();
-                $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . 'Itinerario';
+                $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . '6- Itinerario';
                 if (!File::exists($rutaCarpeta)) {
                     File::makeDirectory($rutaCarpeta, 0755, true);
                 }
                 $archivo->move($rutaCarpeta, $nombreArchivo);
-                $rutasArchivos['ItinerarioLocal'] = 'Itinerario/' . $nombreArchivo;
+                $rutasArchivos['ItinerarioLocal'] = '6- Itinerario/' . $nombreArchivo;
             }
 
             if ($request->hasFile('PlaneaciónLocal')) {
                 $archivo = $request->file('PlaneaciónLocal');
                 $nombreArchivo = time() . '_planeacion_' . $archivo->getClientOriginalName();
-                $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . 'Planeación';
+                $rutaCarpeta = $rutaBase . DIRECTORY_SEPARATOR . '3- Planeación';
                 if (!File::exists($rutaCarpeta)) {
                     File::makeDirectory($rutaCarpeta, 0755, true);
                 }
                 $archivo->move($rutaCarpeta, $nombreArchivo);
-                $rutasArchivos['PlaneaciónLocal'] = 'Planeación/' . $nombreArchivo;
+                $rutasArchivos['PlaneaciónLocal'] = '3- Planeación/' . $nombreArchivo;
             }
 
             // Guardar los datos del Paso 4 en sesión

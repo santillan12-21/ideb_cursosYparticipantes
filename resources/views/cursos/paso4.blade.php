@@ -112,7 +112,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Archivo Local (opcional)</label>
-                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('Temario')">Crear carpeta local</button>
+                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('1- Temario')">Crear carpeta local</button>
                             <div id="archivoTemarioContainer" style="display: none;" class="file-upload-container mt-2">
                                 <input type="file" name="TemarioLocal" class="form-control">
                                 @if(session('cursos_paso4.TemarioLocal'))
@@ -137,7 +137,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Archivo Local (opcional)</label>
-                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('Itinerario')">Crear carpeta local</button>
+                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('6- Itinerario')">Crear carpeta local</button>
                             <div id="archivoItinerarioContainer" style="display: none;" class="file-upload-container mt-2">
                                 <input type="file" name="ItinerarioLocal" class="form-control">
                                 @if(session('cursos_paso4.ItinerarioLocal'))
@@ -162,7 +162,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Archivo Local (opcional)</label>
-                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('Planeación')">Crear carpeta local</button>
+                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('3- Planeación')">Crear carpeta local</button>
                             <div id="archivoPlaneacionContainer" style="display: none;" class="file-upload-container mt-2">
                                 <input type="file" name="PlaneaciónLocal" class="form-control">
                                 @if(session('cursos_paso4.PlaneaciónLocal'))
