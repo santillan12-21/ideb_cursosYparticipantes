@@ -46,6 +46,7 @@ Route::get('/profile', [UserController::class, 'profile'])->name('profile');
 Route::post('/users/{id}/show-password', [UserController::class, 'showPassword'])->name('users.showPassword');
 
 //Ruta para llenado de formulario de cursos
+Route::get('/cursos/ruta', [CursoController::class, 'rutas'])->name('cursos.ruta');
 Route::get('/curso/paso1', [CursoController::class, 'crearPaso1'])->name('curso.paso1');
 Route::post('/curso/paso1', [CursoController::class, 'guardarPaso1'])->name('curso.paso1.guardar');
 Route::get('/curso/paso2', [CursoController::class, 'mostrarPaso2'])->name('curso.paso2');
@@ -114,6 +115,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/cursos/{id}/activar', [CursoController::class, 'activarCurso'])->name('cursos.activar');
 
     Route::post('/configuraciones', [ConfigController::class, 'store'])->name('configuraciones.store');
+    Route::get('/configuraciones/logs', [ConfigController::class, 'Cursos_Acciones'])->name('configuraciones.logs');
 
 
     Route::get('/configuraciones/logs/{id}', [ConfigController::class, 'showLog'])->name('configuraciones.show-log');
@@ -207,9 +209,10 @@ Route::post('/subir-archivo', [CursoController::class, 'subirArchivo'])->name('s
 //Obtener ruta
 Route::get('/obtener-ruta', [RutaArchivosController::class, 'obtenerRuta'])->name('ruta.obtener');
 Route::get('/verificar-ruta', [RutaArchivosController::class, 'verificarRuta'])->name('ruta.verificar');
-Route::post('/abrir-carpeta', [RutaArchivosController::class, 'abrirCarpeta'])->name('ruta.abrir');
-Route::get('/obtener-ultima-ruta', [RutaArchivosController::class, 'obtenerUltimaRuta'])->name('ruta.obtenerUltima');
-Route::get('/obtener-todas-las-rutas', [RutaArchivosController::class, 'obtenerTodasLasRutas'])->name('ruta.obtenerTodas');
+Route::post('/guardar-ruta-archivos', [RutaArchivosController::class, 'guardarRuta'])->name('guardar.ruta.archivos');
+Route::post('/abrir-carpeta', [RutaArchivosController::class, 'abrirCarpeta']);
+Route::get('/obtener-ultima-ruta', [RutaArchivosController::class, 'obtenerUltimaRuta'])->name('obtener.ultima.ruta');
+Route::get('/obtener-todas-las-rutas', [RutaArchivosController::class, 'obtenerTodasLasRutas']);
 Route::post('/verificar-carpeta', [CursoController::class, 'verificarCarpeta'])->name('curso.verificarCarpeta');
 
 // Rutas para permisos
@@ -232,4 +235,20 @@ Route::get('/course-action-logs', [CourseActionLogController::class, 'index'])->
 
 //Forzado de finalizacion del curso
 Route::post('/curso/finalizacion-forzada', [CursoController::class, 'finalizacionForzada'])->name('curso.finalizacionForzada');
+
+Route::get('/curso/iniciar', [CursoController::class, 'iniciarCurso'])->name('curso.iniciar');
+
+Route::post('/crear-carpeta-local', [CursoController::class, 'crearCarpeta'])->name('crear.carpeta.local');
+Route::post('/crear-carpeta-local', [RutaArchivosController::class, 'crearCarpeta'])
+    ->name('crear.carpeta.local');
+
+
+    //Ruta para mostrar el subcurso a crear
+Route::get('/subcursos/iniciar/{id}', [CursoController::class, 'iniciarSubcursos'])->name('subcursos.iniciar');
+Route::get('/cursos/subcursos/{id}', [CursoController::class, 'obtenerSubcursos']);
+
+//Ruta para desactivar los cursos
+Route::post('/cursos/{id}/desactivar', [ConfigController::class, 'desactivar'])->name('cursos.desactivar');
+
+Route::post('/subcurso/preparar', [CursoController::class, 'prepararRutaSubcurso'])->name('curso.prepararSubcurso');
 

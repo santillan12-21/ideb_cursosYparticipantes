@@ -1,5 +1,29 @@
-@extends('layouts.app')
-@section('content')
+@extends('home')
+@section('title', '- Editar Usuario')
+@section('nav')
+
+<style>
+    .container {
+        margin-top: 10% !important;
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    label {
+    font-weight: bold;
+    text-align: center;
+    display: block;
+    width: 100%;
+}
+.botones {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+</style>
 <div class="container">
     <h1>Editar Perfil</h1>
 
@@ -78,10 +102,11 @@
                 <span class="input-group-text d-none editing-indicator">Editando</span>
             </div>
         </div>
-
+        <div class="botones">
         <button type="button" id="toggleEditButton" class="btn btn-primary">Editar</button>
         <button type="submit" class="btn btn-primary" id="saveButton" disabled>Guardar Cambios</button>
         <button type="button" id="cancelButton" class="btn btn-secondary" disabled>Cancelar</button>
+        </div>
     </form>
 </div>
 

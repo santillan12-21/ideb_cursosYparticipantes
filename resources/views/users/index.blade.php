@@ -1,8 +1,6 @@
-@php
-    // Obtener el logo desde la configuración
-    $setting = \App\Models\Setting::first();
-    $logoPath = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
-@endphp
+@extends('home')
+@section('title', '- Lista de Usuarios')
+@section('nav')
 
 <!DOCTYPE html>
 <html lang="es">
@@ -10,72 +8,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Lista de Usuarios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+
+    
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
-        header {
-            background-color: #000000;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-        }
-        header img {
-            width: 100px;
-            height: auto;
-            margin-right: 20px;
-        }
-        nav {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-            gap: 20px;
-        }
-        nav a {
-            color: #fff;
-            margin-right: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        .logout-button {
-            color: #fff;
-            margin-right: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-        }
-        .logout-button:hover {
-            text-decoration: underline;
-        }
-        .container {
+     
+        .container2 {
             margin: 20px auto;
-            max-width: 900px;
+            margin-top:5%;
         }
         .success-message {
             color: green;
             margin-bottom: 20px;
         }
         table {
-            width: 100%;
+            width: 100%
             border-collapse: collapse;
             margin-top: 20px;
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
+            border: 1px solid #ddd !important;
+            padding: 10px !important;
+            text-align: left !important;
         }
         th {
             background-color: #000;
@@ -95,15 +55,15 @@
         .btn-custom:hover {
             background-color: #444;
         }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <a href="/Inicio">
-            <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="width: 200px; height: 70px;">
-        </a>
-    </header>
-    <div class="container">
+  
+    <div class="container2">
         <h1>Lista de Usuarios</h1>
         @if(session('success'))
             <div class="success-message">{{ session('success') }}</div>

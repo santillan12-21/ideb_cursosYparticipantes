@@ -1,14 +1,11 @@
-@php
-    // Obtener el logo desde la configuración
-    $setting = \App\Models\Setting::first();
-    $logoPath = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
-@endphp
+@extends('home')
+@section('title', '- Lista de Cursos')
+@section('nav')
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Cursos</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Luego cargar Bootstrap y DataTables -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,6 +13,9 @@
     <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css">
+    <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+
+
     <style>
         * {
             margin: 0;
@@ -29,72 +29,10 @@
             color: #333;
         }
 
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            background-color: #f8f9fa;
-            padding-top: 20px;
-            border-right: 1px solid #dee2e6;
-            overflow-y: auto;
-        }
-
-        .sidebar h5 {
-            padding: 10px 15px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .sidebar .filter-section {
-            padding: 10px 15px;
-        }
-
-        .content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-
-        header {
-            background-color: #000000;
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-left: 250px;
-            position: relative;
-            transition: margin-left 0.3s ease-in-out; /* Transición suave */
-        }
-
-            header.expanded {
-            margin-left: 0; /* Elimina el margen izquierdo cuando el filtro está oculto */
-        }
-
-        header img {
-            width: 100px;
-            height: auto;
-            margin-right: 20px;
-        }
+        
 
 
-        nav {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-        }
-
-        nav a, .logout-button {
-            color: #fff;
-            margin-right: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        nav a:hover, .logout-button:hover {
-            text-decoration: underline;
-        }
+       
 
         .logout-button {
             background: none;
@@ -125,11 +63,7 @@
             transform: translateX(-100%);
         }
 
-        .content {
-            margin-left: 250px; /* Margen izquierdo cuando el filtro está visible */
-            padding: 20px;
-            transition: margin-left 0.3s ease-in-out; /* Transición suave */
-        }
+        
 
         .content.expanded {
             margin-left: 0;
@@ -236,7 +170,9 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+<br><br>
+    {{-- <!-- Sidebar -->
     <div class="sidebar">
         <h5>Filtros de Curso</h5>
         <div class="filter-section">
@@ -258,15 +194,20 @@
             <h6>Filtros Adicionales</h6>
             <div class="mb-3">
                 <label for="instructorFilter" class="form-label">Instructor</label>
-                <select id="instructorFilter" class="form-select">
-                    <option value="">Todos los Instructores</option>
-                    @php
-                        $instructores = $cursos->pluck('InstructorResponsable')->unique();
-                    @endphp
-                    @foreach($instructores as $instructor)
-                        <option value="{{ $instructor }}">{{ $instructor }}</option>
-                    @endforeach
-                </select>
+             <select id="instructorFilter" class="form-select">
+                <option value="">Todos los Instructores</option>
+                @php
+                    // Combina instructores de cursos y subcursos, elimina vacíos y duplicados
+                    $instructores = $cursos->pluck('InstructorResponsable')
+                        ->merge($subcursos->pluck('InstructorResponsable'))
+                        ->filter()
+                        ->unique()
+                        ->sort()
+                        ->values();
+                @endphp
+                @foreach($instructores as $instructor)
+<option value="{{ $instructor }}" {{ request('instructor') == $instructor ? 'selected' : '' }}>{{ $instructor }}</option>                @endforeach
+            </select>
             </div>
 
             <div class="mb-3">
@@ -279,13 +220,11 @@
         </div>
     </div>
     <header>
-        <a href="/Inicio">
-            <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="width: 200px; height: 70px;">
-        </a>
+      
         <div class="button-container">
             <button id="toggleSidebar" class="btn btn-success">Mostrar/Ocultar Filtros</button>
         </div>
-    </header>
+    </header> --}}
     <div class="content">
         <div class="container-fluid table-container">
             <!-- Sección de Ruta de Archivos (oculta inicialmente) -->
@@ -299,7 +238,7 @@
                         <!-- Botón para mostrar/ocultar las opciones -->
                         <button id="editar-ruta-carpetas" class="btn btn-secondary mb-3">Editar Ruta de Carpetas</button>
                         <!-- Contenedor de opciones (inicialmente oculto) -->
-                        <div id="opciones-rutas" style="display: none;">
+                        <div id="opciones-rutas" style="display: none; max-width: 100%">
                             <p>Este botón abre la carpeta de archivos que especifique.</p>
                            <!-- Opción 1: Cargar Última Ruta o Escribir Manualmente -->
                             <div class="mb-3">
@@ -307,15 +246,15 @@
                                 <div class="input-group">
                                     <!-- Campo editable para ingresar la ruta manualmente -->
                                     <input type="text" id="ruta_archivos_manual" class="form-control" placeholder="Ejemplo: C:/cursos/archivos">
-                                    <button id="cargar-ultima-ruta" class="btn btn-secondary">Cargar Última Ruta</button>
+                                    <button id="cargar-ultima-ruta" class="btn btn-secondary" style="max-width: 100%">Cargar Última Ruta</button>
                                     <button id="abrir-carpeta" class="btn btn-primary">Abrir Carpeta</button>
                                 </div>
                             </div>
                             <!-- Opción 2: Seleccionar una Ruta -->
-                            <div class="mb-3">
+                            <div class="mb-3" style="max-width: 100%">
                                 <label for="lista-rutas" class="form-label">Selecciona una Ruta:</label>
                                 <div class="input-group">
-                                    <select id="lista-rutas" class="form-select">
+                                    <select id="lista-rutas" class="form-select" style="max-width: 100%">
                                         <option value="">-- Selecciona una ruta --</option>
                                     </select>
                                     <button id="abrir-carpeta-seleccionada" class="btn btn-primary">Abrir Carpeta</button>
@@ -327,11 +266,11 @@
                         <form id="rutaArchivosForm">
                             <div class="mb-3">
                                 <label for="nombreCarpeta" class="form-label">Nombre de la Carpeta</label>
-                                <input type="text" class="form-control" id="nombreCarpeta" required>
+                                <input type="text" class="form-control" id="nombreCarpeta" required style="max-width: 100%">
                             </div>
                             <div class="mb-3">
                                 <label for="rutaCarpeta" class="form-label">Ruta de la Carpeta</label>
-                                <input type="text" class="form-control" id="rutaCarpeta" required>
+                                <input type="text" class="form-control" id="rutaCarpeta" required style="max-width: 100%">
                                 <small class="text-muted">Selecciona la ruta donde se almacenarán los archivos de los cursos.</small>
                             </div>
                             <button type="submit" class="btn btn-primary">Guardar Ruta</button>
@@ -350,6 +289,9 @@
             @endif
         </div>
         <div class="container-fluid table-container">
+            <br>
+            <br>
+            
             <h2 class="text-center mb-4">Lista de Cursos</h2>
             @if(auth()->user()->puesto != 'Operacion')
             <a href="{{ route('exportar.cursos.excel') }}" class="btn btn-success">Exportar a Excel</a>
@@ -389,7 +331,10 @@
                 <tbody>
                     @foreach($cursos as $curso)
                         <tr>
-                            <td>{{ $curso->Nomenclatura }}</td>
+                            <td>{{ $curso->Nomenclatura }}
+                            
+                            <button class="btn btn-sm btn-primary toggle-subcursos" data-id="{{ $curso->id }}" >+</button>
+                            </td>                            
                             <td>{{ $curso->NombredelCurso }}</td>
                             <td>{{ $curso->DescripciondeCurso }}</td>
                             <td>{{ $curso->Duracioncurso }}</td>
@@ -447,6 +392,20 @@
                             </td>
                             <td>
                                 <a href="{{ route('cursos.show', $curso->id) }}" class="btn btn-sm btn-info">Ver</a>
+
+                                
+               @if(auth()->user()->puesto != 'Operacion' && is_null($curso->parent_id) && !is_null($curso->ruta))
+                    <form action="{{ route('curso.prepararSubcurso') }}" method="POST" style="display:inline;">
+                        @csrf
+                        <input type="hidden" name="idCursoPadre" value="{{ $curso->id }}">
+                        <input type="hidden" name="nombre_curso_padre" value="{{ $curso->NombredelCurso }}">
+                        <input type="hidden" name="ruta_nombre_carpeta" value="{{ $curso->ruta->rutacompleta }}">
+                        <button type="submit" class="btn btn-primary">Crear subcurso</button>
+                    </form>
+                @else
+                    <button class="btn btn-secondary" disabled>No disponible</button>
+                @endif
+
                                 @if(auth()->user()->puesto != 'Operacion') <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-warning">Editar Curso</a>
                                 <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline-block;">
                                     @csrf
@@ -458,11 +417,14 @@
                         </tr>
                     @endforeach
                 </tbody>
+    
+
             </table>
             @if(auth()->user()->puesto != 'Operacion')
-            <a href="{{ route('curso.paso1') }}" class="btn btn-success">Crear Nuevo Curso</a>
+            <a href="{{ route('cursos.ruta') }}" class="btn btn-success">Crear Nuevo Curso</a>
             @endif
         </div>
+        
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -582,9 +544,19 @@
         });
 
         // Instructor Filter
+        // $('#instructorFilter').on('change', function() {
+        //     var instructor = $(this).val();
+        //     table.column(7).search(instructor).draw(); // Ajusta el índice de la columna del instructor
+        // });
         $('#instructorFilter').on('change', function() {
             var instructor = $(this).val();
-            table.column(7).search(instructor).draw(); // Ajusta el índice de la columna del instructor
+            var url = new URL(window.location.href);
+            if (instructor) {
+                url.searchParams.set('instructor', instructor);
+            } else {
+                url.searchParams.delete('instructor');
+            }
+            window.location.href = url.toString();
         });
 
         // Cost Range Filter
@@ -626,90 +598,85 @@
 
         let rutaConfigurada = false;
 
-    // Verificar si ya existe una ruta configurada al cargar la página
-    $.get("{{ route('obtener.ruta.archivos') }}", function(response) {
-        if (response.success && response.data) {
-            rutaConfigurada = true;
-            $('#nombreCarpeta').val(response.data.nombreCarpeta);
-            $('#rutaCarpeta').val(response.data.rutaCarpeta);
-        }
-    });
-
-    // Guardar la configuración de la ruta
-    $('#rutaArchivosForm').on('submit', function(e) {
-        e.preventDefault();
-
-        const nombreCarpeta = $('#nombreCarpeta').val();
-        const rutaCarpeta = $('#rutaCarpeta').val();
-
-        if (!nombreCarpeta || !rutaCarpeta) {
-            alert('Por favor, completa todos los campos.');
-            return;
-        }
-
-        $.ajax({
-            url: "{{ route('guardar.ruta.archivos') }}",
-            method: 'POST',
-            data: {
-                nombreCarpeta: nombreCarpeta,
-                rutaCarpeta: rutaCarpeta,
-                _token: "{{ csrf_token() }}"
-            },
-            success: function(response) {
-                if (response.success) {
-                    rutaConfigurada = true;
-                    alert(response.message);
-                    $('#rutaArchivosSection').hide();
-                } else {
-                    alert(response.message);
-                }
-            },
-            error: function(xhr) {
-                const response = xhr.responseJSON;
-                alert(response?.message || 'Error al guardar la ruta.');
+        // Verificar si ya existe una ruta configurada al cargar la página
+        $.get("{{ route('obtener.ultima.ruta') }}", function(response) {
+            if (response.success && response.data) {
+                rutaConfigurada = true;
+                $('#nombreCarpeta').val(response.data.nombre_carpeta);
+                $('#rutaCarpeta').val(response.data.rutacompleta);
             }
         });
-    });
+
+        // Guardar la configuración de la ruta
+        $('#rutaArchivosForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const nombreCarpeta = $('#nombreCarpeta').val();
+            const rutaCarpeta = $('#rutaCarpeta').val();
+
+            if (!nombreCarpeta || !rutaCarpeta) {
+                alert('Por favor, completa todos los campos.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('guardar.ruta.archivos') }}",
+                method: 'POST',
+                data: {
+                    nombreCarpeta: nombreCarpeta,
+                    rutaCarpeta: rutaCarpeta,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.success) {
+                        rutaConfigurada = true;
+                        alert(response.message);
+                        $('#rutaArchivosSection').hide();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    alert(response?.message || 'Error al guardar la ruta.');
+                }
+            });
+        });
 
         document.addEventListener('DOMContentLoaded', function () {
-        const editarRutaBtn = document.getElementById('editar-ruta-carpetas');
-        const opcionesRutas = document.getElementById('opciones-rutas');
-        const listaRutas = document.getElementById('lista-rutas');
-        const rutaInput = document.getElementById('ruta_archivos_manual');
-        const cargarRutaBtn = document.getElementById('cargar-ultima-ruta');
-        const abrirCarpetaBtn = document.getElementById('abrir-carpeta');
-        const abrirCarpetaSeleccionadaBtn = document.getElementById('abrir-carpeta-seleccionada');
+            const editarRutaBtn = document.getElementById('editar-ruta-carpetas');
+            const opcionesRutas = document.getElementById('opciones-rutas');
+            const listaRutas = document.getElementById('lista-rutas');
+            const rutaInput = document.getElementById('ruta_archivos_manual');
+            const cargarRutaBtn = document.getElementById('cargar-ultima-ruta');
+            const abrirCarpetaBtn = document.getElementById('abrir-carpeta');
+            const abrirCarpetaSeleccionadaBtn = document.getElementById('abrir-carpeta-seleccionada');
 
-        // Mostrar/ocultar las opciones al hacer clic en "Editar Ruta de Carpetas"
-        editarRutaBtn.addEventListener('click', function () {
-            if (opcionesRutas.style.display === 'none' || opcionesRutas.style.display === '') {
-                opcionesRutas.style.display = 'block';
-                editarRutaBtn.textContent = 'Ocultar Opciones';
-            } else {
-                opcionesRutas.style.display = 'none';
-                editarRutaBtn.textContent = 'Editar Ruta de Carpetas';
-            }
-        });
+            // Mostrar/ocultar las opciones al hacer clic en "Editar Ruta de Carpetas"
+            editarRutaBtn.addEventListener('click', function () {
+                opcionesRutas.style.display = opcionesRutas.style.display === 'none' ? 'block' : 'none';
+                editarRutaBtn.textContent = opcionesRutas.style.display === 'none' ? 'Editar Ruta de Carpetas' : 'Ocultar Opciones';
+            });
 
-        // Cargar la última ruta desde el backend
-        cargarRutaBtn.addEventListener('click', function () {
-            fetch('/obtener-ultima-ruta')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        rutaInput.value = data.data; // Mostrar la última ruta en el campo de entrada
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Ocurrió un error al cargar la última ruta.');
-                });
-        });
+            // Cargar la última ruta desde el backend
+            cargarRutaBtn.addEventListener('click', function () {
+                fetch('/obtener-ultima-ruta')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            rutaInput.value = data.data; // Mostrar la última ruta en el campo de entrada
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ocurrió un error al cargar la última ruta.');
+                    });
+            });
 
-        // Cargar todas las rutas en la lista desplegable
-        fetch('/obtener-todas-las-rutas')
+            // Cargar todas las rutas en la lista desplegable
+            fetch('/obtener-todas-las-rutas')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -721,8 +688,8 @@
                     // Agregar cada ruta a la lista desplegable
                     rutas.forEach(ruta => {
                         const option = document.createElement('option');
-                        option.value = ruta.rutaCompleta;
-                        option.textContent = `${ruta.nombreCarpeta} (${ruta.rutaCompleta})`;
+                        option.value = ruta.rutacompleta;
+                        option.textContent = `${ruta.nombre_carpeta} (${ruta.rutacompleta})`;
                         listaRutas.appendChild(option);
                     });
                 } else {
@@ -734,68 +701,155 @@
                 alert('Ocurrió un error al cargar las rutas.');
             });
 
-        // Abrir la carpeta desde el campo de entrada
-        abrirCarpetaBtn.addEventListener('click', function () {
-            const ruta = rutaInput.value.trim();
+            // Abrir la carpeta desde el campo de entrada
+            abrirCarpetaBtn.addEventListener('click', function () {
+                const ruta = rutaInput.value.trim();
 
-            if (!ruta) {
-                alert('La ruta está vacía. Por favor, carga una ruta válida.');
-                return;
-            }
-
-            fetch('/abrir-carpeta', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ ruta: ruta })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                } else {
-                    alert('Error: ' + data.message);
+                if (!ruta) {
+                    alert('La ruta está vacía. Por favor, carga una ruta válida.');
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Ocurrió un error al abrir la carpeta.');
+
+                fetch('/abrir-carpeta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ ruta: ruta })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ocurrió un error al abrir la carpeta.');
+                });
+            });
+
+            // Abrir la carpeta seleccionada de la lista desplegable
+            abrirCarpetaSeleccionadaBtn.addEventListener('click', function () {
+                const rutaSeleccionada = listaRutas.value.trim();
+
+                if (!rutaSeleccionada) {
+                    alert('Por favor, selecciona una ruta válida.');
+                    return;
+                }
+
+                fetch('/abrir-carpeta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ ruta: rutaSeleccionada })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ocurrió un error al abrir la carpeta.');
+                });
             });
         });
 
-        // Abrir la carpeta seleccionada de la lista desplegable
-        abrirCarpetaSeleccionadaBtn.addEventListener('click', function () {
-            const rutaSeleccionada = listaRutas.value.trim();
 
-            if (!rutaSeleccionada) {
-                alert('Por favor, selecciona una ruta válida.');
-                return;
-            }
 
-            fetch('/abrir-carpeta', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ ruta: rutaSeleccionada })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
+
+    //     //Boton de mas y menos para subcursos
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     document.querySelectorAll('.toggle-subcursos').forEach(function (button) {
+    //         button.addEventListener('click', function () {
+    //             const cursoId = this.getAttribute('data-id');
+    //             const row = document.getElementById('subcursos-' + cursoId);
+    //             const isVisible = row.style.display === 'table-row';
+
+    //             // Toggle visibilidad
+    //             row.style.display = isVisible ? 'none' : 'table-row';
+
+    //             // Cambiar ícono del botón
+    //             this.textContent = isVisible ? '+' : '–';
+    //         });
+    //     });
+    // });
+    </script>
+
+    <script>
+$(document).ready(function() {
+    $('.toggle-subcursos').on('click', function() {
+        var btn = $(this);
+        var cursoId = btn.data('id');
+        var tr = btn.closest('tr');
+
+        // Evitar duplicados
+        if (tr.next().hasClass('subcursos-row')) {
+            tr.next().toggle(); // mostrar/ocultar si ya existe
+            // Cambiar el texto del botón
+            const isVisible = tr.next().is(':visible');
+            btn.text(isVisible ? '-' : '+');
+            return;
+        }
+
+
+        // Obtener subcursos vía AJAX
+        $.ajax({
+    url: '/cursos/subcursos/' + cursoId,
+    method: 'GET',
+    data: {
+        instructor: $('#instructorFilter').val() // <-- Agrega esto
+    },
+    success: function(subcursos) {
+                if (subcursos.length > 0) {
+                    let html = '<tr class="subcursos-row"><td colspan="10">';
+                    html += '<table class="table table-bordered"><thead><tr><th>Nomenclatura</th><th>Nombre del subcurso</th><th>Descripción</th><th>Duracion del subcurso</th><th>Fecha Inicio</th><th>Fecha Fin</th><th>Costo</th><th>Instructor</th><th>Acciones</th></tr></thead><tbody>';
+
+                    subcursos.forEach(function(subcurso) {
+                        html += `<tr>
+                            <td>${subcurso.Nomenclatura}</td>
+                            <td>${subcurso.NombredelCurso}</td>
+                            <td>${subcurso.DescripciondeCurso}</td>
+                            <td>${subcurso.Duracioncurso}</td>
+                            <td>${subcurso.FechadeInicio}</td>
+                            <td>${subcurso.FechadeTermino}</td>
+                            <td>${subcurso.CostodelCurso}</td>
+                            <td>${subcurso.InstructorResponsable}</td>
+                            <td>
+                                <a href="/cursos/${subcurso.id}" class="btn btn-sm btn-info">Ver</a>
+                                ${subcurso.puesto_usuario !== 'Operacion' ? `
+                                <a href="/cursos/${subcurso.id}/edit" class="btn btn-warning btn-sm">Editar Curso</a>
+                                <form action="/cursos/${subcurso.id}" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Estás seguro de eliminar este curso?')">
+                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                </form>` : ''}
+                            </td>
+                        </tr>`;
+                    });
+
+                    html += '</tbody></table></td></tr>';
+                    tr.after(html);
+                    btn.text('-');
                 } else {
-                    alert('Error: ' + data.message);
+                    alert('Este curso no tiene subcursos.');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Ocurrió un error al abrir la carpeta.');
-            });
+            },
+            error: function() {
+                alert('Error al obtener subcursos.');
+            }
         });
     });
-    </script>
+});
+</script>
 </body>
 </html>

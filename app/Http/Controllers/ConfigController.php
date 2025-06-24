@@ -26,10 +26,33 @@ class ConfigController extends Controller
 
 
         // Obtener todos los registros de logs con relaciones
-        $logs = CourseActionLog::with(['curso', 'user'])->get();
+        $logs = CourseActionLog::with(['curso', 'user'])
+            ->orderBy('fecha_accion', 'desc')
+            ->take(10)
+            ->get();
 
         // Pasar los logs a la vista
         return view('configuraciones.index', compact('logs', 'currentDbConnection', 'currentLogo','cursos', 'participantLogs'));
+    }
+
+     public function Cursos_Acciones()
+    {
+
+        // Obtener la conexión de base de datos actual
+        $cursos = Cursos::all(); // Obtener todos los cursos
+        $participantLogs = ParticipantActionLog::all(); // Historial de participantes
+        $currentDbConnection = Config::get('database.default');
+        $setting = Setting::first();
+        $currentLogo = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
+
+
+        // Obtener todos los registros de logs con relaciones
+        $logs = CourseActionLog::with(['curso', 'user'])
+            ->orderBy('fecha_accion', 'desc')
+            ->get();
+
+        // Pasar los logs a la vista
+        return view('/configuraciones/logs', compact('logs', 'currentDbConnection', 'currentLogo','cursos', 'participantLogs'));
     }
 
     public function store(Request $request)
@@ -265,6 +288,26 @@ class ConfigController extends Controller
                 // Pasar el curso a la vista
                 return view('cursos.show', compact('curso'));
             }
+
+
+            public function desactivar($id)
+{
+    $curso = Cursos::findOrFail($id);
+    $curso->status = 0;  // Cambiar a desactivado
+    $curso->save();
+
+    // Opcional: registrar acción en logs (como 'Eliminado')
+    CourseActionLog::create([
+        'curso_id' => $curso->id,
+        'nombre_curso' => $curso->NombredelCurso,
+        'user_id' => Auth::id(),
+        'accion' => 'Eliminado',
+        'detalles' => 'Curso desactivado por el usuario.',
+        'fecha_accion' => now(),
+    ]);
+
+    return redirect()->back()->with('success', 'Curso desactivado correctamente.');
+}
 
 
 

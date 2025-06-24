@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['project_manager.py'],
+    ['Cursos-y-Participantes.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='Cursos y Participantes I-DEB',
+    name='Cursos-y-Participantes',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['C:\\Users\\Raziel Correa\\Desktop\\Tareas y actividades\\favicon.ico'],
+    icon=['C:\\xampp\\htdocs\\Proyecto IDB\\CursosyParticipantes\\public\\images\\Logoibeb.ico'],
 )

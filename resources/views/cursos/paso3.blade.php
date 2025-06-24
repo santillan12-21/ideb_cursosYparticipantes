@@ -6,6 +6,8 @@
     <title>Crear Curso - Paso 3</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -85,7 +87,7 @@
                 <form action="{{ route('curso.paso3.guardar') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    <!-- Sin Fecha -->
+                   <!-- Sin Fecha -->
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de Sin Fecha</label>
                         <input type="text" name="SinFecha" class="form-control" value="{{ old('SinFecha') }}">
@@ -96,8 +98,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local (opcional)</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('SinFecha')">Crear carpeta local</button>
-                        <div id="archivoSinFechaContainer" style="display: none;" class="mt-2">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpetasLocales()">Crear carpeta local</button>
+                        <div id="archivoSinFechaContainer" style="display: {{ isset($carpetasExistentes['SinFecha']) && $carpetasExistentes['SinFecha'] ? 'block' : 'none' }};" class="mt-2">
                             <input type="file" name="SinFechaLocal" class="form-control">
                             @if(session('cursos_paso3.SinFechaLocal'))
                                 <div class="mt-2">
@@ -110,7 +112,7 @@
                     <!-- Facebook -->
                     <div class="mb-3">
                         <label class="form-label">Porcentaje de Facebook</label>
-                        <input type="text" name="Facebook" class="form-control"  value="{{ old('Facebook') }}">
+                        <input type="text" name="Facebook" class="form-control" value="{{ old('Facebook') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">URL Drive (opcional)</label>
@@ -118,8 +120,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local (opcional)</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Facebook')">Crear carpeta local</button>
-                        <div id="archivoFacebookContainer" style="display: none;" class="mt-2">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpetasLocales()">Crear carpeta local</button>
+                        <div id="archivoFacebookContainer" style="display: {{ isset($carpetasExistentes['Facebook']) && $carpetasExistentes['Facebook'] ? 'block' : 'none' }};" class="mt-2">
                             <input type="file" name="FacebookLocal" class="form-control">
                             @if(session('cursos_paso3.FacebookLocal'))
                                 <div class="mt-2">
@@ -140,8 +142,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local (opcional)</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('LinkedIn')">Crear carpeta local</button>
-                        <div id="archivoLinkedInContainer" style="display: none;" class="mt-2">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpetasLocales()">Crear carpeta local</button>
+                        <div id="archivoLinkedInContainer" style="display: {{ isset($carpetasExistentes['LinkedIn']) && $carpetasExistentes['LinkedIn'] ? 'block' : 'none' }};" class="mt-2">
                             <input type="file" name="LinkedInLocal" class="form-control">
                             @if(session('cursos_paso3.LinkedInLocal'))
                                 <div class="mt-2">
@@ -162,8 +164,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local (opcional)</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Instagram')">Crear carpeta local</button>
-                        <div id="archivoInstagramContainer" style="display: none;" class="mt-2">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpetasLocales()">Crear carpeta local</button>
+                        <div id="archivoInstagramContainer" style="display: {{ isset($carpetasExistentes['Instagram']) && $carpetasExistentes['Instagram'] ? 'block' : 'none' }};" class="mt-2">
                             <input type="file" name="InstagramLocal" class="form-control">
                             @if(session('cursos_paso3.InstagramLocal'))
                                 <div class="mt-2">
@@ -172,7 +174,6 @@
                             @endif
                         </div>
                     </div>
-
                     <!-- Botones -->
                     <div class="mb-3 d-flex justify-content-between">
                         <!-- Botón Siguiente -->
@@ -225,35 +226,28 @@
     </div>
 
     <script>
-        function crearCarpeta(tipo) {
-            fetch('/crear-carpeta', {
+        function crearCarpetasLocales() {
+        const tipos = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
+        tipos.forEach(tipo => {
+            fetch('{{ route("crear.carpeta.local") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({
-                    tipo: tipo,
-                    nombreCarpeta: tipo
-                })
+                body: JSON.stringify({ tipo })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Carpeta creada exitosamente: ' + data.ruta);
-                    const contenedor = document.getElementById(`archivo${tipo.replace('ó', 'o')}Container`);
-                    if (contenedor) {
-                        contenedor.style.display = 'block';
-                    }
-                } else {
-                    alert('Error: ' + data.message);
+                    // Actualizar la vista sin recargar la página
+                    document.querySelector(`#archivo${tipo}Container`).style.display = 'block';
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
             });
-        }
+        });
+    }
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {

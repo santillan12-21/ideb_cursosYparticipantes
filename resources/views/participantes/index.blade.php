@@ -1,13 +1,19 @@
-@extends('layouts.app')
-
-@section('content')
-
+@extends('home')
+@section('title', '- Lista de Participantes Inscritos')
+@section('nav')
+    
 <style>
+
+    .container{
+        margin: 0 auto; /* Centra el contenedor */
+        padding: 20px; /* Espacio interno del contenedor */
+        margin-top: 20px !important; /* Espacio superior */
+    }
     .table-container {
         width: 100%;
         overflow-x: auto; /* Permite desplazamiento horizontal si el contenido es demasiado ancho */
         margin: 0 auto; /* Centra el contenedor */
-        padding: 130px;
+        padding: 20px; 
         box-sizing: border-box;
     }
 
@@ -68,6 +74,7 @@
     }
 
 </style>
+<br><br><br>
 
     <div class="container">
             @if(session()->has('success'))
@@ -167,6 +174,7 @@
                         <th>Razón Social</th>
                         <th>Empresa</th>
                         <th>RFC Empresa</th>
+                        <th>Ocupacion</th>
                         <th>Puesto</th>
                         <th>Pago</th>
                         <th>Estado de Pago</th>
@@ -179,9 +187,24 @@
                     @forelse($participantes as $participante)
                     <tr>
                         <!-- Información del participante -->
-                        <td>{{ $participante->N }}</td>
+                        @if($participante -> estatus == 0)
+                        <td style="  background-color: #f8d7da; color: #721c24;">{{ $participante->N }}</td>
+                        @else
+                        <td >{{ $participante->N }}</td>
+                        @endif
+
+                        @if($participante -> estatus == 0)
+                        <td style="  background-color: #f8d7da; color: #721c24;">{{ $participante->NombredelPostulante }}</td>
+                        @else
                         <td>{{ $participante->NombredelPostulante }}</td>
+                        @endif
+
+                        
+                        @if($participante -> estatus == 0)
+                        <td  colspan="15" style="background-color: #f8d7da; color: #721c24;">Inactivo</td>
+                        @else
                         <td>{{ $participante->Correo }}</td>
+                     
                         <td>{{ $participante->Telefono }}</td>
                         <td>{{ $participante->Edad }}</td>
                         <td>{{ $participante->Direccion }}</td>
@@ -190,6 +213,7 @@
                         <td>{{ $participante->RazónSocial }}</td>
                         <td>{{ $participante->Empresa }}</td>
                         <td>{{ $participante->RFCEmpresa }}</td>
+                        <td>{{ $participante->Ocupacion }}</td>
                         <td>{{ $participante->Puesto }}</td>
                         <td>
                             @php
@@ -208,6 +232,7 @@
                                 @endforeach
                             @endif
                         </td>
+                         @endif
                         <!-- Acciones (Editar y Eliminar) -->
                         <td>
                             <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn btn-sm btn-info" target="_blank">
@@ -219,6 +244,7 @@
                                 <i class="fas fa-edit"></i> Editar
                             </a>
                             @endif
+                            
                             @if(auth()->user()->puesto != 'Operacion')
                             <!-- Botón Eliminar -->
                             <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
@@ -257,9 +283,6 @@
 
     <!-- DataTables y Exportación -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

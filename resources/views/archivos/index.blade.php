@@ -1,11 +1,23 @@
 @php
     use Illuminate\Support\Facades\Storage;
 @endphp
-@extends('layouts.app')
+@extends('home')
+@section('title', '- Archivos en Carpeta: ' . $carpeta)
+@section('nav')
 
-@section('content')
-<div class="container">
-    <h1>Archivos en la Carpeta: {{ $carpeta }}</h1>
+<style>
+   
+    .container {
+        margin: 20px auto;
+        max-width: 900px;
+    }
+    input{
+        width: 100%;
+        max-width: 100%;
+    }
+    </style>
+<div class="container" style="margin-top: 100px; align-content: center">
+    <h1 style="text-align:center">Archivos en la Carpeta: {{ $carpeta }}</h1>
 
     @if (session('success'))
         <div class="alert alert-success">
@@ -17,7 +29,7 @@
     <form action="{{ route('archivos.upload') }}" method="POST" enctype="multipart/form-data" class="mb-4">
         @csrf
         <div class="form-group">
-            <input type="file" name="archivo" class="form-control-file" required>
+            <input type="file" name="archivo" class="form-control-file" required style="width: 100%; max-width: 100%;">
         </div>
         <button type="submit" class="btn btn-primary">Subir Archivo</button>
     </form>
@@ -26,7 +38,7 @@
     <form action="{{ route('archivos.create-folder') }}" method="POST" class="mb-4">
         @csrf
         <div class="form-group">
-            <input type="text" name="nombre_carpeta" class="form-control" placeholder="Nombre de la carpeta" required>
+            <input type="text" name="nombre_carpeta" class="form-control" placeholder="Nombre de la carpeta" required style="width: 100%; max-width: 100%;">
         </div>
         <button type="submit" class="btn btn-info">Crear Carpeta</button>
     </form>

@@ -5,15 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use App\Models\RutaLocal;
 
 class RutaArchivosController extends Controller
 {
-    private $configFile = 'config/ruta_archivos.json';
-
     /**
-     * Guarda una nueva ruta en el archivo JSON.
+     * Guarda una nueva ruta en la base de datos.
      */
-    public function guardar(Request $request)
+    public function guardarRuta(Request $request)
     {
         try {
             // Validar la solicitud
@@ -35,35 +34,24 @@ class RutaArchivosController extends Controller
                 ], 400);
             }
 
-            // Leer las rutas existentes o inicializar un array vacío
-            $rutasExistentes = [];
-            if (Storage::exists('config/ruta_archivos.json')) {
-                $contenido = Storage::get('config/ruta_archivos.json');
-                $rutasExistentes = json_decode($contenido, true);
-
-                // Verificar si el contenido es un array
-                if (!is_array($rutasExistentes)) {
-                    $rutasExistentes = [];
-                }
-            }
-
-            // Agregar la nueva ruta
-            $nuevaRuta = [
-                'nombreCarpeta' => $nombreCarpeta,
-                'rutaCarpeta' => $rutaCarpeta,
-                'rutaCompleta' => $rutaCompleta,
-                'timestamp' => now()->toDateTimeString()
-            ];
-
-            $rutasExistentes[] = $nuevaRuta;
-
-            // Guardar el archivo JSON actualizado
-            Storage::put('config/ruta_archivos.json', json_encode($rutasExistentes, JSON_PRETTY_PRINT));
+            // Crear un nuevo registro en la base de datos
+            $nuevaRuta = RutaLocal::create([
+                'nombre_carpeta' => $nombreCarpeta,
+                'ruta_nombre_carpeta' => $rutaCarpeta,
+                'rutacompleta' => $rutaCompleta,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Carpeta creada y ruta guardada correctamente.',
-                'data' => $nuevaRuta
+                'data' => [
+                    'nombreCarpeta' => $nuevaRuta->nombre_carpeta,
+                    'rutaCarpeta' => $nuevaRuta->ruta_nombre_carpeta,
+                    'rutaCompleta' => $nuevaRuta->rutacompleta,
+                    'timestamp' => $nuevaRuta->created_at,
+                ]
             ]);
 
         } catch (\Exception $e) {
@@ -75,35 +63,29 @@ class RutaArchivosController extends Controller
     }
 
     /**
-     * Obtiene todas las rutas guardadas en el archivo JSON.
+     * Obtiene la última ruta guardada en la base de datos.
      */
     public function obtenerRuta()
     {
         try {
-            if (Storage::exists('config/ruta_archivos.json')) {
-                $contenido = Storage::get('config/ruta_archivos.json');
-                $config = json_decode($contenido, true);
+            // Obtener la última ruta registrada
+            $ultimaRuta = RutaLocal::orderBy('created_at', 'desc')->first();
 
-                // Verificar si el contenido es un array
-                if (!is_array($config)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'El archivo de configuración no tiene el formato correcto.'
-                    ], 400);
-                }
-
-                // Obtener la última ruta registrada
-                $ultimaRuta = end($config);
-
+            if (!$ultimaRuta) {
                 return response()->json([
-                    'success' => true,
-                    'data' => $ultimaRuta
+                    'success' => false,
+                    'message' => 'No hay configuración guardada.'
                 ]);
             }
 
             return response()->json([
-                'success' => false,
-                'message' => 'No hay configuración guardada.'
+                'success' => true,
+                'data' => [
+                    'nombreCarpeta' => $ultimaRuta->nombre_carpeta,
+                    'rutaCarpeta' => $ultimaRuta->ruta_nombre_carpeta,
+                    'rutaCompleta' => $ultimaRuta->rutacompleta,
+                    'timestamp' => $ultimaRuta->created_at,
+                ]
             ]);
 
         } catch (\Exception $e) {
@@ -112,9 +94,8 @@ class RutaArchivosController extends Controller
                 'message' => 'Error al obtener la configuración: ' . $e->getMessage()
             ], 500);
         }
-
-
     }
+
     /**
      * Verifica si una ruta existe en el sistema.
      */
@@ -135,6 +116,9 @@ class RutaArchivosController extends Controller
         }
     }
 
+    /**
+     * Abre una carpeta específica en el sistema.
+     */
     public function abrirCarpeta(Request $request)
     {
         try {
@@ -179,34 +163,27 @@ class RutaArchivosController extends Controller
         }
     }
 
+    /**
+     * Obtiene la última ruta completa guardada en la base de datos.
+     */
     public function obtenerUltimaRuta()
     {
         try {
-            // Verificar si el archivo existe
-            if (Storage::exists('config/ruta_archivos.json')) {
-                $contenido = Storage::get('config/ruta_archivos.json');
-                $config = json_decode($contenido, true);
+            // Obtener la última ruta registrada
+            $ultimaRuta = RutaLocal::orderBy('created_at', 'desc')->first();
 
-                // Verificar si el contenido es un array
-                if (!is_array($config)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'El archivo de configuración no tiene el formato correcto.'
-                    ], 400);
-                }
-
-                // Obtener la última ruta registrada
-                $ultimaRuta = end($config);
+            if (!$ultimaRuta) {
                 return response()->json([
-                    'success' => true,
-                    'data' => $ultimaRuta['rutaCompleta']
+                    'success' => false,
+                    'message' => 'No hay configuración guardada.'
                 ]);
             }
 
             return response()->json([
-                'success' => false,
-                'message' => 'No hay configuración guardada.'
+                'success' => true,
+                'data' => $ultimaRuta->rutacompleta
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -215,40 +192,38 @@ class RutaArchivosController extends Controller
         }
     }
 
+    /**
+     * Obtiene todas las rutas guardadas en la base de datos.
+     */
     public function obtenerTodasLasRutas()
     {
         try {
-            // Verificar si el archivo existe
-            if (Storage::exists('config/ruta_archivos.json')) {
-                $contenido = Storage::get('config/ruta_archivos.json');
-                $config = json_decode($contenido, true);
+            // Obtener todas las rutas ordenadas por fecha de creación más reciente
+            $rutas = RutaLocal::orderBy('created_at', 'desc')->get();
 
-                // Verificar si el contenido es un array
-                if (!is_array($config)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'El archivo de configuración no tiene el formato correcto.'
-                    ], 400);
-                }
-
-                // Extraer solo las rutas completas
-                $rutas = array_map(function ($item) {
-                    return [
-                        'nombreCarpeta' => $item['nombreCarpeta'],
-                        'rutaCompleta' => $item['rutaCompleta']
-                    ];
-                }, $config);
-
+            // Verificar si hay rutas
+            if ($rutas->isEmpty()) {
                 return response()->json([
-                    'success' => true,
-                    'data' => $rutas
+                    'success' => false,
+                    'message' => 'No hay rutas configuradas.'
                 ]);
             }
 
+            // Transformar los datos para enviar
+            $rutasFormateadas = $rutas->map(function($ruta) {
+                return [
+                    'nombre_carpeta' => $ruta->nombre_carpeta,
+                    'rutacompleta' => $ruta->rutacompleta,
+                    'ruta_nombre_carpeta' => $ruta->ruta_nombre_carpeta,
+                    'created_at' => $ruta->created_at
+                ];
+            });
+
             return response()->json([
-                'success' => false,
-                'message' => 'No hay configuración guardada.'
+                'success' => true,
+                'data' => $rutasFormateadas
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -256,4 +231,28 @@ class RutaArchivosController extends Controller
             ], 500);
         }
     }
+
+    public function crearCarpeta(Request $request)
+    {
+        $request->validate(['tipo' => 'required|string']);
+        $ultimaRuta = RutaLocal::latest()->firstOrFail();
+        $rutaBase = $ultimaRuta->rutacompleta;
+
+        // Crear carpeta específica para el tipo (ej: Instagram)
+        $carpeta = ucfirst($request->tipo);
+        $rutaCompleta = "$rutaBase/7- Flyers del Curso/$carpeta";
+
+        if (File::exists($rutaCompleta)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La carpeta ya existe.'
+            ]);
+        }
+
+        File::makeDirectory($rutaCompleta, 0755, true);
+        $ultimaRuta->update(["ruta$carpeta" => $rutaCompleta]);
+
+        return response()->json(['success' => true]);
+    }
+
 }

@@ -76,6 +76,7 @@ class participantes extends Model
         'RazónSocial',
         'Empresa',
         'RFCEmpresa',
+        'Ocupacion',
         'Puesto',
         'Pago',
         'EstadoDePago',

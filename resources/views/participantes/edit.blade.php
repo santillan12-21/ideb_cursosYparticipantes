@@ -73,6 +73,10 @@
         </div>
         <!-- Puesto, Pago, Fecha del Curso -->
         <div class="row mb-3">
+             <div class="col-md-4">
+                <label for="Ocupacion" class="form-label">Ocupacion</label>
+                <input type="text" class="form-control" id="Ocupacion" name="Ocupacion" value="{{ old('Ocupacion', $participante->Ocupacion) }}" required>
+            </div>
             <div class="col-md-4">
                 <label for="Puesto" class="form-label">Puesto</label>
                 <input type="text" class="form-control" id="Puesto" name="Puesto" value="{{ old('Puesto', $participante->Puesto) }}" required>

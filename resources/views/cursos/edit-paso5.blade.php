@@ -21,11 +21,22 @@
                            value="{{ $curso->DriveDigital }}" required>
                 </div>
 
+                 @php
+                    use App\Models\inscripcion;
+                    $cursoId = $curso->id;
+                    $participante = inscripcion::where('curso_id', $cursoId)->count();
+                @endphp
                 <div class="mb-3">
-                    <label class="form-label">Impreso Presentable</label>
-                    <input type="text" name="Impreso_Presentable" class="form-control"
-                           value="{{ $curso->Impreso_Presentable }}" required>
-                </div>
+                    <label for="">Porcentaje del material impreso y presentable</label>
+                    <select name="Impreso_Presentable" class="form-control" id="">
+                        <option value=" {{ old('Impreso_presentable') }} " disabled selected>{{ $curso -> Impreso_Presentable }} </option>
+                        @for ($i = 1; $i <= $participante; $i++)
+                            <option value="{{ $i }}/{{ $participante }}">{{ $i }}/{{ $participante }}</option>
+                        @endfor
+                    </select>
+           {{-- <label class="form-label">Porcentaje del material impreso y presentable</label>
+                        <input type="text" name="Impreso_Presentable" class="form-control" value="{{ old('Impreso_Presentable', $curso->Impreso_Presentable ?? ($datosPadre->Impreso_Presentable ?? '')) }}"> --}}
+                </div> 
 
                 <div class="mb-3 d-flex justify-content-between">
                     <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-secondary">Regresar</a>

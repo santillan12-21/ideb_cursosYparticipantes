@@ -1,9 +1,30 @@
-@extends('layouts.app')
-@section('content')
-<div class="container">
-    <h1>Mi Perfil</h1>
-    <div class="card">
-        <div class="card-header">Información del Usuario</div>
+@extends('home')
+@section('title', '- Perfil de Usuario')
+@section('nav')
+
+<style>
+       
+        /* Se define dos secciones en el header */
+       
+        .container {
+            text-align: center;
+            padding: 10px;
+        }
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            justify-items: center;
+        }
+    </style>
+<div class="container" style="margin-top: 100px">
+    <h1 style="text-align: center; ">Mi Perfil</h1>
+    <div class="card" >
+        <div class="card-header" style="text-align: center">Información del Usuario</div>
         <div class="card-body">
             <div class="form-group row">
                 <label class="col-md-4 col-form-label text-md-right">Nombre:</label>

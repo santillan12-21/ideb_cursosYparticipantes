@@ -33,6 +33,7 @@ class CursosExport implements FromCollection, WithHeadings, WithMapping, WithSty
     {
         return [
             'Nomenclatura',
+            'parent_id',
             'Nombre del Curso',
             'Descripción del Curso',
             'Costo del Curso',
@@ -80,6 +81,7 @@ class CursosExport implements FromCollection, WithHeadings, WithMapping, WithSty
     {
         return [
             $curso->Nomenclatura,
+            $curso->parent_id,
             $curso->NombredelCurso,
             $curso->DescripciondeCurso,
             '$' . number_format($curso->CostodelCurso, 2),

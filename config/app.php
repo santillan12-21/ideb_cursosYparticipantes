@@ -128,6 +128,9 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
     ],
 
+    'backend_api2' => env('BACKEND_API2', 'http://127.0.0.1:8001'),
+
+
 
 
 ];

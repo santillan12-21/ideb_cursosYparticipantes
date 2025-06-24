@@ -1,11 +1,29 @@
-@extends('layouts.app') <!-- Asegúrate de tener un layout base -->
+@extends('home')
+@section('title', '- Registrar Participante')
+@section('nav')
 
-@section('content')
+
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- jQuery UI -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+
+
+<style>
+    input {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .container {
+        margin: 20px auto !important;
+        max-width: 900px !important;
+        margin-top: 100px !important; 
+    }
+</style>
+
 
 <div class="container">
     @if ($errors->any())
@@ -17,7 +35,7 @@
         </ul>
     </div>
 @endif
-    <h2>Registrar Nuevo Participante</h2>
+    <h2 style="text-align: center;">Registrar Nuevo Participante</h2>
     <form action="{{ route('registro.store') }}" method="POST">
         @csrf <!-- Token CSRF para protección contra ataques -->
 
@@ -66,7 +84,7 @@
 
         <!-- Razón Social -->
         <div class="mb-3">
-            <label for="RazónSocial" class="form-label">Razón Social</label>
+            <label for="RazónSocial" class="form-label">Razón Social de la empresa en la que labora</label>
             <input type="text" class="form-control" id="RazónSocial" name="RazónSocial" required>
         </div>
 
@@ -82,11 +100,17 @@
             <input type="text" class="form-control" id="RFCEmpresa" name="RFCEmpresa" required>
         </div>
 
-        <!-- Puesto -->
+        <!-- Ocupacion -->
         <div class="mb-3">
-            <label for="Puesto" class="form-label">Área en el que trabaja</label>
-            <input type="text" class="form-control" id="Puesto" name="Puesto" placeholder="Escribe el puesto..." required>
+            <label for="Puesto" class="form-label">Ocupación especifica</label>
+            <input type="text" class="form-control" id="Ocupacion" name="Ocupacion" placeholder="Escribe el puesto..." required>
         </div>
+
+           <!-- Puesto -->
+        <div class="mb-3">
+            <label for="Puesto" class="form-label">Puesto que ocupa dentro de la empresa</label>
+            <input type="text" class="form-control" id="Puesto" name="Puesto" placeholder="Escribe el puesto..." required>
+        </div
 
         <!-- Estado de Pago -->
         <div class="mb-3">
@@ -161,36 +185,86 @@
     });
 
     // Autocompletado para el campo "Puesto"
-    $(function () {
-        const puestos = [
-            "Agricultura y silvicultura", "Ganadería", "Pesca y acuacultura",
-            "Exploración", "Extracción", "Refinación y beneficio", "Provisión de energía", "Provisión de agua",
-            "Planeación y dirección de obras", "Edificación y urbanización", "Acabado", "Conservación y mantenimiento",
-            "Mecánica", "Electricidad", "Electrónica", "Informática", "Telecomunicaciones", "Procesos industriales",
-            "Minerales no metálicos", "HCM",
-            "Ferroviario", "Autotransporte", "Aéreo", "Marítimo y fluvial", "Servicios de apoyo",
-            "Comercio", "Alimentación y hospedaje", "Turismo", "Deporte y esparcimiento", "Servicios personales",
-            "Reparación de artículos de uso doméstico y personal", "Limpieza", "Servicio postal y mensajería",
-            "Bolsa, banca y seguros", "Administración", "Servicios legales",
-            "Servicios médicos", "Inspección sanitaria y del medio ambiente", "Seguridad social",
-            "Protección de bienes y/o personas",
-            "Minerales no metálicos", "Metales", "Alimentos y bebidas", "Textiles y prendas de vestir",
-            "Materia orgánica", "Productos químicos", "Productos metálicos y de hule y plástico",
-            "Productos eléctricos y electrónicos", "Productos impresos",
-            "Publicación", "Radio, cine, televisión y teatro", "Interpretación artística",
-            "Traducción e interpretación lingüística", "Publicidad, propaganda y relaciones públicas",
-            "Investigación", "Enseñanza", "Difusión cultural",
-        ];
-        $("#Puesto").autocomplete({
-            source: puestos,
-            minLength: 1, // Mínimo de caracteres antes de mostrar sugerencias
-            select: function (event, ui) {
-                // Al seleccionar una opción, establecer el valor en el campo
-                $("#Puesto").val(ui.item.value);
-                return false;
-            }
-        });
+ // ...otros scripts...
+
+$(function () {
+    const puestos = [
+        "01 Cultivo, crianza y aprovechamiento", "01.1 Agricultura y silvicultura", "01.2 Ganadería",
+        "01.3 Pesca y acuacultura",
+        "02 Extracción y suministro",
+        "02.1 Exploración",
+        "02.2 Extracción",
+        "02.3 Refinación y beneficio",
+        "02.4 Provisión de energia",
+        "02.5 Provisión de agua",
+        "03 Construcción",
+        "03.1 Planeación y dirección de obras",
+        "03.2 Edificación y urbanización",
+        "03.3 Acabado",
+        "03.4 Instalación y mantenimiento",
+        "04 Tecnologia",
+        "04.1 Mecánica",
+        "04.2 Electricidad",
+        "04.3 Electrónica",
+        "04.4 Informática",
+        "04.5 Telecomunicaciones",
+        "04.6 Procesos industriales",
+        "05 Procesamiento y fabricación",
+        "05.1 Minerales no metálicos",
+        "05.2 Metales",
+        "05.3 Alimento y bebidas",
+        "05.4 Textiles y prendas de vestir",
+        "05.5 Materia orgánica",
+        "05.6 Productos químicos",
+        "05.7 Productos metálicos y de hule y plástico",
+        "05.8 Productos eléctricos y electrónicos",
+        "05.9 Productos impresos",
+        "06 Transporte",
+        "06.1 Ferroviario",
+        "06.2 Autotransporte",
+        "06.3 Aéreo",
+        "06.4 Maritimo y fluvial",
+        "06.5 Servicios de apoyo",
+        "07 Provisión de bienes y servicios",
+        "07.1 Comercio",
+        "07.2 Alimentación y hospedaje",
+        "07.3 Turismo",
+        "07.4 Deporte y esparcimiento.",
+        "07.5 Servicios personales",
+        "07.6 Reparación de artículos de uso doméstico y personal",
+        "7.7 Limpieza",
+        "07.8 Servicio postal y mensajeria",
+        "08 Gestión y soporte administrativo",
+        "08.1 Bolsa, banca y seguros",
+        "08.2 Administración",
+        "08.3 Servicios legales",
+        "09 Salud y protección social",
+        "09.1 Servicios médicos",
+        "09.2 Inspección sanitaria y del medio ambiente",
+        "09.3 Seguridad social",
+        "09.4 Protección de bienes y/o personas",
+        "10 Comunicación",
+        "10.1 Publicación",
+        "10.2 Radio, cine, televisión y teatro",
+        "10.3 Interpretación artística",
+        "10.4 Traducción e interpretación lingüística",
+        "10.5 Publicidad, propaganda y relaciones públicas",
+        "11 Desarrollo y extensión del conocimiento",
+        "11.1 Investigación",
+        "11.2 Enseñanza",
+        "11.3 Difusión cultural"
+    ];
+
+    $("#Puesto").autocomplete({
+        source: puestos,
+        minLength: 1,
+        select: function (event, ui) {
+            $("#Puesto").val(ui.item.value);
+            return false;
+        }
     });
+});
+
 
     // Función para mostrar/ocultar el campo "Pago"
     function togglePagoField() {

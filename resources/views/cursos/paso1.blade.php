@@ -6,6 +6,8 @@
     <title>Formulario - Crear Curso</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+
     <style>
         * {
             margin: 0;
@@ -107,16 +109,28 @@
             <form action="{{ route('curso.paso1.guardar') }}" method="POST">
                 @csrf
                 <div class="mb-3">
-                    <input type="text" name="Nomenclatura" class="form-control" placeholder="Nomenclatura" required>
+                    @if (session('nomenclatura_generada'))
+                        <input type="text" name="Nomenclatura" class="form-control"
+                            value="{{ session('nomenclatura_generada') }}"
+                            readonly required>
+                    @else
+                        <input type="text" name="Nomenclatura" class="form-control"
+                            placeholder="Nomenclatura" required>
+                    @endif
+                </div> 
+
+                <div class="mb-3">
+                    <input type="text" name="NombredelCurso" class="form-control" placeholder="Nombre del Curso"   value="{{ old('NombredelCurso', $curso->NombredelCurso ?? '') }}" >
                 </div>
                 <div class="mb-3">
-                    <input type="text" name="NombredelCurso" class="form-control" placeholder="Nombre del Curso" >
+                <textarea name="DescripciondeCurso" class="form-control" rows="3" placeholder="Descripción del Curso">
+                {{ old('DescripciondeCurso', $curso->DescripciondeCurso ?? ($datosPadre->DescripciondeCurso ?? '')) }}
+                </textarea>  
                 </div>
                 <div class="mb-3">
-                    <textarea name="DescripciondeCurso" class="form-control" rows="3" placeholder="Descripción del Curso" ></textarea>
-                </div>
-                <div class="mb-3">
-                    <input type="number" step="0.01" name="CostodelCurso" class="form-control" placeholder="Costo del Curso ($)" >
+                <input type="number" step="0.01" name="CostodelCurso" class="form-control"
+                value="{{ old('CostodelCurso', $curso->CostodelCurso ?? ($datosPadre->CostodelCurso ?? '')) }}"
+                placeholder="Costo del Curso ($)">               
                 </div>
                 <div class="mb-3">
                     <input type="text" name="InstructorResponsable" class="form-control" placeholder="Instructor Responsable" >

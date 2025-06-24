@@ -6,6 +6,8 @@
     <title>Crear Curso - Paso 4</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -100,79 +102,127 @@
                     @csrf
 
                     <!-- Temario -->
-                    <div class="form-section">
-                        <h5>Temario</h5>
-                        <div class="mb-3">
-                            <label class="form-label">Porcentaje del Temario</label>
-                            <input type="text" name="Temario" class="form-control" value="{{ old('Temario') }}" >
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">URL Drive (opcional)</label>
-                            <input type="text" name="DriveTemario" class="form-control" value="{{ old('DriveTemario') }}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Archivo Local (opcional)</label>
-                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('1- Temario')">Crear carpeta local</button>
-                            <div id="archivoTemarioContainer" style="display: none;" class="file-upload-container mt-2">
-                                <input type="file" name="TemarioLocal" class="form-control">
-                                @if(session('cursos_paso4.TemarioLocal'))
-                                    <div class="mt-2">
-                                        Archivo subido: {{ session('cursos_paso4.TemarioLocal') }}
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
+                <div class="form-section">
+                    <h5>Temario</h5>
+                    
+                    <!-- Porcentaje -->
+                    <div class="mb-3">
+                        <label class="form-label">Porcentaje del Temario</label>
+                        <input type="text" step="0.01" name="Temario" class="form-control"
+                            value="{{ old('Temario') ?? ($curso->Temario ?? ($datosPadre->Temario ?? '')) }}">
                     </div>
+                    
+                    <!-- Drive URL -->
+                    <div class="mb-3">
+                        <label class="form-label">URL Drive (opcional)</label>
+                        <input type="text" name="DriveTemario" class="form-control"
+                            value="{{ old('DriveTemario') ?? ($curso->DriveTemario ?? '') }}">
+                    </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Archivo Local (opcional)</label>
+
+               @if ($archivosLocales['Temario'] === 'actual')
+                    <div class="alert alert-success p-2">
+                        Este archivo ya fue subido en el curso original
+                    </div>
+                     <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Temario')">
+                        Subir archivo actualizado
+                    </button>
+                    <div id="archivoTemarioContainer" style="display: none;" class="file-upload-container mt-2">
+                        <input type="file" name="TemarioLocal" class="form-control">
+                    </div>
+                @else
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Temario')">
+                        Subir archivo local
+                    </button>
+                    <div id="archivoTemarioContainer" style="display: none;" class="file-upload-container mt-2">
+                        <input type="file" name="TemarioLocal" class="form-control">
+                    </div>
+                @endif
+
+                </div>
+
+                </div>
+
 
                     <!-- Itinerario -->
-                    <div class="form-section">
-                        <h5>Itinerario</h5>
-                        <div class="mb-3">
-                            <label class="form-label">Porcentaje del Itinerario</label>
-                            <input type="text" name="Itinerario" class="form-control" value="{{ old('Itinerario') }}" >
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">URL Drive (opcional)</label>
-                            <input type="text" name="DriveItinerario" class="form-control" value="{{ old('DriveItinerario') }}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Archivo Local (opcional)</label>
-                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('6- Itinerario')">Crear carpeta local</button>
-                            <div id="archivoItinerarioContainer" style="display: none;" class="file-upload-container mt-2">
-                                <input type="file" name="ItinerarioLocal" class="form-control">
-                                @if(session('cursos_paso4.ItinerarioLocal'))
-                                    <div class="mt-2">
-                                        Archivo subido: {{ session('cursos_paso4.ItinerarioLocal') }}
-                                    </div>
-                                @endif
-                            </div>
+                <div class="form-section">
+                    <h5>Itinerario</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Porcentaje del Itinerario</label>
+                        <input type="text" name="Itinerario" class="form-control"
+                            value="{{ old('Itinerario') ?? ($curso->Itinerario ?? ($datosPadre->Itinerario ?? '')) }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">URL Drive (opcional)</label>
+                        <input type="text" name="DriveItinerario" class="form-control"
+                            value="{{ old('DriveItinerario') ?? ($curso->DriveItinerario ?? ($datosPadre->DriveItinerario ?? '')) }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Archivo Local (opcional)</label>
+                        @if ($archivosLocales['Itinerario'] === 'actual')
+                    <div class="alert alert-success p-2">
+                        Este archivo ya fue subido en el curso original
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('Itinerario')">Subir archivo actualizado</button>
+                        <div id="archivoItinerarioContainer" style="display: none;" class="file-upload-container mt-2">
+                            <input type="file" name="ItinerarioLocal" class="form-control">
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso4.ItinerarioLocal') }}
+                                </div>
+                        @else
+                        <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('Itinerario')">Crear carpeta local</button>
+                        <div id="archivoItinerarioContainer" style="display: none;" class="file-upload-container mt-2">
+                            <input type="file" name="ItinerarioLocal" class="form-control">
+                                <div class="mt-2">
+                                    Archivo subido: {{ session('cursos_paso4.ItinerarioLocal') }}
+                                </div>
+                            @endif
                         </div>
                     </div>
 
-                    <!-- Planeación -->
+                   <!-- Planeación -->
                     <div class="form-section">
                         <h5>Planeación</h5>
+
                         <div class="mb-3">
                             <label class="form-label">Porcentaje de la Planeación</label>
-                            <input type="text" name="Planeación" class="form-control" value="{{ old('Planeación') }}" >
+                            <input type="text" name="Planeación" class="form-control"
+                                value="{{ old('Planeación') ?? ($curso->Planeación ?? ($datosPadre->Planeación ?? '')) }}">
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">URL Drive (opcional)</label>
-                            <input type="text" name="DrivePlaneación" class="form-control" value="{{ old('DrivePlaneación') }}">
+                            <input type="text" name="DrivePlaneación" class="form-control"
+                                value="{{ old('DrivePlaneación') ?? ($curso->DrivePlaneación ?? ($datosPadre->DrivePlaneación ?? '')) }}">
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Archivo Local (opcional)</label>
-                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('3- Planeación')">Crear carpeta local</button>
+                             @if ($archivosLocales['Planeacion'] === 'actual')
+                                <div class="alert alert-success p-2">
+                                    Este archivo ya fue subido
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('Planeación')">Subir archivo actualizado</button>
                             <div id="archivoPlaneacionContainer" style="display: none;" class="file-upload-container mt-2">
                                 <input type="file" name="PlaneaciónLocal" class="form-control">
-                                @if(session('cursos_paso4.PlaneaciónLocal'))
+                                    <div class="mt-2">
+                                        Archivo subido: {{ session('cursos_paso4.PlaneaciónLocal') }}
+                                    </div>
+                            @else
+                            <button type="button" class="btn btn-secondary btn-sm btn-create-folder" onclick="crearCarpeta('Planeación')">Crear carpeta local</button>
+                            <div id="archivoPlaneacionContainer" style="display: none;" class="file-upload-container mt-2">
+                                <input type="file" name="PlaneaciónLocal" class="form-control">
                                     <div class="mt-2">
                                         Archivo subido: {{ session('cursos_paso4.PlaneaciónLocal') }}
                                     </div>
                                 @endif
                             </div>
                         </div>
-                    </div>
 
                     <!-- Botones -->
                     <div class="mb-3 d-flex justify-content-between">
@@ -222,7 +272,7 @@
 
     <script>
         function crearCarpeta(tipo) {
-            fetch('/crear-carpeta', {
+            fetch('{{ route("crear.carpeta.local") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -230,13 +280,14 @@
                 },
                 body: JSON.stringify({
                     tipo: tipo,
-                    nombreCarpeta: tipo
+                    nombreCarpeta: `${tipo === 'Temario' ? '1-Temario' : tipo === 'Itinerario' ? '6-Itinerario' : '3-Planeación'}`
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     alert('Carpeta creada exitosamente: ' + data.ruta);
+                    // Mostrar el contenedor de archivos correspondiente
                     const contenedor = document.getElementById(`archivo${tipo.replace('ó', 'o')}Container`);
                     if (contenedor) {
                         contenedor.style.display = 'block';
@@ -248,7 +299,7 @@
             .catch(error => {
                 console.error('Error:', error);
             });
-        }
+    }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

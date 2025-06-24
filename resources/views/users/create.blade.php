@@ -1,11 +1,27 @@
-@extends('layouts.app')
+@extends('home')
+@section('title', '- Crear Usuario')
+@section('nav')
 
-@section('content')
+<style>
+   .container {
+    margin-top: 10% !important;
+   }
+   h1
+    {
+         text-align: center;
+         margin-bottom: 20px;
+    }
+    label {
+        font-weight: bold;
+
+    }
+</style>
+    
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Crear Usuario') }}</div>
+                <div class="card-header" ><h1>{{ __('Crear Usuario') }}</h1></div>
 
                 <div class="card-body">
                     @if ($errors->any())
@@ -23,7 +39,7 @@
 
                         <div class="mb-3">
                             <label for="name" class="form-label">{{ __('Nombre') }}</label>
-                            <input id="name" type="text" class="form-control @error('name') is-invalid @enderror"
+                            <input  style="width: 100%" id="name" type="text" class="form-control @error('name') is-invalid @enderror"
                                    name="name" value="{{ old('name') }}" required autofocus>
                             @error('name')
                                 <span class="invalid-feedback" role="alert">

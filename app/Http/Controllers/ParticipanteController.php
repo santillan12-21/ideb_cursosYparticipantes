@@ -26,7 +26,7 @@ class ParticipanteController extends Controller
         $cursos = Cursos::all();
 
         // Obtener solo los participantes con estatus = 1 y cargar la relación 'cursos'
-        $participantes = Participantes::where('estatus', 1)->with('cursos')->get();
+        $participantes = Participantes::all();
 
         // Pasar los datos a la vista
         return view('participantes.index', compact('cursos', 'participantes'));
@@ -72,6 +72,7 @@ class ParticipanteController extends Controller
             'RazónSocial' => 'nullable|string|max:255',
             'Empresa' => 'required|string|max:255',
             'RFCEmpresa' => 'nullable|string|max:255',
+            'Ocupacion' => 'nullable|string|max:255',
             'Puesto' => 'required|string|max:255',
             'Pago' => 'required|numeric',
             'EstadoDePago' => 'required|string|max:255',
@@ -109,7 +110,6 @@ class ParticipanteController extends Controller
      */
     public function store(Request $request)
 {
-    // Validar los datos del formulario
     $validated = $request->validate([
         'N' => 'required|string|max:255|unique:participantes,N',
         'NombredelPostulante' => 'required|string|max:255',
@@ -122,17 +122,20 @@ class ParticipanteController extends Controller
         'RazónSocial' => 'nullable|string|max:200',
         'Empresa' => 'required|string|max:255',
         'RFCEmpresa' => 'nullable|string|max:100',
+        'Ocupacion' => 'nullable|string|max:255',
         'Puesto' => 'required|string|max:255',
-        'Pago' => 'nullable|numeric', // Pago puede ser nulo
+        'Pago' => 'nullable|numeric',
         'EstadoDePago' => 'required|string|max:255',
         'FechadelCurso' => 'required|date',
         'cursos' => 'required|array|min:1',
     ]);
 
-    // Crear el participante
+    // Guardar primero el participante
     $participante = new Participantes();
     $participante->fill($validated);
-    // Registrar la acción en el historial
+    $participante->save(); // Aquí se genera el ID
+
+    // Ahora sí puedes registrar el log correctamente
     ParticipantActionLog::create([
         'participant_id' => $participante->id,
         'nombre_postulante' => $participante->NombredelPostulante,
@@ -142,19 +145,18 @@ class ParticipanteController extends Controller
         'detalles' => 'Nuevo participante registrado.',
         'fecha_accion' => now(),
     ]);
-    $participante->save();
 
-    // Guardar las inscripciones en la tabla intermedia
+    // Guardar las inscripciones
     foreach ($validated['cursos'] as $curso_id) {
-        $inscripcion = new Inscripcion();
-        $inscripcion->participante_id = $participante->id;
-        $inscripcion->curso_id = $curso_id;
-        $inscripcion->save();
+        Inscripcion::create([
+            'participante_id' => $participante->id,
+            'curso_id' => $curso_id,
+        ]);
     }
 
-    // Redireccionar con mensaje de éxito
     return redirect()->route('participantes.index')->with('success', 'Participante registrado exitosamente.');
 }
+
     /**
      * Eliminar un participante.
      */
@@ -163,7 +165,7 @@ class ParticipanteController extends Controller
         $participante = Participantes::findOrFail($id);
 
         // Cambiar el estado a inactivo
-        $participante->update(['estatus' => 0]);
+        $participante->update(['estatus' => '0']);
 
         // Registrar la acción en el historial
         ParticipantActionLog::create([

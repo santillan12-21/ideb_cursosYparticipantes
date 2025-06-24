@@ -6,6 +6,8 @@
     <title>Crear Curso - Paso 6</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+
     <style>
         * {
             margin: 0;
@@ -105,100 +107,188 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <h3 class="text-center mb-4">Documentos de Evaluación</h3>
-                <form action="{{ route('curso.paso6.guardar') }}" method="POST">
+                <form action="{{ route('curso.paso6.guardar') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    <div class="mb-3">
-                        <label class="form-label">Porcentaje de la Presentación</label>
-                        <input type="text" name="Presentación" class="form-control" >
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local - Presentación</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Presentacion')">Crear carpeta local</button>
-                        <div id="archivoPresentacionContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="PresentacionLocal" class="form-control">
-                            @if(session('cursos_paso6.PresentacionLocal'))
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso6.PresentacionLocal') }}
+                    <!-- Presentación -->
+                    <div class="form-section">
+                        <h5>Presentación</h5>
+
+                        <!-- Porcentaje -->
+                        <div class="mb-3">
+                            <label class="form-label">Porcentaje de la Presentación</label>
+                            <input type="text" name="Presentación" class="form-control"
+                                value="{{ old('Presentación') ?? ($curso->Presentación ?? ($datosPadre->Presentación ?? '')) }}">
+                        </div>
+
+                        <!-- Drive URL -->
+                        <div class="mb-3">
+                            <label class="form-label">URL Drive (opcional)</label>
+                            <input type="text" name="DrivePresentacion" class="form-control"
+                                value="{{ old('DrivePresentacion') ?? ($curso->DrivePresentacion ?? '') }}">
+                        </div>
+
+                        <!-- Archivo Local -->
+                        <div class="mb-3">
+                            <label class="form-label">Archivo Local (opcional)</label>
+                            @if ($archivosLocales['presentacion'] === 'actual')
+                                <div class="alert alert-success p-2">
+                                    Este archivo ya fue subido en el curso original
+                                </div>
+
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Presentacion')">
+                                    Subir archivo actualizado
+                                </button>
+                                <div id="archivoPresentacionContainer" style="display: none;" class="file-upload-container mt-2">
+                                    <input type="file" name="PresentacionLocal" class="form-control">
+                                </div>
+                            @else
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Presentacion')">
+                                    Subir archivo local
+                                </button>
+                                <div id="archivoPresentacionContainer" style="display: none;" class="file-upload-container mt-2">
+                                    <input type="file" name="PresentacionLocal" class="form-control">
                                 </div>
                             @endif
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Porcentaje de la Evaluación Diagnóstica</label>
-                        <input type="text" name="Evaluación_diagnostica" class="form-control" >
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local - Evaluación Diagnóstica</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionDiagnostica')">Crear carpeta local</button>
-                        <div id="archivoEvaluacionDiagnosticaContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="EvaluacionDiagnosticaLocal" class="form-control">
-                            @if(session('cursos_paso6.EvaluacionDiagnosticaLocal'))
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso6.EvaluacionDiagnosticaLocal') }}
+                    <!-- Evaluación Diagnóstica -->
+                    <div class="form-section">
+                        <h5>Evaluación Diagnóstica</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Porcentaje</label>
+                            <input type="text" name="Evaluación_diagnostica" class="form-control"
+                                value="{{ old('Evaluación_diagnostica') ?? ($curso->Evaluación_diagnostica ?? ($datosPadre->Evaluación_diagnostica ?? '')) }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">URL Drive (opcional)</label>
+                            <input type="text" name="DriveEvaluacionDiagnostica" class="form-control"
+                                value="{{ old('DriveEvaluacionDiagnostica') ?? ($curso->DriveEvaluacionDiagnostica ?? '') }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Archivo Local (opcional)</label>
+                            @if ($archivosLocales['EvaluacionDiagnosticaLocal'] === 'actual')
+                                <div class="alert alert-success p-2">Este archivo ya fue subido en el curso original</div>
+
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionDiagnostica')">
+                                    Subir archivo actualizado
+                                </button>
+                                <div id="archivoEvaluacionDiagnosticaContainer" style="display: none;" class="file-upload-container mt-2">
+                                    <input type="file" name="EvaluacionDiagnosticaLocal" class="form-control">
+                                </div>
+                            @else
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionDiagnostica')">
+                                    Subir archivo local
+                                </button>
+                                <div id="archivoEvaluacionDiagnosticaContainer" style="display: none;" class="file-upload-container mt-2">
+                                    <input type="file" name="EvaluacionDiagnosticaLocal" class="form-control">
                                 </div>
                             @endif
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Porcentaje de la Evaluación de Satisfacción</label>
-                        <input type="text" name="EvaluaciondeSatisfacción" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local - Evaluación de Satisfacción</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionSatisfaccion')">Crear carpeta local</button>
-                        <div id="archivoEvaluacionSatisfaccionContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="EvaluacionSatisfaccionLocal" class="form-control">
-                            @if(session('cursos_paso6.EvaluacionSatisfaccionLocal'))
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso6.EvaluacionSatisfaccionLocal') }}
+                    <!-- Evaluación de Satisfacción -->
+                    <div class="form-section">
+                        <h5>Evaluación de Satisfacción</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Porcentaje</label>
+                            <input type="text" name="EvaluaciondeSatisfacción" class="form-control"
+                                value="{{ old('EvaluaciondeSatisfacción') ?? ($curso->EvaluaciondeSatisfacción ?? ($datosPadre->EvaluaciondeSatisfacción ?? '')) }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">URL Drive (opcional)</label>
+                            <input type="text" name="DriveEvaluacionSatisfaccion" class="form-control"
+                                value="{{ old('DriveEvaluacionSatisfaccion') ?? ($curso->DriveEvaluacionSatisfaccion ?? '') }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Archivo Local (opcional)</label>
+                            @if ($archivosLocales['EvaluacionSatisfaccionLocal'] === 'actual')
+                                <div class="alert alert-success p-2">Este archivo ya fue subido en el curso original</div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionSatisfaccion')">
+                                    Subir archivo actualizado
+                                </button>
+                                <div id="archivoEvaluacionSatisfaccionContainer" style="display: none;" class="file-upload-container mt-2">
+                                    <input type="file" name="EvaluacionSatisfaccionLocal" class="form-control">
+                                </div>
+                            @else
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionSatisfaccion')">
+                                    Subir archivo local
+                                </button>
+                                <div id="archivoEvaluacionSatisfaccionContainer" style="display: none;" class="file-upload-container mt-2">
+                                    <input type="file" name="EvaluacionSatisfaccionLocal" class="form-control">
                                 </div>
                             @endif
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Porcentaje de la Evaluación Final</label>
-                        <input type="text" name="EvaluacionFinal" class="form-control" >
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local - Evaluación Final</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionFinal')">Crear carpeta local</button>
-                        <div id="archivoEvaluacionFinalContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="EvaluacionFinalLocal" class="form-control">
-                            @if(session('cursos_paso6.EvaluacionFinalLocal'))
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso6.EvaluacionFinalLocal') }}
+                    <!-- Evaluación Final -->
+                    <div class="form-section">
+                        <h5>Evaluación Final</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Porcentaje</label>
+                            <input type="text" name="EvaluacionFinal" class="form-control"
+                                value="{{ old('EvaluacionFinal') ?? ($curso->EvaluacionFinal ?? ($datosPadre->EvaluacionFinal ?? '')) }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">URL Drive (opcional)</label>
+                            <input type="text" name="DriveEvaluacionFinal" class="form-control"
+                                value="{{ old('DriveEvaluacionFinal') ?? ($curso->DriveEvaluacionFinal ?? '') }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Archivo Local (opcional)</label>
+                            @if ($archivosLocales['EvaluacionFinalLocal'] === 'actual')
+                                <div class="alert alert-success p-2">Este archivo ya fue subido en el curso original</div>
+                                 <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionFinal')">
+                                    Subir archivo actualizado
+                                </button>
+                                <div id="archivoEvaluacionFinalContainer" style="display: none;" class="file-upload-container mt-2">
+                                    <input type="file" name="EvaluacionFinalLocal" class="form-control">
+                                </div>
+                            @else
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('EvaluacionFinal')">
+                                    Subir archivo local
+                                </button>
+                                <div id="archivoEvaluacionFinalContainer" style="display: none;" class="file-upload-container mt-2">
+                                    <input type="file" name="EvaluacionFinalLocal" class="form-control">
                                 </div>
                             @endif
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">DC3</label>
-                        <select name="DC3" class="form-select" required>
-                            <option value="" disabled selected>Seleccione el estado del DC3</option>
-                            <option value="Tiene DC3">Tiene DC3</option>
-                            <option value="No tiene DC3">No tiene DC3</option>
-                            <option value="Por confirmar">Por confirmar</option>
-                        </select>
+                    <!-- DC3 -->
+                    <div class="form-section">
+                        <h5>DC3</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Estado del DC3</label>
+                            <select name="DC3" class="form-select" required>
+                                <option value="" disabled selected>Seleccione el estado del DC3</option>
+                                <option value="Se entrega DC3" {{ old('DC3') == 'Se entrega DC3' ? 'selected' : '' }}>Se entrega DC3</option>
+                                <option value="No se entrega DC3" {{ old('DC3') == 'No se entrega DC3' ? 'selected' : '' }}>No se entrega DC3</option>
+                                <option value="Entrega pendiente de DC3" {{ old('DC3') == 'Entrega pendiente de DC3' ? 'selected' : '' }}>Entrega pendiente de DC3</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Botones -->
                     <div class="mb-3 d-flex justify-content-between">
-                        <!-- Botón Siguiente -->
                         <button type="submit" class="btn btn-success">Siguiente</button>
-
-                        <!-- Botón Atrás -->
                         <a href="{{ route('curso.paso5') }}" class="btn btn-secondary">Atrás</a>
-
-                        <!-- Botón Cancelar -->
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
                         <button type="button" class="btn btn-warning" id="finalizarForzadoBtn">Finalización Forzada</button>
                     </div>
                 </form>
+
 
                 <!-- Modal -->
                 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
@@ -243,34 +333,42 @@
     </div>
     <script>
         function crearCarpeta(tipo) {
-            fetch('/crear-carpeta', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    tipo: tipo,
-                    nombreCarpeta: tipo
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Carpeta creada exitosamente: ' + data.ruta);
-                    // Mostrar el contenedor de archivos correspondiente
-                    const contenedor = document.getElementById(`archivo${tipo.replace('ó', 'o')}Container`);
-                    if (contenedor) {
-                        contenedor.style.display = 'block';
-                    }
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        // Validar que el tipo sea uno de los permitidos
+        const tiposPermitidos = ['EvaluacionDiagnostica', 'EvaluacionSatisfaccion', 'EvaluacionFinal', 'Presentacion'];
+        if (!tiposPermitidos.includes(tipo)) {
+            alert('Error: Tipo de carpeta no válido.');
+            return;
         }
+
+        // Realizar la solicitud POST al servidor para crear la carpeta
+        fetch('/crear-carpeta', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                tipo: tipo // Enviar el tipo de carpeta al servidor
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Carpeta creada exitosamente: ' + data.ruta);
+
+                // Mostrar el contenedor de archivos correspondiente
+                const contenedor = document.getElementById(`archivo${tipo.replace('ó', 'o')}Container`);
+                if (contenedor) {
+                    contenedor.style.display = 'block';
+                }
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

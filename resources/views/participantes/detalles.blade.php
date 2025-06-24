@@ -17,6 +17,7 @@
             <p><strong>Razón Social:</strong> {{ $participante->RazónSocial }}</p>
             <p><strong>Empresa:</strong> {{ $participante->Empresa }}</p>
             <p><strong>RFC Empresa:</strong> {{ $participante->RFCEmpresa }}</p>
+            <p><strong>Ocupación:</strong> {{ $participante->Ocupacion }}</p>
             <p><strong>Puesto:</strong> {{ $participante->Puesto }}</p>
             <p><strong>Pago:</strong> @php
                 $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;

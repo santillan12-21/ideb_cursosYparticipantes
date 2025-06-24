@@ -113,6 +113,7 @@ class cursos extends Model
 {
     protected $fillable = [
        'Nomenclatura',
+        'parent_id',
         'NombredelCurso',
         'DescripciondeCurso',
         'CostodelCurso',
@@ -182,4 +183,20 @@ class cursos extends Model
             'participante_id'      // Clave foránea en la tabla intermedia para participantes
         );
     }
+
+    public function subcursos()
+    {
+        return $this->hasMany(Cursos::class, 'parent_id');
+    }
+
+    public function cursoPadre()
+    {
+        return $this->belongsTo(Cursos::class, 'parent_id');
+    }
+
+    public function ruta()
+{
+    return $this->hasOne(RutaLocal::class, 'id_cursos');
+}
+
 }
