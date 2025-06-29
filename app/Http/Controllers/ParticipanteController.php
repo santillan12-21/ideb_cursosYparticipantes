@@ -22,15 +22,15 @@ class ParticipanteController extends Controller
      */
     public function index()
     {
-        // Obtener todos los cursos
-        $cursos = Cursos::all();
+    // Obtener todos los cursos
+    $cursos = Cursos::all();
 
-        // Obtener solo los participantes con estatus = 1 y cargar la relación 'cursos'
-        $participantes = Participantes::all();
+    // Obtener participantes ordenados por su número
+    $participantes = Participantes::orderBy('N', 'asc')->get();
 
-        // Pasar los datos a la vista
-        return view('participantes.index', compact('cursos', 'participantes'));
+    return view('participantes.index', compact('cursos', 'participantes'));
     }
+
 
     /**
      * Mostrar el formulario para crear un nuevo participante.

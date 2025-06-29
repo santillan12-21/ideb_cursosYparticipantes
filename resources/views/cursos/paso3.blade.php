@@ -102,9 +102,7 @@
                         <div id="archivoSinFechaContainer" style="display: {{ isset($carpetasExistentes['SinFecha']) && $carpetasExistentes['SinFecha'] ? 'block' : 'none' }};" class="mt-2">
                             <input type="file" name="SinFechaLocal" class="form-control">
                             @if(session('cursos_paso3.SinFechaLocal'))
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso3.SinFechaLocal') }}
-                                </div>
+                                
                             @endif
                         </div>
                     </div>

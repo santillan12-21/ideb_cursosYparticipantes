@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h3 class="text-center mb-4">Editar Paso 5: Material de Apoyo</h3>
-            <form action="{{ route('cursos.update.paso', [$curso->id, 5]) }}" method="POST">
+            <form action="{{ route('cursos.update.paso', [$curso->id, 5]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -13,6 +13,13 @@
                     <label class="form-label">Digital</label>
                     <input type="text" name="Digital" class="form-control"
                            value="{{ $curso->Digital }}" required>
+                           <label for="">Subir archivo</label>
+                           <input type="file" name="DigitalLocal" class="form-control">
+                            @if ($rutaLocal && $rutaLocal->rutaMaterialdeapoyo)
+                             <div class="mt-2 alert alert-success">
+                                 Ruta actual Digital: {{ $rutaLocal->rutaMaterialdeapoyo }}
+                             </div>
+                            @endif
                 </div>
 
                 <div class="mb-3">

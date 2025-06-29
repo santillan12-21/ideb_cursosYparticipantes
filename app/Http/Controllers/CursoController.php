@@ -17,6 +17,8 @@ use App\Models\RutaLocal;
 use Illuminate\Support\Str;
 use App\Models\Inscripcion;
 use App\Models\participantes;
+use Illuminate\Support\Facades\Response;
+
 
 class CursoController extends Controller
 {
@@ -237,113 +239,112 @@ public function index(Request $request)
 
     // Guardar los datos del Paso 3 y redirigir al Paso 4
     public function guardarPaso3(Request $request)
-{
-    try {
-        // Validar los datos del formulario
-        $validated = $request->validate([
-            'SinFecha' => 'nullable|string|max:255',
-            'DriveSinFecha' => 'nullable|string|max:255',
-            'Facebook' => 'nullable|string|max:255',
-            'DriveFacebook' => 'nullable|string|max:255',
-            'Linkedin' => 'nullable|string|max:255',
-            'DriveLinkedin' => 'nullable|string|max:255',
-            'Instagram' => 'nullable|string|max:255',
-            'DriveInstagram' => 'nullable|string|max:255',
-        ]);
+    {
+        try {
+            // Validar los datos del formulario
+            $validated = $request->validate([
+                'SinFecha' => 'nullable|string|max:255',
+                'DriveSinFecha' => 'nullable|string|max:255',
+                'Facebook' => 'nullable|string|max:255',
+                'DriveFacebook' => 'nullable|string|max:255',
+                'Linkedin' => 'nullable|string|max:255',
+                'DriveLinkedin' => 'nullable|string|max:255',
+                'Instagram' => 'nullable|string|max:255',
+                'DriveInstagram' => 'nullable|string|max:255',
+            ]);
 
-        // Obtener la última ruta registrada desde la base de datos
-        $ultimaRuta = RutaLocal::orderBy('created_at', 'desc')->first();
+            // Obtener la última ruta registrada desde la base de datos
+            $ultimaRuta = RutaLocal::orderBy('created_at', 'desc')->first();
 
-        if (!$ultimaRuta || empty($ultimaRuta->rutacompleta)) {
-            Log::error("No se encontró una ruta válida en la base de datos.");
-            return redirect()->back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
-        }
-
-        // Normalizar la ruta
-        $rutaBase = str_replace('\\', '/', $ultimaRuta->rutacompleta);
-
-        // Verificar si la carpeta existe, si no, crearla
-        if (!File::exists($rutaBase)) {
-            File::makeDirectory($rutaBase, 0755, true);
-            Log::info("Carpeta creada automáticamente: {$rutaBase}");
-        }
-
-        // Crear la carpeta principal "7- Flyers del Curso" si no existe
-        $rutaFlyers = $rutaBase . '/7- Flyers del Curso';
-        if (!File::exists($rutaFlyers)) {
-            File::makeDirectory($rutaFlyers, 0755, true);
-            Log::info("Carpeta '7- Flyers del Curso' creada en: {$rutaFlyers}");
-        }
-
-        // Guardar la ruta en la columna rutaformatosflyer
-        $ultimaRuta->update([
-            'rutaformatosflyer' => $rutaFlyers
-        ]);
-
-        // Crear subcarpetas dentro de "7- Flyers del Curso"
-        $carpetas = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
-        foreach ($carpetas as $carpeta) {
-            $rutaCarpeta = $rutaFlyers . '/' . $carpeta;
-            if (!File::exists($rutaCarpeta)) {
-                File::makeDirectory($rutaCarpeta, 0755, true);
-                Log::info("Carpeta '{$carpeta}' creada en: {$rutaCarpeta}");
+            if (!$ultimaRuta || empty($ultimaRuta->rutacompleta)) {
+                Log::error("No se encontró una ruta válida en la base de datos.");
+                return redirect()->back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
             }
 
-            // Guardar las rutas de cada subcarpeta
-            $columna = 'ruta' . $carpeta;
+            // Normalizar la ruta
+            $rutaBase = str_replace('\\', '/', $ultimaRuta->rutacompleta);
+
+            // Verificar si la carpeta existe, si no, crearla
+            if (!File::exists($rutaBase)) {
+                File::makeDirectory($rutaBase, 0755, true);
+                Log::info("Carpeta creada automáticamente: {$rutaBase}");
+            }
+
+            // Crear la carpeta principal "7- Flyers del Curso" si no existe
+            $rutaFlyers = $rutaBase . '/7- Flyers del Curso';
+            if (!File::exists($rutaFlyers)) {
+                File::makeDirectory($rutaFlyers, 0755, true);
+                Log::info("Carpeta '7- Flyers del Curso' creada en: {$rutaFlyers}");
+            }
+
+            // Guardar la ruta en la columna rutaformatosflyer
             $ultimaRuta->update([
-                $columna => $rutaCarpeta
+                'rutaformatosflyer' => $rutaFlyers
             ]);
+
+            // Crear subcarpetas dentro de "7- Flyers del Curso"
+            $carpetas = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
+            foreach ($carpetas as $carpeta) {
+                $rutaCarpeta = $rutaFlyers . '/' . $carpeta;
+                if (!File::exists($rutaCarpeta)) {
+                    File::makeDirectory($rutaCarpeta, 0755, true);
+                    Log::info("Carpeta '{$carpeta}' creada en: {$rutaCarpeta}");
+                }
+
+                // Guardar las rutas de cada subcarpeta
+                $columna = 'ruta' . $carpeta;
+                $ultimaRuta->update([
+                    $columna => $rutaCarpeta
+                ]);
+            }
+
+            // Guardar archivos si fueron subidos
+            $rutasArchivos = [];
+
+            if ($request->hasFile('SinFechaLocal')) {
+                $archivo = $request->file('SinFechaLocal');
+                $nombreArchivo = time() . '_sinfecha_' . $archivo->getClientOriginalName();
+                $archivo->move($rutaFlyers . '/SinFecha', $nombreArchivo);
+                $rutasArchivos['SinFechaLocal'] = '7- Flyers del Curso/SinFecha/' . $nombreArchivo;
+            }
+
+            if ($request->hasFile('FacebookLocal')) {
+                $archivo = $request->file('FacebookLocal');
+                $nombreArchivo = time() . '_facebook_' . $archivo->getClientOriginalName();
+                $archivo->move($rutaFlyers . '/Facebook', $nombreArchivo);
+                $rutasArchivos['FacebookLocal'] = '7- Flyers del Curso/Facebook/' . $nombreArchivo;
+            }
+
+            if ($request->hasFile('LinkedInLocal')) {
+                $archivo = $request->file('LinkedInLocal');
+                $nombreArchivo = time() . '_linkedin_' . $archivo->getClientOriginalName();
+                $archivo->move($rutaFlyers . '/LinkedIn', $nombreArchivo);
+                $rutasArchivos['LinkedInLocal'] = '7- Flyers del Curso/LinkedIn/' . $nombreArchivo;
+            }
+
+            if ($request->hasFile('InstagramLocal')) {
+                $archivo = $request->file('InstagramLocal');
+                $nombreArchivo = time() . '_instagram_' . $archivo->getClientOriginalName();
+                $archivo->move($rutaFlyers . '/Instagram', $nombreArchivo);
+                $rutasArchivos['InstagramLocal'] = '7- Flyers del Curso/Instagram/' . $nombreArchivo;
+            }
+
+            // Guardar los datos en la sesión
+            session(['cursos_paso3' => array_merge($validated, $rutasArchivos)]);
+
+            return redirect()->route('curso.paso4')->with('success', 'Carpeta creada y archivos guardados correctamente.');
+
+        } catch (\Exception $e) {
+            Log::error("Error al procesar los archivos: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al procesar los archivos: ' . $e->getMessage());
         }
-
-        // Guardar archivos si fueron subidos
-        $rutasArchivos = [];
-
-        if ($request->hasFile('SinFechaLocal')) {
-            $archivo = $request->file('SinFechaLocal');
-            $nombreArchivo = time() . '_sinfecha_' . $archivo->getClientOriginalName();
-            $archivo->move($rutaFlyers . '/SinFecha', $nombreArchivo);
-            $rutasArchivos['SinFechaLocal'] = '7- Flyers del Curso/SinFecha/' . $nombreArchivo;
-        }
-
-        if ($request->hasFile('FacebookLocal')) {
-            $archivo = $request->file('FacebookLocal');
-            $nombreArchivo = time() . '_facebook_' . $archivo->getClientOriginalName();
-            $archivo->move($rutaFlyers . '/Facebook', $nombreArchivo);
-            $rutasArchivos['FacebookLocal'] = '7- Flyers del Curso/Facebook/' . $nombreArchivo;
-        }
-
-        if ($request->hasFile('LinkedInLocal')) {
-            $archivo = $request->file('LinkedInLocal');
-            $nombreArchivo = time() . '_linkedin_' . $archivo->getClientOriginalName();
-            $archivo->move($rutaFlyers . '/LinkedIn', $nombreArchivo);
-            $rutasArchivos['LinkedInLocal'] = '7- Flyers del Curso/LinkedIn/' . $nombreArchivo;
-        }
-
-        if ($request->hasFile('InstagramLocal')) {
-            $archivo = $request->file('InstagramLocal');
-            $nombreArchivo = time() . '_instagram_' . $archivo->getClientOriginalName();
-            $archivo->move($rutaFlyers . '/Instagram', $nombreArchivo);
-            $rutasArchivos['InstagramLocal'] = '7- Flyers del Curso/Instagram/' . $nombreArchivo;
-        }
-
-        // Guardar los datos en la sesión
-        session(['cursos_paso3' => array_merge($validated, $rutasArchivos)]);
-
-        return redirect()->route('curso.paso4')->with('success', 'Carpeta creada y archivos guardados correctamente.');
-
-    } catch (\Exception $e) {
-        Log::error("Error al procesar los archivos: " . $e->getMessage());
-        return redirect()->back()->with('error', 'Error al procesar los archivos: ' . $e->getMessage());
     }
-}
    
 public function mostrarPaso4()
 {
     $cursoId = session('curso_id');
     $curso = Cursos::find($cursoId);
 
-    // 👇 Esta parte la tomamos de crearPaso1()
     $datosPadre = null;
     if ($curso && $curso->parent_id) {
         $datosPadre = Cursos::find($curso->parent_id);
@@ -376,104 +377,95 @@ public function mostrarPaso4()
 
 
     // Guardar los datos del Paso 4 y redirigir al siguiente paso
-    public function guardarPaso4(Request $request)
-    {
-        try {
-            // Validar los datos del formulario
-            $validated = $request->validate([
-                'Temario' => 'nullable|string|max:255',
-                'DriveTemario' => 'nullable|string|max:255', // Changed to nullable
-                'Itinerario' => 'nullable|string|max:255',
-                'DriveItinerario' => 'nullable|string|max:255', // Changed to nullable
-                'Planeación' => 'nullable|string|max:255',
-                'DrivePlaneación' => 'nullable|string|max:255', // Changed to nullable
-                'TemarioLocal' => 'nullable|file',
-                'ItinerarioLocal' => 'nullable|file',
-                'PlaneaciónLocal' => 'nullable|file',
-            ]);
+  public function guardarPaso4(Request $request)
+{
+    try {
+        // Validar los datos del formulario
+        $validated = $request->validate([
+            'Temario' => 'nullable|string|max:255',
+            'DriveTemario' => 'nullable|string|max:255',
+            'Itinerario' => 'nullable|string|max:255',
+            'DriveItinerario' => 'nullable|string|max:255',
+            'Planeación' => 'nullable|string|max:255',
+            'DrivePlaneación' => 'nullable|string|max:255',
+            'TemarioLocal' => 'nullable|file',
+            'ItinerarioLocal' => 'nullable|file',
+            'PlaneaciónLocal' => 'nullable|file',
+        ]);
 
-            // Obtener la última ruta registrada desde la base de datos
-            $ultimaRuta = RutaLocal::orderBy('created_at', 'desc')->first();
+        // Obtener la ruta del curso actual
+        $cursoId = session('curso_id');
+        $rutaCurso = RutaLocal::where('id_cursos', $cursoId)->first();
 
-            if (!$ultimaRuta || empty($ultimaRuta->rutacompleta)) {
-                return redirect()->back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
-            }
-
-            // Normalizar la ruta base
-            $rutaBase = rtrim(str_replace('\\', '/', $ultimaRuta->rutacompleta), '/');
-
-            // Crear las carpetas principales si no existen
-            $carpetas = [
-                '1-Temario',
-                '6-Itinerario',
-                '3-Planeación',
-            ];
-
-            $rutasActualizadas = [];
-
-            foreach ($carpetas as $carpeta) {
-                $rutaCompleta = $rutaBase . DIRECTORY_SEPARATOR . $carpeta;
-
-                if (!File::exists($rutaCompleta)) {
-                    File::makeDirectory($rutaCompleta, 0755, true);
-                    Log::info("Carpeta creada: {$rutaCompleta}");
-                } else {
-                    Log::info("Carpeta ya existe: {$rutaCompleta}");
-                }
-
-                // Guardar las rutas en el array de actualización
-                switch ($carpeta) {
-                    case '1-Temario':
-                        $rutasActualizadas['rutaTemario'] = $rutaCompleta;
-                        break;
-                    case '6-Itinerario':
-                        $rutasActualizadas['rutaItinerario'] = $rutaCompleta;
-                        break;
-                    case '3-Planeación':
-                        $rutasActualizadas['rutaPlaneacion'] = $rutaCompleta;
-                        break;
-                }
-            }
-
-            // Actualizar la base de datos con las nuevas rutas
-            $ultimaRuta->update($rutasActualizadas);
-
-            // Procesar archivos locales
-            $rutasArchivos = [];
-
-            if ($request->hasFile('TemarioLocal')) {
-                $archivo = $request->file('TemarioLocal');
-                $nombreArchivo = time() . '_temario_' . $archivo->getClientOriginalName();
-                $archivo->move($rutasActualizadas['rutaTemario'], $nombreArchivo);
-                $rutasArchivos['TemarioLocal'] = '1-Temario/' . $nombreArchivo;
-            }
-
-            if ($request->hasFile('ItinerarioLocal')) {
-                $archivo = $request->file('ItinerarioLocal');
-                $nombreArchivo = time() . '_itinerario_' . $archivo->getClientOriginalName();
-                $archivo->move($rutasActualizadas['rutaItinerario'], $nombreArchivo);
-                $rutasArchivos['ItinerarioLocal'] = '6-Itinerario/' . $nombreArchivo;
-            }
-
-            if ($request->hasFile('PlaneaciónLocal')) {
-                $archivo = $request->file('PlaneaciónLocal');
-                $nombreArchivo = time() . '_planeacion_' . $archivo->getClientOriginalName();
-                $archivo->move($rutasActualizadas['rutaPlaneacion'], $nombreArchivo);
-                $rutasArchivos['PlaneaciónLocal'] = '3-Planeación/' . $nombreArchivo;
-            }
-
-            // Guardar los datos del Paso 4 en sesión
-            session(['cursos_paso4' => array_merge($validated, $rutasArchivos)]);
-
-            return redirect()->route('curso.paso5')->with('success', 'Carpetas creadas y archivos guardados correctamente.');
-
-        } catch (\Exception $e) {
-            Log::error("Error al procesar los archivos: " . $e->getMessage());
-            return back()
-                ->withInput()
-                ->with('error', 'Error al procesar los archivos: ' . $e->getMessage());
+        if (!$rutaCurso || empty($rutaCurso->rutacompleta)) {
+            return redirect()->back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
         }
+
+        // Usar directamente la ruta base del campo `rutacompleta`
+        $rutaBase = rtrim(str_replace('\\', '/', $rutaCurso->rutacompleta), '/');
+
+        // Lista de carpetas y sus campos en base de datos
+        $carpetas = [
+            '1-Temario' => 'rutaTemario',
+            '6-Itinerario' => 'rutaItinerario',
+            '3-Planeación' => 'rutaPlaneacion',
+        ];
+
+        $rutasActualizadas = [];
+
+        // Crear carpetas si no existen y guardar sus rutas
+        foreach ($carpetas as $nombreCarpeta => $campoBD) {
+            $rutaCompleta = $rutaBase . '/' . $nombreCarpeta;
+
+            if (!File::exists($rutaCompleta)) {
+                File::makeDirectory($rutaCompleta, 0755, true);
+                Log::info("Carpeta creada: {$rutaCompleta}");
+            } else {
+                Log::info("Carpeta ya existente: {$rutaCompleta}");
+            }
+
+            $rutasActualizadas[$campoBD] = $rutaCompleta;
+        }
+
+        // Actualizar la base de datos con las rutas creadas
+        $rutaCurso->update($rutasActualizadas);
+
+        // Procesar archivos locales
+        $rutasArchivos = [];
+
+        if ($request->hasFile('TemarioLocal')) {
+            $archivo = $request->file('TemarioLocal');
+            $nombreArchivo = time() . '_temario_' . $archivo->getClientOriginalName();
+            $archivo->move($rutasActualizadas['rutaTemario'], $nombreArchivo);
+            $rutasArchivos['TemarioLocal'] = '1-Temario/' . $nombreArchivo;
+        }
+
+        if ($request->hasFile('ItinerarioLocal')) {
+            $archivo = $request->file('ItinerarioLocal');
+            $nombreArchivo = time() . '_itinerario_' . $archivo->getClientOriginalName();
+            $archivo->move($rutasActualizadas['rutaItinerario'], $nombreArchivo);
+            $rutasArchivos['ItinerarioLocal'] = '6-Itinerario/' . $nombreArchivo;
+        }
+
+        if ($request->hasFile('PlaneaciónLocal')) {
+            $archivo = $request->file('PlaneaciónLocal');
+            $nombreArchivo = time() . '_planeacion_' . $archivo->getClientOriginalName();
+            $archivo->move($rutasActualizadas['rutaPlaneacion'], $nombreArchivo);
+            $rutasArchivos['PlaneaciónLocal'] = '3-Planeación/' . $nombreArchivo;
+        }
+
+        // Guardar los datos del paso 4 en la sesión
+        session(['cursos_paso4' => array_merge($validated, $rutasArchivos)]);
+
+        return redirect()->route('curso.paso5')->with('success', 'Carpetas creadas y archivos guardados correctamente.');
+    } catch (\Exception $e) {
+        Log::error("Error al procesar los archivos del paso 4: " . $e->getMessage());
+        return back()
+            ->withInput()
+            ->with('error', 'Error al procesar los archivos: ' . $e->getMessage());
     }
+}
+
     public function mostrarPaso5()
 {
 
@@ -1081,25 +1073,30 @@ public function mostrarPaso4()
 
     public function editPaso(Cursos $curso, $paso)
     {
+
+        $rutaLocal = RutaLocal::where('id_cursos', $curso->id)->first();
+
         switch($paso) {
             case 1:
                 return view('cursos.edit-paso1', compact('curso'));
             case 2:
                 return view('cursos.edit-paso2', compact('curso'));
             case 3:
-                return view('cursos.edit-paso3', compact('curso'));
+                return view('cursos.edit-paso3', compact('curso', 'rutaLocal'));
             case 4:
-                return view('cursos.edit-paso4', compact('curso'));
+                return view('cursos.edit-paso4', compact('curso', 'rutaLocal'));
             case 5:
-                return view('cursos.edit-paso5', compact('curso'));
+                return view('cursos.edit-paso5', compact('curso', 'rutaLocal'));
             case 6:
-                return view('cursos.edit-paso6', compact('curso'));
+                return view('cursos.edit-paso6', compact('curso', 'rutaLocal'));
             case 7:
-                return view('cursos.edit-paso7', compact('curso'));
+                return view('cursos.edit-paso7', compact('curso', 'rutaLocal'));
             default:
                 return redirect()->route('cursos.index')->with('error', 'Paso no válido');
         }
     }
+
+  
 
     public function updatePaso(Request $request, Cursos $curso, $paso)
     {
@@ -1124,7 +1121,7 @@ public function mostrarPaso4()
                         'Mixto' => 'nullable|in:Si,No',
                     ]);
                     break;
-                case 3:
+               case 3:
                     $validated = $request->validate([
                         'SinFecha' => 'nullable|string|max:255',
                         'DriveSinFecha' => 'nullable|string|max:255',
@@ -1135,6 +1132,59 @@ public function mostrarPaso4()
                         'Instagram' => 'nullable|string|max:255',
                         'DriveInstagram' => 'nullable|string|max:255',
                     ]);
+
+                    // Actualizar archivo si se sube
+                    $ruta = RutaLocal::where('id_cursos', $curso->id)->first();
+
+                    if ($ruta && $ruta->rutacompleta) {
+                        $base = str_replace('\\', '/', $ruta->rutacompleta);
+                        $rutaFlyers = $base . '/7- Flyers del Curso';
+
+                        // Crear carpeta si no existe
+                        if (!File::exists($rutaFlyers)) {
+                            File::makeDirectory($rutaFlyers, 0755, true);
+                        }
+
+                        $carpetas = [
+                            'SinFecha' => 'archivoSinFecha',
+                            'Facebook' => 'archivoFacebook',
+                            'LinkedIn' => 'archivoLinkedIn',
+                            'Instagram' => 'archivoInstagram',
+                        ];
+
+                       foreach ($carpetas as $nombreCarpeta => $inputName) {
+                            $rutaFinal = $rutaFlyers . '/' . $nombreCarpeta;
+
+                            if (!File::exists($rutaFinal)) {
+                                File::makeDirectory($rutaFinal, 0755, true);
+                            }
+
+                            if ($request->hasFile($inputName)) {
+                                // Eliminar archivo anterior si existe
+                                $columna = 'ruta' . $nombreCarpeta;
+                                $rutaArchivoAntiguo = $ruta->$columna ?? null;
+
+                                if ($rutaArchivoAntiguo && File::exists($rutaArchivoAntiguo)) {
+                                    File::delete($rutaArchivoAntiguo);
+                                }
+
+                                // Mover nuevo archivo
+                                $archivo = $request->file($inputName);
+                                $nombre = time() . '_' . $archivo->getClientOriginalName();
+                                $archivo->move($rutaFinal, $nombre);
+
+                                // Actualizar ruta en BD
+                                $ruta->$columna = $rutaFinal . '/' . $nombre;
+                            }
+                        }
+
+
+                        $ruta->rutaformatosflyer = $rutaFlyers;
+                        $ruta->save();
+                    } else {
+                        return back()->with('error', 'No se encontró la ruta del curso para guardar archivos.');
+                    }
+
                     break;
                 case 4:
                     $validated = $request->validate([
@@ -1144,24 +1194,199 @@ public function mostrarPaso4()
                         'DriveItinerario' => 'nullable|string|max:255',
                         'Planeación' => 'nullable|string|max:255',
                         'DrivePlaneación' => 'nullable|string|max:255',
+                        'TemarioLocal' => 'nullable|file',
+                        'ItinerarioLocal' => 'nullable|file',
+                        'PlaneaciónLocal' => 'nullable|file',
                     ]);
+
+                    $rutaCurso = RutaLocal::where('id_cursos', $curso->id)->first();
+
+                    if (!$rutaCurso || empty($rutaCurso->rutacompleta)) {
+                        return back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
+                    }
+
+                    $rutaBase = rtrim(str_replace('\\', '/', $rutaCurso->rutacompleta), '/');
+
+                    $carpetas = [
+                        '1-Temario' => ['campoBD' => 'rutaTemario', 'input' => 'TemarioLocal'],
+                        '6-Itinerario' => ['campoBD' => 'rutaItinerario', 'input' => 'ItinerarioLocal'],
+                        '3-Planeación' => ['campoBD' => 'rutaPlaneacion', 'input' => 'PlaneaciónLocal'],
+                    ];
+
+                   foreach ($carpetas as $nombreCarpeta => $info) {
+                    $rutaCompleta = $rutaBase . '/' . $nombreCarpeta;
+
+                    if (!File::exists($rutaCompleta)) {
+                        File::makeDirectory($rutaCompleta, 0755, true);
+                    }
+
+                    // Subir nuevo archivo si fue proporcionado
+                    if ($request->hasFile($info['input'])) {
+                        $campoRuta = $info['campoBD'];
+                        $archivoAnterior = $rutaCurso->$campoRuta ?? null;
+
+                        // Eliminar archivo anterior si existe
+                        if ($archivoAnterior) {
+                            $archivoCompletoAnterior = $archivoAnterior;
+                            if (!str_starts_with($archivoAnterior, '/') && !str_starts_with($archivoAnterior, $rutaBase)) {
+                                $archivoCompletoAnterior = $rutaBase . '/' . $archivoAnterior;
+                            }
+
+                            if (File::exists($archivoCompletoAnterior)) {
+                                File::delete($archivoCompletoAnterior);
+                            }
+                        }
+
+                        // Guardar nuevo archivo
+                        $archivo = $request->file($info['input']);
+                        $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+                        $archivo->move($rutaCompleta, $nombreArchivo);
+
+                        $rutaCurso->$campoRuta = $nombreCarpeta . '/' . $nombreArchivo; // Ruta relativa
+                    }
+                }
+
+                    $rutaCurso->save();
                     break;
-                case 5:
+               case 5:
                     $validated = $request->validate([
                         'Digital' => 'nullable|string|max:255',
                         'DriveDigital' => 'nullable|string|max:255',
                         'Impreso_Presentable' => 'nullable|string|max:255',
+                        'DigitalLocal' => 'nullable|file',
+                        'ImpresoPresentableLocal' => 'nullable|file',
                     ]);
+
+                    $rutaCurso = RutaLocal::where('id_cursos', $curso->id)->first();
+
+                    if (!$rutaCurso || empty($rutaCurso->rutacompleta)) {
+                        return back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
+                    }
+
+                    $rutaBase = rtrim(str_replace('\\', '/', $rutaCurso->rutacompleta), '/');
+
+                    $carpetas = [
+                        '2- Material de Apoyo (Digital)' => ['campoBD' => 'rutaMaterialdeapoyo', 'input' => 'DigitalLocal', 'nombre' => '_digital_'],
+                        '8- Curso en Linea' => ['campoBD' => 'rutacursoenlinea', 'input' => 'ImpresoPresentableLocal', 'nombre' => '_impreso_presentable_'],
+                    ];
+
+                    $rutasActualizadas = [];
+
+                    foreach ($carpetas as $nombreCarpeta => $info) {
+                        $rutaCompleta = $rutaBase . '/' . $nombreCarpeta;
+
+                        if (!File::exists($rutaCompleta)) {
+                            File::makeDirectory($rutaCompleta, 0755, true);
+                        }
+
+                        $rutasActualizadas[$info['campoBD']] = $rutaCompleta;
+
+                        // Procesar el archivo si viene uno nuevo
+                        if ($request->hasFile($info['input'])) {
+                            // Eliminar archivo anterior si existe
+                            $archivoAnterior = $rutaCurso->{$info['campoBD']} ?? null;
+                            if ($archivoAnterior && File::exists($archivoAnterior)) {
+                                File::delete($archivoAnterior);
+                            }
+
+                            // Subir nuevo archivo
+                            $archivo = $request->file($info['input']);
+                            $nombreArchivo = time() . $info['nombre'] . $archivo->getClientOriginalName();
+                            $archivo->move($rutaCompleta, $nombreArchivo);
+
+                            // Guardar nueva ruta relativa
+                            $rutaCurso->{$info['campoBD']} = $nombreCarpeta . '/' . $nombreArchivo;
+                        }
+                    }
+
+                    $rutaCurso->save();
                     break;
-                case 6:
-                    $validated = $request->validate([
-                        'Presentación' => 'nullable|string|max:255',
-                        'Evaluación_diagnostica' => 'nullable|string|max:255',
-                        'EvaluaciondeSatisfacción' => 'nullable|string|max:255',
-                        'EvaluacionFinal' => 'nullable|string|max:255',
-                        'DC3' => 'nullable|string|in:Tiene DC3,No tiene DC3,Por confirmar',
-                    ]);
-                    break;
+                        case 6:
+                $validated = $request->validate([
+                    'Presentación' => 'nullable|string|max:255',
+                    'Evaluación_diagnostica' => 'nullable|string|max:255',
+                    'EvaluaciondeSatisfacción' => 'nullable|string|max:255',
+                    'EvaluacionFinal' => 'nullable|string|max:255',
+                    'DC3' => 'nullable|string|in:Tiene DC3,No tiene DC3,Por confirmar',
+                    'PresentacionLocal' => 'nullable|file',
+                    'EvaluacionDiagnosticaLocal' => 'nullable|file',
+                    'EvaluacionSatisfaccionLocal' => 'nullable|file',
+                    'EvaluacionFinalLocal' => 'nullable|file',
+                ]);
+
+                $rutaCurso = RutaLocal::where('id_cursos', $curso->id)->first();
+
+                if (!$rutaCurso || empty($rutaCurso->rutacompleta)) {
+                    return back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
+                }
+
+                $rutaBase = str_replace('\\', '/', $rutaCurso->rutacompleta);
+
+                // Crear carpeta 4- Presentacion
+                $rutaPresentacion = $rutaBase . '/4- Presentacion';
+                if (!File::exists($rutaPresentacion)) {
+                    File::makeDirectory($rutaPresentacion, 0755, true);
+                }
+
+                // Crear carpeta 5- Evaluaciones y sus subcarpetas
+                $rutaEvaluaciones = $rutaBase . '/5- Evaluaciones';
+                if (!File::exists($rutaEvaluaciones)) {
+                    File::makeDirectory($rutaEvaluaciones, 0755, true);
+                }
+
+                $subcarpetas = [
+                    'EvaluacionDiagnostica' => 'rutaEvaluacionDiagnostica',
+                    'EvaluacionSatisfaccion' => 'rutaEvaluacionSatisfaccion',
+                    'EvaluacionFinal' => 'rutaEvaluacionFinal',
+                ];
+
+                foreach ($subcarpetas as $sub => $campoBD) {
+                    $carpeta = $rutaEvaluaciones . '/' . $sub;
+                    if (!File::exists($carpeta)) {
+                        File::makeDirectory($carpeta, 0755, true);
+                    }
+                    $rutaCurso->$campoBD = $carpeta;
+                }
+
+                // Actualizar rutas principales
+                $rutaCurso->rutapresentacion = $rutaPresentacion;
+                $rutaCurso->rutaevaluaciones = $rutaEvaluaciones;
+                $rutaCurso->save();
+
+                // Manejar archivos con eliminación de antiguos
+                $archivos = [
+                    'PresentacionLocal' => ['destino' => $rutaPresentacion, 'campo' => 'rutapresentacion', 'nombre' => '_presentacion_'],
+                    'EvaluacionDiagnosticaLocal' => ['destino' => $rutaEvaluaciones . '/EvaluacionDiagnostica', 'campo' => 'rutaEvaluacionDiagnostica', 'nombre' => '_evaluacion_diagnostica_'],
+                    'EvaluacionSatisfaccionLocal' => ['destino' => $rutaEvaluaciones . '/EvaluacionSatisfaccion', 'campo' => 'rutaEvaluacionSatisfaccion', 'nombre' => '_evaluacion_satisfaccion_'],
+                    'EvaluacionFinalLocal' => ['destino' => $rutaEvaluaciones . '/EvaluacionFinal', 'campo' => 'rutaEvaluacionFinal', 'nombre' => '_evaluacion_final_'],
+                ];
+
+                foreach ($archivos as $input => $info) {
+                    if ($request->hasFile($input)) {
+                        // Eliminar archivo anterior si existe
+                        $rutaAnteriorRelativa = $rutaCurso->{$info['campo']} ?? null;
+                        $archivoAnterior = $rutaAnteriorRelativa;
+
+                        if ($archivoAnterior && !str_starts_with($archivoAnterior, '/')) {
+                            $archivoCompleto = $rutaBase . '/' . ltrim($archivoAnterior, '/');
+                            if (File::exists($archivoCompleto)) {
+                                File::delete($archivoCompleto);
+                            }
+                        }
+
+                        // Subir archivo nuevo
+                        $archivo = $request->file($input);
+                        $nombreArchivo = time() . $info['nombre'] . $archivo->getClientOriginalName();
+                        $archivo->move($info['destino'], $nombreArchivo);
+
+                        // Guardar ruta relativa
+                        $rutaCurso->{$info['campo']} = str_replace($rutaBase . '/', '', $info['destino']) . '/' . $nombreArchivo;
+                    }
+                }
+
+                $rutaCurso->save();
+                break;
+
                 case 7:
                     $validated = $request->validate([
                         'FechadeRegistro_STPS' => 'nullable|date',
@@ -1172,8 +1397,63 @@ public function mostrarPaso4()
                         'Cartapoder_tienefirma' => 'nullable|string|in:Si,No',
                         'DriveCartapoder' => 'nullable|string|max:255',
                         'UDEMY' => 'nullable|string|max:255',
+                        'FormatoDC5Local' => 'nullable|file',
+                        'CertificadoComprobacionLocal' => 'nullable|file',
+                        'CartaPoderLocal' => 'nullable|file',
+                        'UdemyLocal' => 'nullable|file',
                     ]);
+
+                    $rutaCurso = RutaLocal::where('id_cursos', $curso->id)->first();
+
+                    if (!$rutaCurso || empty($rutaCurso->rutacompleta)) {
+                        return back()->with('error', 'Error: No se ha configurado la ruta de archivos.');
+                    }
+
+                    $rutaBase = rtrim(str_replace('\\', '/', $rutaCurso->rutacompleta), '/');
+                    $rutaDC5 = $rutaBase . '/0- DC5';
+
+                    if (!File::exists($rutaDC5)) {
+                        File::makeDirectory($rutaDC5, 0755, true);
+                    }
+
+                    $carpetas = [
+                        'FormatoDC5' => ['input' => 'FormatoDC5Local', 'campo' => 'rutacarpetaDC5', 'prefijo' => '_formatodc5_'],
+                        'CertificadoComprobacion' => ['input' => 'CertificadoComprobacionLocal', 'campo' => 'rutaCertificadoComprobacion', 'prefijo' => '_certificadocomprobacion_'],
+                        'CartaPoder' => ['input' => 'CartaPoderLocal', 'campo' => 'rutacartapoder', 'prefijo' => '_cartapoder_'],
+                        'UDEMY' => ['input' => 'UdemyLocal', 'campo' => 'rutaUdemy', 'prefijo' => '_udemy_'],
+                    ];
+
+                    foreach ($carpetas as $nombreCarpeta => $info) {
+                        $rutaCarpeta = $rutaDC5 . '/' . $nombreCarpeta;
+                        if (!File::exists($rutaCarpeta)) {
+                            File::makeDirectory($rutaCarpeta, 0755, true);
+                        }
+
+                        if ($request->hasFile($info['input'])) {
+                            // Eliminar archivo anterior si existe
+                            $rutaAnteriorRelativa = $rutaCurso->{$info['campo']} ?? null;
+                            $archivoAnterior = $rutaAnteriorRelativa;
+
+                            if ($archivoAnterior && !str_starts_with($archivoAnterior, '/')) {
+                                $archivoCompleto = $rutaBase . '/' . ltrim($archivoAnterior, '/');
+                                if (File::exists($archivoCompleto)) {
+                                    File::delete($archivoCompleto);
+                                }
+                            }
+
+                            // Subir nuevo archivo
+                            $archivo = $request->file($info['input']);
+                            $nombreArchivo = time() . $info['prefijo'] . $archivo->getClientOriginalName();
+                            $archivo->move($rutaCarpeta, $nombreArchivo);
+
+                            // Guardar ruta relativa
+                            $rutaCurso->{$info['campo']} = '0- DC5/' . $nombreCarpeta . '/' . $nombreArchivo;
+                        }
+                    }
+
+                    $rutaCurso->save();
                     break;
+
                 default:
                     return redirect()->route('cursos.index')->with('error', 'Paso no válido');
             }
@@ -1240,71 +1520,28 @@ public function mostrarPaso4()
 }
 //aqui termina 
 
-    public function exportarExcel()
-    {
-        $cursos = Cursos::all();
-        return Excel::download(new CursosExport($cursos), 'cursos.xlsx');
-    }
-
-    public function exportarCsv()
-    {
-        $cursos = Cursos::all();
-        return Excel::download(new CursosExport($cursos), 'cursos.csv');
-    }
-
-    public function getFechaInicio($id)
-    {
-        $curso = Cursos::findOrFail($id);
-        return response()->json(['fecha_inicio' => $curso->FechadeInicio]);
-    }
-
-    public function crearCarpeta(Request $request)
+    // Crear una carpeta para un tipo específico de curso
+    // Esta función se usa para crear carpetas específicas según el tipo de curso
+public function crearCarpeta(Request $request)
 {
     try {
-        // Validar la solicitud
         $request->validate([
-            'tipo' => 'required|string', // Tipo de carpeta: SinFecha, Facebook, LinkedIn, Instagram, etc.
+            'tipo' => 'required|string',
         ]);
 
-        // Obtener la última ruta registrada desde la base de datos
         $ultimaRuta = RutaLocal::orderBy('id', 'desc')->first();
 
         if (!$ultimaRuta || !$ultimaRuta->rutacompleta) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: No se ha configurado la ruta de archivos.'
+                'message' => 'Error: No se ha configurado la ruta de archivos.',
+                'ruta' => null
             ], 400);
         }
 
-        // Normalizar la ruta base
         $rutaBase = rtrim(str_replace('\\', '/', $ultimaRuta->rutacompleta), '/');
 
-        // Determinar si es una carpeta relacionada con Flyers
-        $esCarpetaFlyer = in_array($request->tipo, ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram']);
-        $rutaPrincipalFlyers = $esCarpetaFlyer ? $rutaBase . '/Flyers' : $rutaBase;
-
-        // Determinar si es una carpeta relacionada con Evaluaciones
-        $esCarpetaEvaluaciones = in_array($request->tipo, ['EvaluacionDiagnostica', 'EvaluacionSatisfaccion', 'EvaluacionFinal']);
-        $rutaPrincipalEvaluaciones = $esCarpetaEvaluaciones ? $rutaBase . '/5- Evaluaciones' : $rutaBase;
-
-        // Corrección: Asegúrate de usar 'FormatoDC5' como un tipo válido para DC5
-        $esCarpetaDC5 = in_array($request->tipo, ['FormatoDC5', 'CertificadoComprobacion', 'CartaPoder', 'Udemy']);
-        $rutaPrincipalDC5 = $esCarpetaDC5 ? $rutaBase . '/0- DC5' : $rutaBase;
-
-        // Crear la carpeta principal ("Flyers", "5- Evaluaciones" o "0- DC5") si no existe
-        if ($esCarpetaFlyer && !File::exists($rutaPrincipalFlyers)) {
-            File::makeDirectory($rutaPrincipalFlyers, 0755, true);
-        }
-
-        if ($esCarpetaEvaluaciones && !File::exists($rutaPrincipalEvaluaciones)) {
-            File::makeDirectory($rutaPrincipalEvaluaciones, 0755, true);
-        }
-
-        if ($esCarpetaDC5 && !File::exists($rutaPrincipalDC5)) {
-            File::makeDirectory($rutaPrincipalDC5, 0755, true);
-        }
-
-        // Mapear los tipos a nombres específicos de carpetas
+        $tipo = $request->tipo;
         $nombresCarpetas = [
             'SinFecha' => 'SinFecha',
             'Facebook' => 'Facebook',
@@ -1322,164 +1559,161 @@ public function mostrarPaso4()
             'FormatoDC5' => 'FormatoDC5',
             'CertificadoComprobacion' => 'CertificadoComprobacion',
             'CartaPoder' => 'CartaPoder',
-            'Udemy' => 'UDEMY', // Corrección: 'Udemy' de la solicitud mapea a 'UDEMY' en la carpeta
+            'Udemy' => 'UDEMY',
         ];
 
-        // Obtener el nombre de la carpeta según el tipo
-        $nombreCarpeta = $nombresCarpetas[$request->tipo] ?? ucfirst($request->tipo);
+        $nombreCarpeta = $nombresCarpetas[$tipo] ?? ucfirst($tipo);
 
-        // Construir la ruta completa
-        $rutaCompleta = ($esCarpetaFlyer ? $rutaPrincipalFlyers :
-                        ($esCarpetaEvaluaciones ? $rutaPrincipalEvaluaciones :
-                        ($esCarpetaDC5 ? $rutaPrincipalDC5 : $rutaBase))) . '/' . $nombreCarpeta;
+        // Definir rutas principales según el tipo
+        $rutas = [
+            'Flyers' => ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'],
+            'Evaluaciones' => ['EvaluacionDiagnostica', 'EvaluacionSatisfaccion', 'EvaluacionFinal'],
+            'DC5' => ['FormatoDC5', 'CertificadoComprobacion', 'CartaPoder', 'Udemy'],
+        ];
 
-        // Verificar si la carpeta ya existe
-        if (File::exists($rutaCompleta)) {
-            // Ya existe, no es un error; solo responde como éxito
-            return response()->json([
-                'success' => true,
-                'message' => 'La carpeta ya existe y puede ser utilizada.'
-            ], 200);
+        $carpetaPadre = $rutaBase; // Por defecto
+
+        foreach ($rutas as $nombre => $tipos) {
+            if (in_array($tipo, $tipos)) {
+                $carpetaPadre .= '/' . ($nombre === 'Evaluaciones' ? '5- Evaluaciones' : ($nombre === 'DC5' ? '0- DC5' : 'Flyers'));
+
+                // Crear carpeta padre si no existe
+                if (!File::exists($carpetaPadre)) {
+                    File::makeDirectory($carpetaPadre, 0755, true);
+                }
+
+                break;
+            }
         }
 
+        // Ruta completa a crear
+        $rutaCompleta = $carpetaPadre . '/' . $nombreCarpeta;
 
-        // Crear la carpeta
-        File::makeDirectory($rutaCompleta, 0755, true);
-
-        // Guardar la ruta en la columna correspondiente
+       if (!File::exists($rutaCompleta)) {
+            File::makeDirectory($rutaCompleta, 0755, true);
+            $mensaje = 'Carpeta creada exitosamente.';
+        } else {
+            $mensaje = 'La carpeta ya existía. Puedes subir un archivo actualizado.';
+        }
+        // Guardar en base de datos
         $datosActualizar = [];
 
-        switch ($request->tipo) {
-            case 'SinFecha':
-            case 'Facebook':
-            case 'LinkedIn':
-            case 'Instagram':
-                $datosActualizar['rutaformatosflyer'] = $rutaPrincipalFlyers; // Guardar la ruta de la carpeta principal "Flyers"
-                $datosActualizar['ruta' . $request->tipo] = $rutaCompleta; // Guardar la ruta específica
-                break;
-
-            case 'Temario':
-                $datosActualizar['rutaTemario'] = $rutaCompleta;
-                break;
-
-            case 'Itinerario':
-                $datosActualizar['rutaItinerario'] = $rutaCompleta;
-                break;
-
-            case 'Planeación':
-                $datosActualizar['rutaPlaneacion'] = $rutaCompleta;
-                break;
-
-            case 'Digital':
-                $datosActualizar['rutaMaterialdeapoyo'] = $rutaCompleta; // Guardar la ruta de "2- Material de Apoyo (Digital)"
-                break;
-
-            case 'ImpresoPresentable':
-                $datosActualizar['rutacursoenlinea'] = $rutaCompleta; // Guardar la ruta de "8- Curso en Linea"
-                break;
-
-            case 'Presentacion':
-                $datosActualizar['rutaPresentacion'] = $rutaCompleta; // Guardar la ruta de "4- Presentacion"
-                break;
-
-            case 'EvaluacionDiagnostica':
-            case 'EvaluacionSatisfaccion':
-            case 'EvaluacionFinal':
-                $datosActualizar['rutaEvaluaciones'] = $rutaPrincipalEvaluaciones; // Guardar la ruta de la carpeta principal "5- Evaluaciones"
-                $datosActualizar['ruta' . $request->tipo] = $rutaCompleta; // Guardar la ruta específica
-                break;
-
-            case 'FormatoDC5':
-                $datosActualizar['rutaDC5'] = $rutaPrincipalDC5; // Guardar la ruta de la carpeta principal "0- DC5"
-                $datosActualizar['rutaFormatoDC5'] = $rutaCompleta; // Guardar la ruta específica
-                break;
-
-            case 'CertificadoComprobacion':
-                $datosActualizar['rutaDC5'] = $rutaPrincipalDC5; // Guardar la ruta de la carpeta principal "0- DC5"
-                $datosActualizar['rutaCertificadoComprobacion'] = $rutaCompleta; // Guardar la ruta específica
-                break;
-
-            case 'CartaPoder':
-                $datosActualizar['rutaDC5'] = $rutaPrincipalDC5; // Guardar la ruta de la carpeta principal "0- DC5"
-                $datosActualizar['rutacartapoder'] = $rutaCompleta; // Guardar la ruta específica
-                break;
-
-            case 'Udemy':
-                $datosActualizar['rutaDC5'] = $rutaPrincipalDC5; // Guardar la ruta de la carpeta principal "0- DC5"
-                $datosActualizar['rutaUdemy'] = $rutaCompleta; // Guardar la ruta específica
-                break;
+        // Guardar la ruta principal si es Flyers, Evaluaciones o DC5
+        if (str_contains($carpetaPadre, 'Flyers')) {
+            $datosActualizar['rutaformatosflyer'] = $carpetaPadre;
+        } elseif (str_contains($carpetaPadre, 'Evaluaciones')) {
+            $datosActualizar['rutaEvaluaciones'] = $carpetaPadre;
+        } elseif (str_contains($carpetaPadre, 'DC5')) {
+            $datosActualizar['rutaDC5'] = $carpetaPadre;
         }
 
-        // Actualizar la fila en la base de datos
+        // Guardar ruta específica
+        $nombreColumna = match($tipo) {
+            'Temario' => 'rutaTemario',
+            'Itinerario' => 'rutaItinerario',
+            'Planeación' => 'rutaPlaneacion',
+            'Digital' => 'rutaMaterialdeapoyo',
+            'ImpresoPresentable' => 'rutacursoenlinea',
+            'Presentacion' => 'rutaPresentacion',
+            'FormatoDC5' => 'rutaFormatoDC5',
+            'CertificadoComprobacion' => 'rutaCertificadoComprobacion',
+            'CartaPoder' => 'rutacartapoder',
+            'Udemy' => 'rutaUdemy',
+            default => 'ruta' . $tipo
+        };
+
+        $datosActualizar[$nombreColumna] = $rutaCompleta;
+
         $ultimaRuta->update($datosActualizar);
 
-        return response()->json([
+        Log::info("✅ Carpeta creada exitosamente en: {$rutaCompleta}");
+
+       return response()->json([
             'success' => true,
-            'message' => 'Carpeta creada exitosamente',
+            'message' => $mensaje,
             'ruta' => $rutaCompleta
         ]);
 
+
     } catch (\Exception $e) {
+        Log::error("❌ Error al crear la carpeta: " . $e->getMessage());
         return response()->json([
             'success' => false,
-            'message' => 'Error al crear la carpeta: ' . $e->getMessage()
+            'message' => 'Error al crear la carpeta: ' . $e->getMessage(),
+            'ruta' => null
         ], 500);
     }
 }
 
-    public function subirArchivo(Request $request)
-    {
-        try {
-            // Validar la solicitud
-            $request->validate([
-                'archivo' => 'required|file',
-                'nombreCarpeta' => 'required|string'
-            ]);
 
-            // Obtener la última ruta registrada desde la base de datos
-            $ultimaRuta = RutaLocal::orderBy('id', 'desc')->first();
+   public function subirArchivo(Request $request)
+{
+    try {
+        // Validar la solicitud
+        $request->validate([
+            'archivo' => 'required|file',
+            'nombreCarpeta' => 'required|string'
+        ]);
 
-            if (!$ultimaRuta || !$ultimaRuta->rutacompleta) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error: No se ha configurado la ruta de archivos.'
-                ], 400);
-            }
+        // Obtener el curso actual
+        $cursoId = session('curso_id');
+        $rutaCurso = RutaLocal::where('id_cursos', $cursoId)->first();
 
-            // Normalizar la ruta base
-            $rutaBase = str_replace('\\', '/', $ultimaRuta->rutacompleta);
-            $nombreCarpeta = trim($request->nombreCarpeta);
-            $archivo = $request->file('archivo');
-
-            // Construir la ruta completa
-            $rutaCompleta = $rutaBase . '/' . $nombreCarpeta;
-
-            // Verificar si la carpeta existe, si no, crearla
-            if (!File::exists($rutaCompleta)) {
-                Log::info('Creando carpeta: ' . $rutaCompleta);
-                File::makeDirectory($rutaCompleta, 0755, true);
-            }
-
-            // Mover el archivo
-            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-            Log::info('Intentando mover archivo a: ' . $rutaCompleta . '/' . $nombreArchivo);
-            $archivo->move($rutaCompleta, $nombreArchivo);
-
-            // Respuesta exitosa
-            return response()->json([
-                'success' => true,
-                'message' => 'Archivo subido exitosamente',
-                'ruta' => $nombreCarpeta . '/' . $nombreArchivo
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error al subir archivo: ' . $e->getMessage());
+        if (!$rutaCurso || !$rutaCurso->rutacompleta) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al subir el archivo: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Error: No se ha configurado la ruta de archivos.'
+            ], 400);
         }
+
+        // Normalizar la ruta base
+        $rutaBase = rtrim(str_replace('\\', '/', $rutaCurso->rutacompleta), '/');
+        $nombreCarpeta = trim($request->nombreCarpeta);
+
+        // Validar que el nombre de la carpeta sea seguro y permitido
+        $nombresValidos = [
+            '1-Temario',
+            '6-Itinerario',
+            '3-Planeación',
+            '2- Material de Apoyo (Digital)',
+            '8- Curso en Linea',
+            // agrega aquí otras carpetas válidas si lo necesitas
+        ];
+
+        if (!in_array($nombreCarpeta, $nombresValidos)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nombre de carpeta no permitido.'
+            ], 400);
+        }
+
+        $archivo = $request->file('archivo');
+        $rutaCompleta = $rutaBase . '/' . $nombreCarpeta;
+
+        // Crear la carpeta si no existe
+        if (!File::exists($rutaCompleta)) {
+            File::makeDirectory($rutaCompleta, 0755, true);
+        }
+
+        // Mover el archivo
+        $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+        $archivo->move($rutaCompleta, $nombreArchivo);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Archivo subido exitosamente',
+            'ruta' => $nombreCarpeta . '/' . $nombreArchivo
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error al subir archivo: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al subir el archivo: ' . $e->getMessage()
+        ], 500);
     }
+}
+
 
     public function verificarCarpeta(Request $request)
     {
@@ -1838,7 +2072,7 @@ public function obtenerSubcursos($cursoId, Request $request)
         // Crear el curso hijo
         $curso = Cursos::create([
             'NombredelCurso' => $ultimaRuta->nombre_carpeta,
-            'status' => 0,
+            'status' => 1,
             'parent_id' => $parent_id, // Asociar con el curso padre
         ]);
 

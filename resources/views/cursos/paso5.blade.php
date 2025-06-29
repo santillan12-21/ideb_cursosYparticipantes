@@ -116,29 +116,27 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo Local - Digital</label>
-                        @if ($archivosLocales['Materialdeapoyo'] === 'actual')
+                        @if (!empty($archivosLocales['Materialdeapoyo']) && $archivosLocales['Materialdeapoyo'] === 'actual')
                             <div class="alert alert-success p-2">
                                 Este archivo ya fue subido en el curso original
                             </div>
-                             <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('ImpresoPresentable')">Subir archivo actualizado</button>
-                        <div id="archivoImpresoPresentableContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="ImpresoPresentableLocal" class="form-control">
-                       
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Digital')">Subir archivo actualizado</button>
+                            <div id="archivoDigitalContainer" style="display:none;" class="mt-2">
+                                <input type="file" name="DigitalLocal" class="form-control">
                                 <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso5.ImpresoPresentableLocal') }}
+                                    Archivo subido: {{ session('cursos_paso5.DigitalLocal') ?? 'No hay archivo subido' }}
                                 </div>
-                           
-                        </div>
+                            </div>
                         @else
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Digital')">Crear carpeta local</button>
-                        <div id="archivoDigitalContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="DigitalLocal" class="form-control">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Digital')">Crear carpeta local</button>
+                            <div id="archivoDigitalContainer" style="display:none;" class="mt-2">
+                                <input type="file" name="DigitalLocal" class="form-control">
                                 <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso5.DigitalLocal') }}
+                                    Archivo subido: {{ session('cursos_paso5.DigitalLocal') ?? 'No hay archivo subido' }}
                                 </div>
-                           
-                        </div>
+                            </div>
                         @endif
+
                     </div>
 
 
@@ -215,52 +213,54 @@
     </div>
 
     <script>
-        function crearCarpeta(tipo) {
-            // Mapear los tipos a los nombres específicos de las carpetas
-            const nombresCarpetas = {
-                'Digital': '2- Material de Apoyo (Digital)',
-                'ImpresoPresentable': '8- Curso en Linea'
+      function crearCarpeta(tipo) {
+    const nombresCarpetas = {
+        'Digital': '2- Material de Apoyo (Digital)',
+        'ImpresoPresentable': '8- Curso en Linea'
+    };
+
+    const nombreCarpeta = nombresCarpetas[tipo];
+
+    if (!nombreCarpeta) {
+        alert('Error: Tipo de carpeta no reconocido.');
+        return;
+    }
+
+    fetch('/crear-carpeta', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            tipo: tipo,
+            nombreCarpeta: nombreCarpeta
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Carpeta creada exitosamente: ' + data.ruta);
+
+            // Mapear tipo a id correcto para mostrar contenedor
+            const idMap = {
+                'Digital': 'archivoDigitalContainer',
+                'ImpresoPresentable': 'archivoImpresoPresentableContainer'
             };
 
-            // Obtener el nombre de la carpeta según el tipo
-            const nombreCarpeta = nombresCarpetas[tipo];
-
-            // Verificar si el tipo es válido
-            if (!nombreCarpeta) {
-                alert('Error: Tipo de carpeta no reconocido.');
-                return;
+            const contenedorId = idMap[tipo];
+            const contenedor = document.getElementById(contenedorId);
+            if (contenedor) {
+                contenedor.style.display = 'block';
             }
-
-            fetch('/crear-carpeta', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    tipo: tipo,
-                    nombreCarpeta: nombreCarpeta
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Carpeta creada exitosamente: ' + data.ruta);
-
-                    // Mostrar el contenedor de archivos correspondiente
-                    const contenedorId = `archivo${tipo.replace('-', '_').replace('ó', 'o')}Container`;
-                    const contenedor = document.getElementById(contenedorId);
-                    if (contenedor) {
-                        contenedor.style.display = 'block';
-                    }
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        } else {
+            alert('Error: ' + data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

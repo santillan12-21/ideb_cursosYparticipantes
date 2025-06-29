@@ -102,14 +102,14 @@
 
         <!-- Ocupacion -->
         <div class="mb-3">
-            <label for="Puesto" class="form-label">Ocupación especifica</label>
-            <input type="text" class="form-control" id="Ocupacion" name="Ocupacion" placeholder="Escribe el puesto..." required>
+            <label for="Puesto" class="form-label">Puesto que ocupa dentro de la empresa</label>
+            <input type="text" class="form-control" id="Ocupacion" name="Puesto" placeholder="Escribe el puesto..." required>
         </div>
 
            <!-- Puesto -->
         <div class="mb-3">
-            <label for="Puesto" class="form-label">Puesto que ocupa dentro de la empresa</label>
-            <input type="text" class="form-control" id="Puesto" name="Puesto" placeholder="Escribe el puesto..." required>
+            <label for="Puesto" class="form-label">Ocupación especifica</label>
+            <input type="text" class="form-control" id="Puesto" name="Ocupacion" placeholder="Escribe el puesto..." required>
         </div
 
         <!-- Estado de Pago -->

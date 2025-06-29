@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h3 class="text-center mb-4">Editar Paso 6: Documentos de Evaluación</h3>
-            <form action="{{ route('cursos.update.paso', [$curso->id, 6]) }}" method="POST">
+            <form action="{{ route('cursos.update.paso', [$curso->id, 6]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -13,24 +13,52 @@
                     <label class="form-label">Presentación</label>
                     <input type="text" name="Presentación" class="form-control"
                            value="{{ $curso->Presentación }}" required>
+                           <label for="">Subir archivo</label>
+                           <input type="file" name="PresentacionLocal" class="form-control">
+                            @if ($rutaLocal && $rutaLocal->rutapresentacion)
+                             <div class="mt-2 alert alert-success">
+                                 Ruta actual Digital: {{ $rutaLocal->rutapresentacion }}
+                             </div>
+                            @endif
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Evaluación Diagnóstica</label>
                     <input type="text" name="Evaluación_diagnostica" class="form-control"
                            value="{{ $curso->Evaluación_diagnostica }}" required>
+                           <label for="">Subir archivo</label>
+                           <input type="file" name="EvaluacionDiagnosticaLocal" class="form-control">
+                            @if ($rutaLocal && $rutaLocal->rutaEvaluacionDiagnostica)
+                             <div class="mt-2 alert alert-success">
+                                 Ruta actual Digital: {{ $rutaLocal->rutaEvaluacionDiagnostica }}
+                             </div>
+                            @endif
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Evaluación de Satisfacción</label>
                     <input type="text" name="EvaluaciondeSatisfacción" class="form-control"
                            value="{{ $curso->EvaluaciondeSatisfacción }}" required>
+                           <label for="">Subir archivo</label>
+                           <input type="file" name="EvaluacionSatisfaccionLocal" class="form-control">
+                            @if ($rutaLocal && $rutaLocal->rutaEvaluacionSatisfaccion)
+                             <div class="mt-2 alert alert-success">
+                                 Ruta actual Digital: {{ $rutaLocal->rutaEvaluacionSatisfaccion }}
+                             </div>
+                            @endif
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Evaluación Final</label>
                     <input type="text" name="EvaluacionFinal" class="form-control"
                            value="{{ $curso->EvaluacionFinal }}" required>
+                            <label for="">Subir archivo</label>
+                           <input type="file" name="EvaluacionFinalLocal" class="form-control">
+                            @if ($rutaLocal && $rutaLocal->rutaEvaluacionFinal)
+                             <div class="mt-2 alert alert-success">
+                                 Ruta actual Digital: {{ $rutaLocal->rutaEvaluacionFinal }}
+                             </div>
+                            @endif
                 </div>
 
                 <div class="mb-3">
