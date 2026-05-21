@@ -109,69 +109,111 @@ use Carbon\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereVirtual($value)
  * @mixin \Eloquent
  */
-class cursos extends Model
+class Cursos extends Model
 {
     protected $fillable = [
-       'Nomenclatura',
-        'parent_id',
-        'NombredelCurso',
-        'DescripciondeCurso',
-        'CostodelCurso',
-        'InstructorResponsable',
-        'FechadeInicio',
-        'FechadeTermino',
-        'Virtual',
-        'Presencial',
-        'Mixto',
-        'SinFecha',
-        'DriveSinFecha',
-        'Facebook',
-        'DriveFacebook',
-        'Linkedin',
-        'DriveLinkedin',
-        'Instagram',
-        'DriveInstagram',
-        'Temario',
-        'DriveTemario',
-        'Itinerario',
-        'DriveItinerario',
-        'Planeación',
-        'DrivePlaneación',
-        'Digital',
-        'DriveDigital',
-        'Impreso_Presentable',
-        'Presentación',
-        'Evaluación_diagnostica',
-        'EvaluaciondeSatisfacción',
-        'EvaluacionFinal',
-        'DC3',
-        'FechadeRegistro_STPS',
-        'Formato_DC5',
-        'Formato_DC5_Tienefirma',
-        'Certificadodecomprobacion',
-        'DrivedeCertificadodecomprobacion',
-        'Cartapoder_tienefirma',
-        'DriveCartapoder',
-        'UDEMY',
-        'Duracioncurso',
+        'nomenclatura',
+        'nombre',
+        'descripcion',
+        'costo',
+        'instructor_responsable',
+        'fecha_inicio',
+        'fecha_termino',
+        'virtual',
+        'presencial',
+        'mixto',
+        'sin_fecha',
+        'facebook',
+        'drive_facebook',
+        'linkedin',
+        'drive_linkedin',
+        'instagram',
+        'drive_instagram',
+        'temario',
+        'drive_temario',
+        'itinerario',
+        'drive_itinerario',
+        'planeacion',
+        'drive_planeacion',
+        'digital',
+        'drive_digital',
+        'impreso_presentable',
+        'presentacion',
+        'evaluacion_diagnostica',
+        'evaluacion_satisfaccion',
+        'evaluacion_final',
+        'dc3',
+        'fecha_registro_stps',
+        'formato_dc5',
+        'formato_dc5_tiene_firma',
+        'certificado_comprobacion',
+        'drive_certificado_comprobacion',
+        'carta_poder_tiene_firma',
+        'drive_carta_poder',
+        'udemy',
+        'enlace_udemy',
         'status',
+        'duracion'
     ];
 
+    // Accessors para mantener compatibilidad con la vista (Mapeo total)
+    public function getNomenclaturaAttribute() { return $this->attributes['nomenclatura'] ?? ''; }
+    public function getNombredelCursoAttribute() { return $this->attributes['nombre'] ?? ''; }
+    public function getDescripciondeCursoAttribute() { return $this->attributes['descripcion'] ?? ''; }
+    public function getCostodelCursoAttribute() { return $this->attributes['costo'] ?? ''; }
+    public function getInstructorResponsableAttribute() { return $this->attributes['instructor_responsable'] ?? ''; }
+    public function getFechadeInicioAttribute() { return $this->attributes['fecha_inicio'] ?? ''; }
+    public function getFechadeTerminoAttribute() { return $this->attributes['fecha_termino'] ?? ''; }
+    public function getVirtualAttribute() { return $this->attributes['virtual'] ?? ''; }
+    public function getPresencialAttribute() { return $this->attributes['presencial'] ?? ''; }
+    public function getMixtoAttribute() { return $this->attributes['mixto'] ?? ''; }
+    public function getSinFechaAttribute() { return $this->attributes['sin_fecha'] ?? ''; }
+    public function getFacebookAttribute() { return $this->attributes['facebook'] ?? ''; }
+    public function getDriveFacebookAttribute() { return $this->attributes['drive_facebook'] ?? ''; }
+    public function getLinkedinAttribute() { return $this->attributes['linkedin'] ?? ''; }
+    public function getDriveLinkedinAttribute() { return $this->attributes['drive_linkedin'] ?? ''; }
+    public function getInstagramAttribute() { return $this->attributes['instagram'] ?? ''; }
+    public function getDriveInstagramAttribute() { return $this->attributes['drive_instagram'] ?? ''; }
+    public function getTemarioAttribute() { return $this->attributes['temario'] ?? ''; }
+    public function getDriveTemarioAttribute() { return $this->attributes['drive_temario'] ?? ''; }
+    public function getItinerarioAttribute() { return $this->attributes['itinerario'] ?? ''; }
+    public function getDriveItinerarioAttribute() { return $this->attributes['drive_itinerario'] ?? ''; }
+    public function getPlaneaciónAttribute() { return $this->attributes['planeacion'] ?? ''; }
+    public function getDrivePlaneaciónAttribute() { return $this->attributes['drive_planeacion'] ?? ''; }
+    public function getDigitalAttribute() { return $this->attributes['digital'] ?? ''; }
+    public function getDriveDigitalAttribute() { return $this->attributes['drive_digital'] ?? ''; }
+    public function getImpreso_PresentableAttribute() { return $this->attributes['impreso_presentable'] ?? ''; }
+    public function getPresentaciónAttribute() { return $this->attributes['presentacion'] ?? ''; }
+    public function getEvaluación_diagnosticaAttribute() { return $this->attributes['evaluacion_diagnostica'] ?? ''; }
+    public function getEvaluaciondeSatisfacciónAttribute() { return $this->attributes['evaluacion_satisfaccion'] ?? ''; }
+    public function getEvaluacionFinalAttribute() { return $this->attributes['evaluacion_final'] ?? ''; }
+    public function getDC3Attribute() { return $this->attributes['dc3'] ?? ''; }
+    public function getFechadeRegistro_STPSAttribute() { return $this->attributes['fecha_registro_stps'] ?? ''; }
+    public function getFormato_DC5Attribute() { return $this->attributes['formato_dc5'] ?? ''; }
+    public function getFormato_DC5_TienefirmaAttribute() { return $this->attributes['formato_dc5_tiene_firma'] ?? ''; }
+    public function getCertificadodecomprobacionAttribute() { return $this->attributes['certificado_comprobacion'] ?? ''; }
+    public function getDrivedeCertificadodecomprobacionAttribute() { return $this->attributes['drive_certificado_comprobacion'] ?? ''; }
+    public function getCartapoder_tienefirmaAttribute() { return $this->attributes['carta_poder_tiene_firma'] ?? ''; }
+    public function getDriveCartapoderAttribute() { return $this->attributes['drive_carta_poder'] ?? ''; }
+    public function getUDEMYAttribute() { return $this->attributes['udemy'] ?? ''; }
+    public function getDuracioncursoAttribute() { return $this->attributes['duracion'] ?? ''; }
+    public function getDriveSinFechaAttribute() { return $this->attributes['drive_sin_fecha'] ?? ''; }
+
     protected $dates = [
-        'FechadeInicio',
-        'FechadeTermino',
-        'FechadeRegistro_STPS'
+        'fecha_inicio',
+        'fecha_termino',
+        'fecha_registro_stps'
     ];
 
     public function inscripciones()
     {
-        return $this->hasMany(Inscripcion::class, 'participante_id');
+        return $this->hasMany(Inscripcion::class, 'curso_id');
     }
 
     public function getFechaInicio($id)
     {
         $curso = Cursos::findOrFail($id);
-        return response()->json(['fecha_inicio' => $curso->FechadeInicio]);
+        return response()->json(['fecha_inicio' => $curso->fecha_inicio]);
     }
 
     public function participantes()
@@ -183,20 +225,4 @@ class cursos extends Model
             'participante_id'      // Clave foránea en la tabla intermedia para participantes
         );
     }
-
-    public function subcursos()
-    {
-        return $this->hasMany(Cursos::class, 'parent_id');
-    }
-
-    public function cursoPadre()
-    {
-        return $this->belongsTo(Cursos::class, 'parent_id');
-    }
-
-    public function ruta()
-{
-    return $this->hasOne(RutaLocal::class, 'id_cursos');
-}
-
 }

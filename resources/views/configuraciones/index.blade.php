@@ -37,7 +37,7 @@
 
    
   .btn {
-    color: white;
+    color: rgb(10, 9, 9);
     border: none;
         justify-content: center; /* Centra horizontalmente */
     align-items: center;     /* Centra verticalmente (si tiene altura definida) */
@@ -186,6 +186,12 @@
     transform: scale(0.97);
     box-shadow: 0 0 10px rgba(0, 90, 190, 0.8);
 }
+
+table thead th {
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
 </style>
 <div class="container">
     <h1>Configuraciones</h1>
@@ -203,7 +209,7 @@
 
 <br>
 <br>
-<table class="table table-bordered">
+<table class="table table-bordered" >
     <thead>
         <tr>
             <th>ID</th>

@@ -4,6 +4,16 @@
 @section('content')
 <div class="container">
     <h3 class="text-center mt-5">Detalles del Participante</h3>
+    
+    <div class="text-center mt-3 mb-4">
+        @if(auth()->user()->puesto != 'Operacion')
+        <a href="{{ route('participantes.descargar-pdf', ['id' => $participante->id]) }}" class="btn btn-primary">
+            <i class="fas fa-download"></i> Descargar PDF
+        </a>
+        @endif
+        <a href="{{ url()->previous() }}" class="btn btn-secondary">Regresar</a>
+    </div>
+
     <div class="card mt-4">
         <div class="card-body">
             <h5 class="card-title">{{ $participante->NombredelPostulante }}</h5>
@@ -37,13 +47,6 @@
             @endif
         </div>
     </div>
-    <div class="text-center mt-4">
-        @if(auth()->user()->puesto != 'Operacion')
-        <a href="{{ route('participantes.descargar-pdf', ['id' => $participante->id]) }}" class="btn btn-primary">
-            <i class="fas fa-download"></i> Descargar PDF
-        </a>
-        @endif
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">Regresar</a>
-    </div>
+
 </div>
 @endsection

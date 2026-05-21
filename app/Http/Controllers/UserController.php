@@ -38,8 +38,10 @@ class UserController extends Controller
             'email' => "required|email|unique:users,email,{$id}",
             'puesto' => 'required|string|max:255',
             'telefono' => 'required|string|max:15',
-            'edad' => 'required|integer|min:0',
+            'edad' => 'required|integer|min:18',
             'password' => 'nullable|min:8|confirmed', // La contraseña es opcional
+        ], [
+            'edad.min' => 'La edad mínima permitida es de 18 años.',
         ]);
 
         // Actualizar los campos básicos
@@ -70,9 +72,12 @@ class UserController extends Controller
             'apellido' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'telefono' => 'required|string|max:15',
-            'edad' => 'required|integer|min:0',
+            'edad' => 'required|integer|min:18|max:90',
             'password' => 'required|string|min:8|confirmed',
             'puesto' => 'required|string|max:255'
+        ], [
+            'edad.min' => 'La edad mínima permitida es de 18 años.',
+            'edad.max' => 'La edad máxima permitida es de 90 años.',
         ]);
 
         User::create([

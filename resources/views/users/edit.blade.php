@@ -11,21 +11,48 @@
         margin-bottom: 20px;
     }
     label {
-    font-weight: bold;
-    text-align: center;
-    display: block;
-    width: 100%;
-}
-.botones {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
+        font-weight: bold;
+        text-align: center;
+        display: block;
+        width: 100%;
+    }
+    .botones {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .back-arrow {
+        font-size: 1.5rem;
+        color: #333;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    .back-arrow:hover {
+        color: #007bff;
+    }
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .back-button-container {
+        position: absolute;
+        left: 0;
+    }
 </style>
+
 <div class="container">
-    <h1>Editar Perfil</h1>
+    <div class="header-container">
+        <div class="back-button-container">
+            <a href="{{ auth()->id() == $user->id ? route('profile') : route('users.index') }}" class="back-arrow" title="Regresar">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+        <h1>Editar Perfil</h1>
+    </div>
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -36,6 +63,7 @@
             </ul>
         </div>
     @endif
+
     <form method="POST" action="{{ route('users.update', $user->id) }}" id="editForm">
         @csrf
         @method('PUT')
@@ -79,6 +107,7 @@
                 <span class="input-group-text d-none editing-indicator">Editando</span>
             </div>
         </div>
+
         <div class="form-group">
             <label for="telefono">Teléfono</label>
             <div class="input-group">
@@ -90,7 +119,7 @@
         <div class="form-group">
             <label for="edad">Edad</label>
             <div class="input-group">
-                <input type="number" name="edad" id="edad" class="form-control" value="{{ old('edad', $user->edad) }}" readonly>
+                <input type="number" name="edad" id="edad" class="form-control" value="{{ old('edad', $user->edad) }}" min="18" max="90" readonly>
                 <span class="input-group-text d-none editing-indicator">Editando</span>
             </div>
         </div>
@@ -102,10 +131,11 @@
                 <span class="input-group-text d-none editing-indicator">Editando</span>
             </div>
         </div>
+
         <div class="botones">
-        <button type="button" id="toggleEditButton" class="btn btn-primary">Editar</button>
-        <button type="submit" class="btn btn-primary" id="saveButton" disabled>Guardar Cambios</button>
-        <button type="button" id="cancelButton" class="btn btn-secondary" disabled>Cancelar</button>
+            <button type="button" id="toggleEditButton" class="btn btn-primary">Editar</button>
+            <button type="submit" class="btn btn-success" id="saveButton" disabled>Guardar Cambios</button>
+            <button type="button" id="cancelButton" class="btn btn-danger" disabled>Cancelar</button>
         </div>
     </form>
 </div>
@@ -124,7 +154,7 @@
             originalValues[input.id] = input.value;
         });
 
-        // Función para habilitar/deshabilitar edición
+        // Función para habilitar edición
         toggleEditButton.addEventListener('click', function () {
             if (!isEditing) {
                 // Habilitar edición
@@ -132,21 +162,10 @@
                     input.removeAttribute('readonly');
                     input.addEventListener('input', showEditingIndicator);
                 });
-                toggleEditButton.textContent = 'Deshacer edición';
+                toggleEditButton.style.display = 'none'; // Ocultar botón editar
                 saveButton.removeAttribute('disabled');
                 cancelButton.removeAttribute('disabled');
                 isEditing = true;
-            } else {
-                // Deshabilitar edición
-                formInputs.forEach(input => {
-                    input.setAttribute('readonly', true);
-                    input.removeEventListener('input', showEditingIndicator);
-                    hideEditingIndicator(input);
-                });
-                toggleEditButton.textContent = 'Editar';
-                saveButton.setAttribute('disabled', true);
-                cancelButton.setAttribute('disabled', true);
-                isEditing = false;
             }
         });
 
@@ -157,7 +176,7 @@
                 input.setAttribute('readonly', true);
                 hideEditingIndicator(input);
             });
-            toggleEditButton.textContent = 'Editar';
+            toggleEditButton.style.display = 'inline-block'; // Mostrar de nuevo botón editar
             saveButton.setAttribute('disabled', true);
             cancelButton.setAttribute('disabled', true);
             isEditing = false;

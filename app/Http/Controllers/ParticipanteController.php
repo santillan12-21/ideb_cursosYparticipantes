@@ -20,16 +20,44 @@ class ParticipanteController extends Controller
     /**
      * Mostrar la lista de participantes.
      */
-    public function index()
-    {
-    // Obtener todos los cursos
+public function index(Request $request)
+{
     $cursos = Cursos::all();
 
-    // Obtener participantes ordenados por su número
-    $participantes = Participantes::orderBy('N', 'asc')->get();
+    $query = Participantes::orderBy('id', 'asc');
+
+    if ($request->has('search') && !empty($request->search)) {
+        $query->where(function ($q) use ($request) {
+            $q->where('nombre', 'like', '%' . $request->search . '%')
+              ->orWhere('correo', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // También puedes agregar otros filtros aquí si los tienes
+    if ($request->filled('curso')) {
+        $query->whereHas('cursos', function ($q) use ($request) {
+            $q->where('cursos.id', $request->curso);
+        });
+    }
+
+    if ($request->filled('estado_pago')) {
+        $query->where('estado_pago', $request->estado_pago);
+    }
+
+    if ($request->filled('min_costo')) {
+        $query->where('pago', '>=', $request->min_costo);
+    }
+
+    if ($request->filled('max_costo')) {
+        $query->where('pago', '<=', $request->max_costo);
+    }
+
+    $participantes = $query->with('cursos')->paginate(10);
 
     return view('participantes.index', compact('cursos', 'participantes'));
-    }
+}
+
+
 
 
     /**
@@ -61,11 +89,11 @@ class ParticipanteController extends Controller
     {
         // Validar los datos del formulario
         $validated = $request->validate([
-            'N' => 'required|string|max:255|unique:participantes,N,' . $id, // Validar que N sea único
+            'N' => 'required|string|max:255', // Validar que N esté presente
             'NombredelPostulante' => 'required|string|max:255',
             'Correo' => 'required|email|max:255',
             'Telefono' => 'required|string|max:255',
-            'Edad' => 'required|integer',
+            'Edad' => 'required|integer|min:18|max:90',
             'Direccion' => 'required|string|max:255',
             'Escolaridad' => 'required|string|max:255',
             'Curp' => 'required|string|max:255',
@@ -78,20 +106,43 @@ class ParticipanteController extends Controller
             'EstadoDePago' => 'required|string|max:255',
             'FechadelCurso' => 'required|date',
             'cursos' => 'required|array|min:1',
+        ], [
+            'Edad.min' => 'La edad mínima permitida es de 18 años.',
+            'Edad.max' => 'La edad máxima permitida es de 90 años.',
         ]);
 
             Log::info('Datos validados:', $validated);  // Log para debug
 
             $participante = Participantes::findOrFail($id);
 
+        // Mapear los datos validados a los nombres de columna reales de la base de datos
+        $participanteData = [
+            'nombre' => $validated['NombredelPostulante'],
+            'correo' => $validated['Correo'],
+            'telefono' => $validated['Telefono'],
+            'edad' => $validated['Edad'],
+            'direccion' => $validated['Direccion'],
+            'escolaridad' => $validated['Escolaridad'],
+            'curp' => $validated['Curp'],
+            'razon_social' => $validated['RazónSocial'],
+            'empresa' => $validated['Empresa'],
+            'rfc_empresa' => $validated['RFCEmpresa'],
+            'puesto' => $validated['Puesto'],
+            'ocupacion' => $validated['Ocupacion'],
+            'pago' => $validated['Pago'],
+            'estado_pago' => $validated['EstadoDePago'],
+            'fecha_curso' => $validated['FechadelCurso'],
+            'N' => $validated['N'],
+        ];
+
         // Actualizar los datos del participante
-        $participante->update($validated);
+        $participante->update($participanteData);
 
         // Registrar la acción en el historial
         ParticipantActionLog::create([
             'participant_id' => $participante->id,
-            'nombre_postulante' => $participante->NombredelPostulante,
-            'correo' => $participante->Correo,
+            'nombre_postulante' => $participante->nombre,
+            'correo' => $participante->correo,
             'accion' => 'Editado',
             'user_id' => Auth::id(),
             'detalles' => 'Datos del participante actualizados.',
@@ -102,44 +153,68 @@ class ParticipanteController extends Controller
         $participante->cursos()->sync($validated['cursos']);
 
         // Redireccionar con mensaje de éxito
-        return redirect()->route('participantes.index')->with('success', 'Participante actualizado correctamente.');
-    }
+        return redirect()
+    ->route('participantes.index')
+    ->with('success', 'Participante registrado exitosamente.');
 
+}
     /**
      * Guardar un nuevo participante en la base de datos.
      */
     public function store(Request $request)
 {
     $validated = $request->validate([
-        'N' => 'required|string|max:255|unique:participantes,N',
+        'N' => 'required|string|max:255',
         'NombredelPostulante' => 'required|string|max:255',
         'Correo' => 'required|email|max:255',
         'Telefono' => 'required|string|max:255',
-        'Edad' => 'required|integer',
+        'Edad' => 'required|integer|min:18|max:90',
         'Direccion' => 'required|string|max:255',
         'Escolaridad' => 'required|string|max:255',
         'Curp' => 'required|string|max:255',
-        'RazónSocial' => 'nullable|string|max:200',
+        'RazónSocial' => 'nullable|string|max:255',
         'Empresa' => 'required|string|max:255',
-        'RFCEmpresa' => 'nullable|string|max:100',
-        'Ocupacion' => 'nullable|string|max:255',
+        'RFCEmpresa' => 'nullable|string|max:255',
         'Puesto' => 'required|string|max:255',
+        'Ocupacion' => 'required|string|max:255',
         'Pago' => 'nullable|numeric',
         'EstadoDePago' => 'required|string|max:255',
         'FechadelCurso' => 'required|date',
         'cursos' => 'required|array|min:1',
+    ], [
+        'Edad.min' => 'La edad mínima permitida es de 18 años.',
+        'Edad.max' => 'La edad máxima permitida es de 90 años.',
     ]);
 
-    // Guardar primero el participante
-    $participante = new Participantes();
-    $participante->fill($validated);
-    $participante->save(); // Aquí se genera el ID
+    // Mapear los datos validados a los nombres de columna reales de la base de datos
+    $participanteData = [
+        'nombre' => $validated['NombredelPostulante'],
+        'correo' => $validated['Correo'],
+        'telefono' => $validated['Telefono'],
+        'edad' => $validated['Edad'],
+        'direccion' => $validated['Direccion'],
+        'escolaridad' => $validated['Escolaridad'],
+        'curp' => $validated['Curp'],
+        'razon_social' => $validated['RazónSocial'],
+        'empresa' => $validated['Empresa'],
+        'rfc_empresa' => $validated['RFCEmpresa'],
+        'puesto' => $validated['Puesto'],
+        'ocupacion' => $validated['Ocupacion'],
+        'pago' => $validated['Pago'],
+        'estado_pago' => $validated['EstadoDePago'],
+        'fecha_curso' => $validated['FechadelCurso'],
+        'estatus' => 1,
+        'N' => $validated['N'],
+    ];
 
-    // Ahora sí puedes registrar el log correctamente
+    // Guardar el participante
+    $participante = Participantes::create($participanteData);
+
+    // Registrar el log
     ParticipantActionLog::create([
         'participant_id' => $participante->id,
-        'nombre_postulante' => $participante->NombredelPostulante,
-        'correo' => $participante->Correo,
+        'nombre_postulante' => $participante->nombre,
+        'correo' => $participante->correo,
         'accion' => 'Creado',
         'user_id' => Auth::id(),
         'detalles' => 'Nuevo participante registrado.',
@@ -154,7 +229,8 @@ class ParticipanteController extends Controller
         ]);
     }
 
-    return redirect()->route('participantes.index')->with('success', 'Participante registrado exitosamente.');
+    return redirect()->route('participantes.index')
+                     ->with('success', 'Participante registrado exitosamente.');
 }
 
     /**
@@ -170,8 +246,8 @@ class ParticipanteController extends Controller
         // Registrar la acción en el historial
         ParticipantActionLog::create([
             'participant_id' => $participante->id,
-            'nombre_postulante' => $participante->NombredelPostulante,
-            'correo' => $participante->Correo,
+            'nombre_postulante' => $participante->nombre,
+            'correo' => $participante->correo,
             'accion' => 'Eliminado',
             'user_id' => Auth::id(),
             'detalles' => 'Participante desactivado.',
@@ -198,31 +274,31 @@ class ParticipanteController extends Controller
 
         // Filtrar por Estado de Pago
         if ($request->has('estado_pago') && $request->estado_pago) {
-            $query->where('EstadoDePago', $request->estado_pago);
+            $query->where('estado_pago', $request->estado_pago);
         }
 
         // Filtrar por Rango de Costo (Mínimo)
         if ($request->has('min_costo') && $request->min_costo) {
             $minCosto = floatval(str_replace([',', '$'], '', $request->min_costo));
-            $query->whereRaw("CAST(REPLACE(REPLACE(Pago, ',', ''), '$', '') AS DECIMAL(10, 2)) >= ?", [$minCosto]);
+            $query->where('pago', '>=', $minCosto);
         }
 
         // Filtrar por Rango de Costo (Máximo)
         if ($request->has('max_costo') && $request->max_costo) {
             $maxCosto = floatval(str_replace([',', '$'], '', $request->max_costo));
-            $query->whereRaw("CAST(REPLACE(REPLACE(Pago, ',', ''), '$', '') AS DECIMAL(10, 2)) <= ?", [$maxCosto]);
+            $query->where('pago', '<=', $maxCosto);
         }
 
         // Barra de Búsqueda General
         if ($request->has('busqueda') && $request->busqueda) {
             $busqueda = $request->busqueda;
             $query->where(function ($q) use ($busqueda) {
-                $q->where('N', 'LIKE', '%' . $busqueda . '%') // Buscar por N
-                  ->orWhere('NombredelPostulante', 'LIKE', '%' . $busqueda . '%')
-                  ->orWhere('Correo', 'LIKE', '%' . $busqueda . '%')
-                  ->orWhere('Telefono', 'LIKE', '%' . $busqueda . '%')
-                  ->orWhere('Curp', 'LIKE', '%' . $busqueda . '%')
-                  ->orWhere('Empresa', 'LIKE', '%' . $busqueda . '%');
+                $q->where('id', 'LIKE', '%' . $busqueda . '%')
+                  ->orWhere('nombre', 'LIKE', '%' . $busqueda . '%')
+                  ->orWhere('correo', 'LIKE', '%' . $busqueda . '%')
+                  ->orWhere('telefono', 'LIKE', '%' . $busqueda . '%')
+                  ->orWhere('curp', 'LIKE', '%' . $busqueda . '%')
+                  ->orWhere('empresa', 'LIKE', '%' . $busqueda . '%');
             });
         }
 
@@ -254,7 +330,17 @@ class ParticipanteController extends Controller
         $pdf = Pdf::loadView('participantes.pdf', compact('participante'));
 
         // Descargar el PDF
-        return $pdf->download('detalles-participante-' . $participante->NombredelPostulante . '.pdf');
+        return $pdf->download('detalles-participante-' . $participante->nombre . '.pdf');
+    }
+
+    /**
+     * Obtener detalles de los cursos seleccionados (para AJAX).
+     */
+    public function getCursosDetalles(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        $cursos = Cursos::whereIn('id', $ids)->get(['id', 'nombre', 'fecha_inicio', 'fecha_termino']);
+        return response()->json($cursos);
     }
 
     public function exportarExcel()
@@ -280,8 +366,8 @@ class ParticipanteController extends Controller
                 // Registrar la acción en el historial
                 ParticipantActionLog::create([
                     'participant_id' => $participante->id,
-                    'nombre_postulante' => $participante->NombredelPostulante,
-                    'correo' => $participante->Correo,
+                    'nombre_postulante' => $participante->nombre,
+                    'correo' => $participante->correo,
                     'accion' => 'Activado',
                     'user_id' => Auth::id(),
                     'detalles' => 'Participante activado nuevamente.',
@@ -304,14 +390,18 @@ class ParticipanteController extends Controller
                     // Buscar el participante por ID
                     $participante = Participantes::findOrFail($id);
 
+                    // Guardar datos antes de eliminar para el log
+                    $nombreLog = $participante->nombre;
+                    $correoLog = $participante->correo;
+
                     // Eliminar el participante de la base de datos
                     $participante->delete();
 
                     // Registrar la acción en el historial
                     ParticipantActionLog::create([
-                        'participant_id' => $participante->id,
-                        'nombre_postulante' => $participante->NombredelPostulante,
-                        'correo' => $participante->correo,
+                        'participant_id' => $id,
+                        'nombre_postulante' => $nombreLog,
+                        'correo' => $correoLog,
                         'accion' => 'Eliminado Definitivamente',
                         'user_id' => Auth::id(),
                         'detalles' => 'Participante eliminado definitivamente.',

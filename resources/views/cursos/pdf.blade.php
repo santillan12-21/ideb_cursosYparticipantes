@@ -62,9 +62,53 @@
             margin-bottom: 10px;
             font-size: 14px;
         }
+         .contact-info {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            left: 61%;
+            top: 30px
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .contact-item img {
+            width: 20px;
+            margin-right: 5px;
+        }
+        .contact-item span {
+            color: blue;
+        }
+        .timestamp {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+        }
+        @media print {
+            .timestamp {
+                display: block !important;
+                text-align: right;
+                font-size: 12px;
+                color: #000;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <div class="contact-info">
+                <div class="contact-item">
+                    <img src="{{ public_path('images/phone-icon.png') }}" alt="Teléfono">
+                    <span>3337029639 / 3320705533</span>
+                </div>
+                <div class="contact-item">
+                    <img src="{{ public_path('images/email-icon.png') }}" alt="Correo">
+                    <span>instituto.ideb@idebmexico.com</span>
+                </div>
+    </div>
     <div class="container py-5">
         <img src="{{ public_path('images/logo4.jpg') }}" alt="Logo" class="logo mb-4">
         <h1>Detalles del Curso: {{ $curso->NombredelCurso }}</h1>
@@ -74,7 +118,7 @@
                 <h5>Información General</h5>
                 <p class="info-text"><span class="info-title">Nomenclatura:</span> {{ $curso->Nomenclatura }}</p>
                 <p class="info-text"><span class="info-title">Descripción:</span> {{ $curso->DescripciondeCurso }}</p>
-                <p class="info-text"><span class="info-title">Costo:</span> ${{ number_format($curso->CostodelCurso, 2) }}</p>
+                <p class="info-text"><span class="info-title">Costo:</span> ${{ number_format((float)$curso->CostodelCurso, 2) }}</p>
                 <p class="info-text"><span class="info-title">Instructor Responsable:</span> {{ $curso->InstructorResponsable }}</p>
                 <p class="info-text"><span class="info-title">Fecha de Inicio:</span> {{ \Carbon\Carbon::parse($curso->FechadeInicio)->format('d/m/Y') }}</p>
                 <p class="info-text"><span class="info-title">Fecha de Término:</span> {{ \Carbon\Carbon::parse($curso->FechadeTermino)->format('d/m/Y') }}</p>
@@ -118,6 +162,12 @@
                     </tbody>
                 </table>
 
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
                 <h5>Documentos del Curso</h5>
                 <table class="table">
                     <thead>

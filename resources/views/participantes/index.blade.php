@@ -17,9 +17,49 @@
         box-sizing: border-box;
     }
 
+    /* Estilos para columna fija de Acciones */
+    .table-responsive {
+        position: relative;
+    }
+
+    .table thead th:last-child,
+    .table tbody td:last-child {
+        position: sticky;
+        right: 0;
+        z-index: 10;
+        min-width: 150px;
+    }
+
+    .table thead th:last-child {
+        background-color: #212529 !important; /* Color table-dark */
+        color: white;
+    }
+
+    .table tbody td:last-child {
+        background-color: inherit; /* Permite que herede el color de la fila */
+        box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+    }
+
+    /* Forzar el color de fondo para que la columna sticky no se vea transparente */
+    .table-striped tbody tr:nth-of-type(even) td:last-child {
+        background-color: #ffffff; 
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) td:last-child {
+        background-color: #d1d3d4; /* El mismo gris claro de las otras celdas */
+    }
+
+
+    /* Asegurar que el fondo sea correcto para participantes inactivos */
+    .table tbody tr.table-danger td:last-child,
+    .table tbody tr.inactive-row td {
+        background-color: #f8d7da !important;
+        color: #721c24 !important;
+    }
+
     table {
-        width: 200%;
-        max-width: 1500px; /* Limita el ancho máximo de la tabla */
+        width: 100%;
+        max-width: 100%; /* Limita el ancho máximo de la tabla */
         margin: 0 auto; /* Centra la tabla dentro del contenedor */
         border-collapse: collapse; /* Elimina los bordes adicionales entre celdas */
         text-align: center; /* Centra el texto dentro de las celdas */
@@ -73,138 +113,146 @@
         z-index: 1000; /* Asegura que el tooltip esté encima de otros elementos */
     }
 
+
+#participantesTable_filter {
+  display: none !important;
+}
+
+.pagination-hidden {
+    display: none !important;
+}
+.w-5.h-5 {
+        display: none !important;
+    }
+ .relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md {
+        display: none !important;
+    }
+
 </style>
-<br><br><br>
 
-    <div class="container">
-            @if(session()->has('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        <!-- Mensajes de error -->
-        @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        <!-- Título de la sección -->
-        <h3 class="text-center mt-5">Participantes Inscritos</h3>
-
-        <!-- Botón para Mostrar/Ocultar Filtros -->
-        <div class="text-center mb-4">
-            <button id="toggleFilters" class="btn btn-primary">Mostrar/Ocultar Filtros</button>
+@section('content')
+<div class="container">
+    @if(session()->has('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+    @endif
 
-        <!-- Contenedor de Filtros (oculto inicialmente) -->
-        <div id="filtersContainer" class="row mb-4" style="display: none;">
-            <div class="col-md-12">
-                <form action="{{ route('participantes.filtrar') }}" method="GET" class="form-inline">
-                    <!-- Filtro por Curso -->
-                    <div class="form-group mr-3">
-                        <label for="curso" class="mr-2">Curso:</label>
-                        <select name="curso" id="curso" class="form-control">
-                            <option value="">Todos los Cursos</option>
-                            @foreach($cursos as $curso)
-                                <option value="{{ $curso->id }}" {{ request('curso') == $curso->id ? 'selected' : '' }}>
-                                    {{ $curso->NombredelCurso }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- Filtro por Estado de Pago -->
-                    <div class="form-group mr-3">
-                        <label for="estado_pago" class="mr-2">Estado de Pago:</label>
-                        <select name="estado_pago" id="estado_pago" class="form-control">
-                            <option value="">Todos</option>
-                            <option value="Pagado" {{ request('estado_pago') == 'Pagado' ? 'selected' : '' }}>Pagado</option>
-                            <option value="Pendiente" {{ request('estado_pago') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
-                            <option value="Anticipo" {{ request('estado_pago') == 'Anticipo' ? 'selected' : '' }}>Anticipo</option>
-                            <option value="Cancelado" {{ request('estado_pago') == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
-                        </select>
-                    </div>
-
-                    <!-- Filtro por Rango de Costo -->
-                    <div class="form-group mr-3">
-                        <label for="min_costo" class="mr-2">Costo Mínimo:</label>
-                        <input type="text" name="min_costo" id="min_costo" class="form-control"
-                            placeholder="Mínimo" value="{{ request('min_costo') }}">
-                    </div>
-                    <div class="form-group mr-3">
-                        <label for="max_costo" class="mr-2">Costo Máximo:</label>
-                        <input type="text" name="max_costo" id="max_costo" class="form-control"
-                            placeholder="Máximo" value="{{ request('max_costo') }}">
-                    </div>
-
-
-                    <!-- Botón para Aplicar Filtros -->
-                    <button type="submit" class="btn btn-primary">Filtrar</button>
-                </form>
-            </div>
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+    @endif
 
-        <!-- Botones de Exportación -->
-        @if(auth()->user()->puesto != 'Operacion')
+    <h2 class="text-center mt-5">Participantes Inscritos</h2>
+
+    <div class="text-center mb-4">
+        <button id="toggleFilters" class="btn btn-primary">Mostrar/Ocultar Filtros</button>
+    </div>
+
+    <div id="filtersContainer" class="row mb-4" style="display: none;">
+        <div class="col-md-12">
+            <form action="{{ route('participantes.index') }}" method="GET" class="form-inline">
+                <div class="form-group mr-3">
+                    <label for="curso" class="mr-2">Curso:</label>
+                    <select name="curso" id="curso" class="form-control">
+                        <option value="">Todos los Cursos</option>
+                        @foreach($cursos as $curso)
+                            <option value="{{ $curso->id }}" {{ request('curso') == $curso->id ? 'selected' : '' }}>
+                                {{ $curso->NombredelCurso }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group mr-3">
+                    <label for="estado_pago" class="mr-2">Estado de Pago:</label>
+                    <select name="estado_pago" id="estado_pago" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="Pagado" {{ request('estado_pago') == 'Pagado' ? 'selected' : '' }}>Pagado</option>
+                        <option value="Pendiente" {{ request('estado_pago') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                        <option value="Anticipo" {{ request('estado_pago') == 'Anticipo' ? 'selected' : '' }}>Anticipo</option>
+                        <option value="Cancelado" {{ request('estado_pago') == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="form-group mr-3">
+                    <label for="min_costo" class="mr-2">Costo Mínimo:</label>
+                    <input type="text" name="min_costo" id="min_costo" class="form-control"
+                        placeholder="Mínimo" value="{{ request('min_costo') }}">
+                </div>
+                <div class="form-group mr-3">
+                    <label for="max_costo" class="mr-2">Costo Máximo:</label>
+                    <input type="text" name="max_costo" id="max_costo" class="form-control"
+                        placeholder="Máximo" value="{{ request('max_costo') }}">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a href="{{ route('participantes.index') }}" class="btn btn-secondary">Limpiar Filtros</a>
+            </form>
+        </div>
+    </div>
+
+    @if(auth()->user()->puesto != 'Operacion')
         <a href="{{ route('exportar.excel') }}" class="btn btn-success">Exportar a Excel</a>
-        @endif
-        @if(auth()->user()->puesto != 'Operacion')
         <a href="{{ route('exportar.csv') }}" class="btn btn-primary">Exportar a CSV</a>
-        @endif
-        <!-- Contenedor responsivo para la tabla -->
-        <div class="table-container">
-            <table id="participantesTable" class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>N</th>
-                        <th>Nombre del Postulante</th>
-                        <th>Correo</th>
-                        <th>Teléfono</th>
-                        <th>Edad</th>
-                        <th>Dirección</th>
-                        <th>Escolaridad</th>
-                        <th>CURP</th>
-                        <th>Razón Social</th>
-                        <th>Empresa</th>
-                        <th>RFC Empresa</th>
-                        <th>Ocupacion</th>
-                        <th>Puesto</th>
-                        <th>Pago</th>
-                        <th>Estado de Pago</th>
-                        <th>Fecha del Curso</th>
-                        <th>Cursos Inscritos</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($participantes as $participante)
-                    <tr>
-                        <!-- Información del participante -->
-                        @if($participante -> estatus == 0)
-                        <td style="  background-color: #f8d7da; color: #721c24;">{{ $participante->N }}</td>
-                        @else
-                        <td >{{ $participante->N }}</td>
-                        @endif
+    @endif
 
-                        @if($participante -> estatus == 0)
-                        <td style="  background-color: #f8d7da; color: #721c24;">{{ $participante->NombredelPostulante }}</td>
-                        @else
+    <br><br>
+
+    <form method="GET" action="{{ route('participantes.index') }}" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="search" placeholder="Buscar por nombre, correo..." value="{{ request('search') }}" class="form-control" />
+            @if(request('search') || request('curso') || request('estado_pago') || request('min_costo') || request('max_costo'))
+                <a href="{{ route('participantes.index') }}" class="btn btn-outline-secondary">Limpiar Todo</a>
+            @endif
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </form>
+
+    <br><br>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>N</th>
+                    <th>Nombre del Postulante</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Edad</th>
+                    <th>Dirección</th>
+                    <th>Escolaridad</th>
+                    <th>CURP</th>
+                    <th>Razón Social</th>
+                    <th>Empresa</th>
+                    <th>RFC Empresa</th>
+                    <th>Ocupacion</th>
+                    <th>Puesto</th>
+                    <th>Pago</th>
+                    <th>Estado de Pago</th>
+                    <th>Fecha del Curso</th>
+                    <th>Cursos Inscritos</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($participantes as $participante)
+                <tr @if($participante->estatus == 0) class="inactive-row" @endif>
+                    @if($participante->estatus == 0)
+                        <td>{{ $participante->N }}</td>
                         <td>{{ $participante->NombredelPostulante }}</td>
-                        @endif
-
-                        
-                        @if($participante -> estatus == 0)
-                        <td  colspan="15" style="background-color: #f8d7da; color: #721c24;">Inactivo</td>
-                        @else
+                        <td colspan="15">Inactivo</td>
+                    @else
+                        <td>{{ $participante->N }}</td>
+                        <td>{{ $participante->NombredelPostulante }}</td>
                         <td>{{ $participante->Correo }}</td>
-                     
                         <td>{{ $participante->Telefono }}</td>
                         <td>{{ $participante->Edad }}</td>
                         <td>{{ $participante->Direccion }}</td>
@@ -215,12 +263,7 @@
                         <td>{{ $participante->RFCEmpresa }}</td>
                         <td>{{ $participante->Ocupacion }}</td>
                         <td>{{ $participante->Puesto }}</td>
-                        <td>
-                            @php
-                                $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;
-                            @endphp
-                            ${{ number_format($pago, 2) }}
-                        </td>
+                        <td>${{ number_format(floatval($participante->Pago) ?: 0, 2) }}</td>
                         <td>{{ $participante->EstadoDePago }}</td>
                         <td>{{ $participante->FechadelCurso }}</td>
                         <td>
@@ -232,21 +275,15 @@
                                 @endforeach
                             @endif
                         </td>
-                         @endif
-                        <!-- Acciones (Editar y Eliminar) -->
-                        <td>
-                            <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn btn-sm btn-info" target="_blank">
-                                <i class="fas fa-eye"></i> Ver
-                            </a>
-                            @if(auth()->user()->puesto != 'Operacion')
-                            <!-- Botón Editar -->
+                    @endif
+                    <td>
+                        <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn btn-sm btn-info" target="_blank">
+                            <i class="fas fa-eye"></i> Ver
+                        </a>
+                        @if(auth()->user()->puesto != 'Operacion')
                             <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn btn-sm btn-primary">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
-                            @endif
-                            
-                            @if(auth()->user()->puesto != 'Operacion')
-                            <!-- Botón Eliminar -->
                             <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
                                 @csrf
                                 @method('DELETE')
@@ -254,32 +291,34 @@
                                     <i class="fas fa-trash"></i> Eliminar
                                 </button>
                             </form>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="16" class="text-center">No hay participantes inscritos con los filtros aplicados.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-         </div>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="18" class="text-center">No hay participantes inscritos con los filtros aplicados.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
-    <!-- Script para Mostrar/Ocultar Filtros -->
-    <script>
-    document.getElementById('toggleFilters').addEventListener('click', function() {
-        var filtersContainer = document.getElementById('filtersContainer');
-        if (filtersContainer.style.display === 'none') {
-            filtersContainer.style.display = 'block';
-        } else {
-            filtersContainer.style.display = 'none';
-        }
-    });
+    <!-- Paginación con filtros activos -->
+    <div class="d-flex justify-content-center mt-3">
+        {{ $participantes->appends(request()->except('page'))->links() }}
+    </div>
+</div>
+
+<!-- Script para Mostrar/Ocultar Filtros -->
+<script>
+document.getElementById('toggleFilters').addEventListener('click', function () {
+    var filtersContainer = document.getElementById('filtersContainer');
+    filtersContainer.style.display = filtersContainer.style.display === 'none' ? 'block' : 'none';
+});
+</script>
 
 
-    </script>
+
 
     <!-- DataTables y Exportación -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -293,7 +332,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 
-    <script>
+    {{-- <script>
     $(document).ready(function () {
         var table = $('#participantesTable').DataTable({
             language: {
@@ -380,5 +419,5 @@
             });
         }
     });
-    </script>
+    </script> --}}
 @endsection

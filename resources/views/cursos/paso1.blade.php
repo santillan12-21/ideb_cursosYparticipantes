@@ -120,29 +120,29 @@
                 </div> 
 
                 <div class="mb-3">
-                    <input type="text" name="NombredelCurso" class="form-control" placeholder="Nombre del Curso"   value="{{ old('NombredelCurso', $curso->NombredelCurso ?? '') }}" >
+                    <input type="text" name="NombredelCurso" class="form-control" placeholder="Nombre del Curso"   value="{{ old('NombredelCurso', $curso->NombredelCurso ?? '') }}" required>
                 </div>
                 <div class="mb-3">
-                <textarea name="DescripciondeCurso" class="form-control" rows="3" placeholder="Descripción del Curso">
+                <textarea name="DescripciondeCurso" class="form-control" rows="3" placeholder="Descripción del Curso" required>
                 {{ old('DescripciondeCurso', $curso->DescripciondeCurso ?? ($datosPadre->DescripciondeCurso ?? '')) }}
                 </textarea>  
                 </div>
                 <div class="mb-3">
                 <input type="number" step="0.01" name="CostodelCurso" class="form-control"
                 value="{{ old('CostodelCurso', $curso->CostodelCurso ?? ($datosPadre->CostodelCurso ?? '')) }}"
-                placeholder="Costo del Curso ($)">               
+                placeholder="Costo del Curso ($)" required>               
                 </div>
                 <div class="mb-3">
-                    <input type="text" name="InstructorResponsable" class="form-control" placeholder="Instructor Responsable" >
+                    <input type="text" name="InstructorResponsable" class="form-control" placeholder="Instructor Responsable" required>
                 </div>
                 <div class="mb-3">
-                    <input type="date" name="FechadeInicio" class="form-control" >
+                    <input type="date" name="FechadeInicio" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <input type="date" name="FechadeTermino" class="form-control" >
+                    <input type="date" name="FechadeTermino" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <input type="text" name="Duracioncurso" class="form-control" placeholder="Duración del Curso (ej: 9 horas)" >
+                    <input type="text" name="Duracioncurso" class="form-control" placeholder="Duración del Curso (ej: 9 horas)" required>
                 </div>
                 <div class="mb-3 d-flex justify-content-between">
                     <button type="submit" class="btn btn-success">Siguiente</button>

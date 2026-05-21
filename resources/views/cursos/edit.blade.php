@@ -3,76 +3,122 @@
 @section('nav')
 
 <style>
-    .container{
-        margin-top: 150px!important;
-        max-width: 1200px !important;
+    .container {
+        margin-top: 150px !important;
+        max-width: 1000px !important;
     }
     h2 {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
+        font-weight: bold;
+        color: #333;
     }
-    .btn {
-        font-size: 1.1 rem;
+    .step-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         padding: 15px;
-        text-align: center;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
     }
-    .btn-block {
-        width: 100%;
+    .step-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        border-color: #0d6efd;
     }
-    .mb-4 {
-        margin-bottom: 1.5rem;
-    }
-    .mt-5 {
-        margin-top: 3rem;
-    }
-    .text-center {
-        text-align: center;
-    }
-    .btn-secondary {
-        background-color: #6c757d;
+    .step-number-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: white;
-    }   
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-        padding: 10px 20px;
+        font-weight: bold;
         font-size: 1.2rem;
-        border-radius: 5px;
-        text-decoration: none;  
+        margin-right: 20px;
+        flex-shrink: 0;
     }
+    .step-content {
+        flex-grow: 1;
+    }
+    .step-title {
+        display: block;
+        font-weight: bold;
+        color: #444;
+        font-size: 1.1rem;
+    }
+    .step-subtitle {
+        display: block;
+        color: #777;
+        font-size: 0.9rem;
+    }
+    
+    /* Colores basados en el estado */
+    .btn-success-custom { background-color: #28a745; }
+    .btn-warning-custom { background-color: #ffc107; color: #333 !important; }
+    .btn-danger-custom { background-color: #dc3545; }
+    .btn-secondary-custom { background-color: #6c757d; }
 
+    .exit-btn {
+        margin-top: 30px;
+        padding: 12px 40px;
+        font-size: 1.1rem;
+        border-radius: 30px;
+    }
 </style>
+
 <div class="container">
-    <!-- Título con espacio inferior -->
-    <h2 class="mb-4">Editar Curso: {{ $curso->NombredelCurso }}</h2>
+    <h2 class="mb-4">Editar Curso: <span class="text-primary">{{ $curso->NombredelCurso }}</span></h2>
 
-    <!-- Botones de pasos con espacio -->
-<div class="row">
-    @for ($paso = 1; $paso <= 7; $paso++)
-        <div class="col-md-4 mb-4">
-            <a href="{{ route('cursos.edit.paso', [$curso->id, $paso]) }}" 
-               class="btn {{ $coloresPorPaso[$paso] ?? 'btn-secondary' }} btn-block">
-                Paso {{ $paso }}:
-                @switch($paso)
-                    @case(1) Datos del Curso @break
-                    @case(2) Modalidad del Curso @break
-                    @case(3) Formato de Flyer / Imagen @break
-                    @case(4) Documentos del Curso @break
-                    @case(5) Material de Apoyo @break
-                    @case(6) Documentos de Evaluación @break
-                    @case(7) Documentación STPS y Certificados @break
-                @endswitch
-            </a>
-        </div>
-    @endfor
-</div>
+    <div class="row">
+        @for ($paso = 1; $paso <= 7; $paso++)
+            <div class="col-md-6">
+                @php
+                    $colorClass = str_replace('btn-', 'btn-', ($coloresPorPaso[$paso] ?? 'secondary')) . '-custom';
+                    $titles = [
+                        1 => 'Datos del Curso',
+                        2 => 'Modalidad del Curso',
+                        3 => 'Formato de Flyer / Imagen',
+                        4 => 'Documentos del Curso',
+                        5 => 'Material de Apoyo',
+                        6 => 'Documentos de Evaluación',
+                        7 => 'Documentación STPS y Certificados'
+                    ];
+                    $subtitles = [
+                        1 => 'Nomenclatura, nombre, costo, fechas...',
+                        2 => 'Virtual, presencial o mixto',
+                        3 => 'Links de redes sociales y flyers',
+                        4 => 'Temario, itinerario y planeación',
+                        5 => 'Digital o impreso presentable',
+                        6 => 'Evaluaciones y DC3',
+                        7 => 'DC5, UDEMY y comprobaciones'
+                    ];
+                @endphp
+                <a href="{{ route('cursos.edit.paso', [$curso->id, $paso]) }}" class="step-card">
+                    <div class="step-number-circle {{ $colorClass }}">
+                        {{ $paso }}
+                    </div>
+                    <div class="step-content">
+                        <span class="step-title">{{ $titles[$paso] }}</span>
+                        <span class="step-subtitle">{{ $subtitles[$paso] }}</span>
+                    </div>
+                    <div class="step-arrow">
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </div>
+                </a>
+            </div>
+        @endfor
+    </div>
 
-
-    <!-- Botón "Salir" centrado con espacio superior -->
-    <div class="row mt-5">
-        <div class="col-md-12 text-center">
-            <a href="{{ route('cursos.index') }}" class="btn btn-danger">Salir</a>
-        </div>
+    <div class="text-center mt-4">
+        <a href="{{ route('cursos.index') }}" class="btn btn-danger exit-btn">
+            <i class="fas fa-sign-out-alt me-2"></i> Salir de Edición
+        </a>
     </div>
 </div>
 @endsection

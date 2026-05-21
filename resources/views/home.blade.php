@@ -34,7 +34,6 @@
             background-color: #f8f9fa;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
             font-family: Arial, sans-serif;
             font-size: 16px;
         }
@@ -65,7 +64,6 @@
         .main-container {
             display: flex;
             margin-top: 71px;
-            min-height: calc(20vh - 71px - 60px);
         }
         
         /* Menú vertical */
@@ -103,21 +101,25 @@
             z-index: 1000;
         }
 
-        /* Área de contenido principal */
-        .content-area {
-            flex: 1;
-            margin-left: 0;
-            padding: 20px;
-            transition: margin-left 0.3s ease;
-        }
+    /* Área de contenido principal */
+    .content-area {
+        flex: 1;
+        padding: 20px;
+        transition: all 0.3s ease;
+        width: 100% !important;
+        margin-left: 0 !important;
+        position: relative;
+    }
 
-        .content-area.menu-active {
-            margin-left: 280px;
-        }
+    .content-area.menu-active {
+        margin-left: 280px !important;
+        width: calc(100% - 280px) !important;
+    }
 
-        .content-area.menu-fixed {
-            margin-left: 60px;
-        }
+    .content-area.menu-fixed {
+        margin-left: 60px !important;
+        width: calc(100% - 60px) !important;
+    }
 
         .logo {
         margin-left: 20px; /* Ajusta el valor según sea necesario */
@@ -197,6 +199,13 @@
             visibility: visible;
         }
 
+        @media (min-width: 768px) {
+            .overlay.active {
+                background-color: transparent;
+                pointer-events: none; /* Dejar pasar los clics en escritorio si se prefiere, o quitar si se quiere cerrar al clic */
+            }
+        }
+
         /* Botón de menú */
         .menu-toggle {
             background: none;
@@ -251,7 +260,6 @@
         background-color: #000000;
         color: white;
         padding: 15px;
-        margin-top: auto;
         width: 100%;
     }
 
@@ -280,35 +288,15 @@
         margin-top: 10px;
     }
 
-    .contenedorconosRedes a {
-        color: white;
-        margin-left: 15px;
-    }
+    /* input.form-control {
+    max-width: 120px;
+    } */
 
-    /* Actualización de estilos del contenido */
-    .content-area {
-        flex: 1;
-        margin-left: 0;
-        padding: 20px;
-        transition: margin-left 0.3s ease;
-        width: calc(100% - 280px); /* Ancho total menos el ancho del menú */
-        margin-left: 0;
+    /* Estilos para el menú de usuario */
+    .user-menu {
+        position: relative;
+        display: inline-block;
     }
-
-    .content-area.menu-active {
-        margin-left: 280px;
-        width: calc(100% - 280px);
-    }
-
-    .content-area.menu-fixed {
-        margin-left: 60px;
-        width: calc(100% - 60px);
-    }
-        /* Estilos para el menú de usuario */
-        .user-menu {
-            position: relative;
-            display: inline-block;
-        }
 
         .user-menu-trigger {
             background: none;
@@ -548,7 +536,7 @@ body .navbar-fijo {
             <span class="bar"></span>
             <span class="bar"></span>
         </button>
-        <a href="/Inicio">
+        <a href="/inicio">
         <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="max-width: 150px;">
         </a>
         <div class="ml-auto">
@@ -655,8 +643,11 @@ body .navbar-fijo {
             <i class="fa-solid fa-file-import"></i> <span>Importar Base de Datos</span>
         </a>
   </li>
-
- 
+<li class="nav-item">
+        <a href="https://erp.idebmexico.com/inicio" rel="noopener noreferrer" class="nav-link menu-item">
+            <i class="fa-solid fa-house"></i> <span>Regresar al Inicio IDEB</span>
+        </a>
+  </li>
 @if(request()->routeIs('cursos.index') && isset($cursos) && isset($subcursos))
 <li>
     <div class="sidebar">
@@ -716,6 +707,42 @@ body .navbar-fijo {
         </nav>
 
         <div class="content-area" id="contentArea">
+            @if (request()->is('inicio'))
+            <style>
+                .welcome-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 70vh;
+                    text-align: center;
+                }
+                .welcome-message {
+                    max-width: 800px;
+                    padding: 40px;
+                    background-color: #a7f3fe;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+                }
+                .welcome-message h1 {
+                    font-size: 2.5rem;
+                    font-weight: 300;
+                    color: #1b1b1b;
+                    margin-bottom: 1rem;
+                }
+                .welcome-message p {
+                    font-size: 1.1rem;
+                    color: #575757;
+                    line-height: 1.6;
+                }
+            </style>
+            <div class="welcome-container">
+                <div class="welcome-message">
+                    <h1>Bienvenido, {{ Auth::user()->name }}</h1>
+                    <p>Este es su centro de control para la gestión de cursos y participantes. Desde aquí, puede navegar a todas las secciones clave para organizar, supervisar y analizar la información de manera eficiente.</p>
+                    <p>Utilice el menú lateral para comenzar.</p>
+                </div>
+            </div>
+            @endif
             @yield('content')
         </div>
     </div>
@@ -752,7 +779,46 @@ body .navbar-fijo {
         </div>
     </footer>    
 
+    <form id="importForm" action="{{ route('database.import') }}" method="POST" enctype="multipart/form-data" style="display: none;">
+        @csrf
+        <input type="file" id="database_file" name="database_file" accept=".sql" onchange="importDatabase()">
+    </form>
+
     <script>
+        function selectFile() {
+            document.getElementById('database_file').click();
+        }
+
+        function importDatabase() {
+            const fileInput = document.getElementById('database_file');
+            if (fileInput.files.length > 0) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Al importar la base de datos, se sobrescribirán los datos actuales. ¡Esta acción no se puede deshacer!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, importar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Importando...',
+                            text: 'Por favor espere mientras se restaura la base de datos.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        document.getElementById('importForm').submit();
+                    } else {
+                        fileInput.value = ''; // Limpiar el input si se cancela
+                    }
+                });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
     // Selecciona la barra de navegación con la clase "header"
     const navbar = document.querySelector('.header');
@@ -811,8 +877,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isMenuFixed) {
         verticalMenu.classList.add('fixed');
         verticalMenu.classList.add('active');
-        contentArea.style.marginLeft = '60px';
-        contentArea.style.width = 'calc(100% - 60px)';
+        contentArea.classList.add('menu-fixed');
         toggleFixedMenu.innerHTML = '<i class="fas fa-times"></i>';
     }
 
@@ -821,14 +886,13 @@ document.addEventListener('DOMContentLoaded', function() {
             isMenuActive = !isMenuActive;
             menuToggle.classList.toggle('active');
             verticalMenu.classList.toggle('active');
-            overlay.classList.toggle('active');
             
             if (isMenuActive) {
-                contentArea.style.marginLeft = '280px';
-                contentArea.style.width = 'calc(100% - 280px)';
+                contentArea.classList.add('menu-active');
+                overlay.classList.add('active');
             } else {
-                contentArea.style.marginLeft = '0';
-                contentArea.style.width = '100%';
+                contentArea.classList.remove('menu-active');
+                overlay.classList.remove('active');
             }
         }
     }
@@ -842,16 +906,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isMenuFixed) {
             verticalMenu.classList.add('fixed');
             verticalMenu.classList.add('active');
-            contentArea.style.marginLeft = '60px';
-            contentArea.style.width = 'calc(100% - 60px)';
+            contentArea.classList.add('menu-fixed');
+            contentArea.classList.remove('menu-active');
             overlay.classList.remove('active');
             toggleFixedMenu.innerHTML = '<i class="fas fa-times"></i>';
         } else {
             verticalMenu.classList.remove('fixed');
             verticalMenu.classList.remove('active');
-            contentArea.style.marginLeft = '0';
-            contentArea.style.width = '100%';
+            contentArea.classList.remove('menu-fixed');
             toggleFixedMenu.innerHTML = '<i class="fas fa-thumbtack"></i>';
+            
+            // Si el menú estaba abierto antes de fijarlo, restaurar el estado activo si es necesario
+            // o simplemente dejarlo cerrado. Aquí lo dejamos cerrado por simplicidad.
         }
         
         isMenuActive = isMenuFixed;

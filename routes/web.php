@@ -8,7 +8,7 @@ use App\Http\Controllers\CursoController;
 use App\Http\Controllers\ParticipanteController;
 use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\RegistroController;
-use App\Models\cursos;
+use App\Models\Cursos;
 use App\Http\Controllers\ConfigController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -25,10 +25,13 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'login']);
-Route::get('/Inicio', function () {
+Route::get('/inicio', function () {
     return view('home');
 })->middleware('auth');
-
+// Alias seguro que NO afecta a ninguna otra ruta
+Route::get('/Inicio', function () {
+    return redirect('/inicio');
+});
 //Ruta para cerrar sesion:
 
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
@@ -74,6 +77,7 @@ Route::get('/cursos/{id}/fecha-inicio', [CursoController::class, 'getFechaInicio
 //Vista, modificacion, "eliminacion" y consulta de los participantes
 Route::get('/participantes', [ParticipanteController::class, 'index'])->name('participantes.index');
 Route::get('/participantes/create', [ParticipanteController::class, 'create'])->name('participantes.create');
+Route::get('/participantes/cursos-detalles', [ParticipanteController::class, 'getCursosDetalles'])->name('participantes.cursos-detalles');
 Route::post('/participantes', [ParticipanteController::class, 'store'])->name('participantes.store');
 
 // Ruta para mostrar el formulario de edición
@@ -154,17 +158,17 @@ Route::get('/cursos/{id}/fecha-inicio', [CursoController::class, 'getFechaInicio
 
 // Ruta para mostrar el formulario de solicitud de restablecimiento de contraseña (GET)
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])
-    ->name('password.request');
+    ->name('password.request.custom');
 
 // Ruta para procesar el envío del enlace de restablecimiento (POST)
 Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])
-    ->name('password.email');
+    ->name('password.email.custom');
 
 // Mostrar formulario de restablecimiento de contraseña
-Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset.custom');
 
 // Procesar el restablecimiento de contraseña
-Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update.custom');
 
 
 Route::prefix('archivos')->group(function () {

@@ -46,7 +46,7 @@ class ServerApp:
 
             # Iniciar Laravel (php artisan serve)
             self.php_process = subprocess.Popen(
-                [php_path, "artisan", "serve", "--host=127.0.0.3", "--port=8000"],
+                [php_path, "artisan", "serve", "--host=127.0.0.3", "--port=8003"],
                 cwd=cwd,
                 startupinfo=startupinfo
             )
@@ -64,10 +64,10 @@ class ServerApp:
             chrome_path = r"C:\Users\angam\AppData\Local\Google\Chrome\Application\chrome.exe"
 
             if os.path.exists(chrome_path):
-                subprocess.Popen([chrome_path, "http://127.0.0.3:8000/login"], startupinfo=startupinfo)
+                subprocess.Popen([chrome_path, "http://127.0.0.3:8003/login"], startupinfo=startupinfo)
             else:
                 # Si no está la ruta, abre en navegador predeterminado
-                webbrowser.open("http://127.0.0.3:8000/login")
+                webbrowser.open("http://127.0.0.3:8003/login")
 
             messagebox.showinfo("Éxito", "Servidores iniciados correctamente.")
         except Exception as e:

@@ -16,12 +16,12 @@ class RegistroController extends Controller
     }
 
    public function store(Request $request)
-{
+   {
     $rules = [
         'NombredelPostulante' => 'required|string|max:255',
         'Correo' => 'required|email|max:255',
         'Telefono' => 'required|string|max:255',
-        'Edad' => 'required|integer',
+        'Edad' => 'required|integer|min:18|max:90',
         'Direccion' => 'required|string|max:255',
         'Escolaridad' => 'required|string|max:255',
         'Curp' => 'required|string|max:18',
@@ -34,40 +34,45 @@ class RegistroController extends Controller
         'cursos' => 'required|array|min:1',
     ];
 
+    $messages = [
+        'Edad.min' => 'La edad mínima permitida es de 18 años.',
+        'Edad.max' => 'La edad máxima permitida es de 90 años.',
+    ];
+
     if (in_array($request->EstadoDePago, ['Pagado', 'Anticipo'])) {
         $rules['Pago'] = ['required', 'regex:/^\d+(\.\d{1,2})?$/'];
     } else {
         $rules['Pago'] = 'nullable';
     }
 
-    $validated = $request->validate($rules);
+    $validated = $request->validate($rules, $messages);
 
-    // Generar el código autoincremental (N)
-    $year = date('y'); // Obtiene los dos últimos dígitos del año actual
-    $lastParticipante = DB::table('participantes')
-        ->where('N', 'like', "IC-{$year}%")
-        ->orderBy('id', 'desc')
-        ->first();
-
-    if ($lastParticipante) {
-        $lastNumber = intval(substr($lastParticipante->N, 5));
-        $newNumber = $lastNumber + 1;
-    } else {
-        $newNumber = 1;
-    }
-
-    $formattedNumber = str_pad($newNumber, 4, '0', STR_PAD_LEFT);
-    $nValue = "IC-{$year}{$formattedNumber}";
-
+    // Mapear datos a nombres de columna reales
     $participante = new Participantes();
-    $participante->fill($validated);
-    $participante->Pago = $request->Pago ?? null;
-    $participante->N = $nValue;
+    $participante->nombre = $validated['NombredelPostulante'];
+    $participante->correo = $validated['Correo'];
+    $participante->telefono = $validated['Telefono'];
+    $participante->edad = $validated['Edad'];
+    $participante->direccion = $validated['Direccion'];
+    $participante->escolaridad = $validated['Escolaridad'];
+    $participante->curp = $validated['Curp'];
+    $participante->razon_social = $validated['RazónSocial'];
+    $participante->empresa = $validated['Empresa'];
+    $participante->rfc_empresa = $validated['RFCEmpresa'];
+    $participante->puesto = $validated['Puesto'];
+    $participante->ocupacion = $validated['Ocupacion'];
+    $participante->estado_pago = $validated['EstadoDePago'];
+    $participante->pago = $request->Pago ?? 0;
+    $participante->estatus = 1;
+
+    // Nota: La columna 'N' no existe en la base de datos según el esquema actual.
+    // Si necesitas guardar el código IC-XXXX, deberías añadir la columna 'N' a la tabla.
+    // Por ahora, usaremos el ID autoincremental para las inscripciones.
 
     $inscripciones = [];
     foreach ($request->cursos as $curso_id) {
         $curso = Cursos::findOrFail($curso_id);
-        $participante->FechadelCurso = $curso->FechadeInicio;
+        $participante->fecha_curso = $curso->fecha_inicio;
 
         $inscripciones[] = [
             'curso_id' => $curso_id
@@ -83,14 +88,7 @@ class RegistroController extends Controller
         $inscripcion->save();
     }
 
-    // // Mostrar los datos guardados para depuración
-    // dd([
-    //     'validated' => $validated,
-    //     'participante' => $participante,
-    //     'inscripciones' => $inscripciones
-    // ]);
+    return redirect()->route('participantes.index')->with('success', 'Participante registrado exitosamente.');
+   }
 
-    // Este código no se ejecutará por el dd() anterior
-    return redirect('/Inicio')->with('success', 'Participante registrado exitosamente.');
-}
 }

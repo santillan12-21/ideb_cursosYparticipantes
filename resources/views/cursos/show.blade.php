@@ -124,7 +124,7 @@
                 <h5 class="card-title">Información General</h5>
                 <p><strong>Nomenclatura:</strong> {{ $curso->Nomenclatura }}</p>
                 <p><strong>Descripción:</strong> {{ $curso->DescripciondeCurso }}</p>
-                <p><strong>Costo:</strong> ${{ number_format($curso->CostodelCurso, 2) }}</p>
+                <p><strong>Costo:</strong> ${{ number_format((float)$curso->CostodelCurso, 2) }}</p>
                 <p><strong>Instructor Responsable:</strong> {{ $curso->InstructorResponsable }}</p>
                 <p><strong>Fecha de Inicio:</strong> {{ \Carbon\Carbon::parse($curso->FechadeInicio)->format('d/m/Y') }}</p>
                 <p><strong>Fecha de Término:</strong> {{ \Carbon\Carbon::parse($curso->FechadeTermino)->format('d/m/Y') }}</p>

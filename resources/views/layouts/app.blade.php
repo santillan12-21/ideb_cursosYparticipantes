@@ -94,7 +94,7 @@
     @endphp
     <header>
         <div class="header-left">
-            <a href="/Inicio">
+            <a href="/inicio">
                 <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="max-width: 150px;">
             </a>
         </div>

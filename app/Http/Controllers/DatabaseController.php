@@ -40,24 +40,29 @@ class DatabaseController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'database_file' => 'required|file|mimes:sql',
+            'database_file' => 'required|file',
         ]);
 
-        $filePath = $request->file('database_file')->store('temp');
+        $file = $request->file('database_file');
+        $filePath = $file->getRealPath();
+
         $command = sprintf(
-            'mysql --user=%s --password=%s --host=%s %s < %s',
+            '"%s" --user=%s --password=%s --host=%s %s < "%s"',
+            env('MYSQL_PATH', 'mysql'),
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
             env('DB_HOST'),
             env('DB_DATABASE'),
-            storage_path('app/' . $filePath)
+            $filePath
         );
 
         // Ejecutar el comando
-        $result = exec($command);
+        $output = [];
+        $returnVar = 0;
+        exec($command, $output, $returnVar);
 
-        if ($result === false) {
-            return back()->with('error', 'No se pudo importar la base de datos.');
+        if ($returnVar !== 0) {
+            return back()->with('error', 'No se pudo importar la base de datos. Asegúrese de que el archivo SQL sea válido.');
         }
 
         return back()->with('success', 'Base de datos importada correctamente.');

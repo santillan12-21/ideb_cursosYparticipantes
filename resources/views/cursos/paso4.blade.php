@@ -134,6 +134,7 @@
                     {{-- HAZ QUE EL INPUT SEA VISIBLE DIRECTAMENTE --}}
                     <div id="archivoTemarioContainer" class="file-upload-container mt-2">
                         <input type="file" name="TemarioLocal" class="form-control">
+                       
                     </div>
                 @else
                     <button type="button" class="btn btn-secondary btn-sm btn-create-folder" data-tipo="Temario">
@@ -182,9 +183,7 @@
                             {{-- Mostramos el input directamente --}}
                             <div id="archivoItinerarioContainer" class="file-upload-container mt-2">
                                 <input type="file" name="ItinerarioLocal" class="form-control">
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso4.ItinerarioLocal') }}
-                                </div>
+                               
                             </div>
                         @else
                             <button type="button" class="btn btn-secondary btn-sm btn-create-folder" data-tipo="Itinerario">
@@ -194,10 +193,9 @@
                             {{-- Oculto hasta que se cree la carpeta --}}
                             <div id="archivoItinerarioContainer" style="display: none;" class="file-upload-container mt-2">
                                 <input type="file" name="ItinerarioLocal" class="form-control">
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso4.ItinerarioLocal') }}
-                                </div>
+                   
                             </div>
+
                         @endif
                     </div>
 
@@ -232,9 +230,7 @@
                                     {{-- Mostrar campo directamente --}}
                                     <div id="archivoPlaneaciónContainer" class="file-upload-container mt-2">
                                         <input type="file" name="PlaneaciónLocal" class="form-control">
-                                        <div class="mt-2">
-                                            Archivo subido: {{ old('rutaPlaneacion') ?? session('cursos_paso4.PlaneaciónLocal', 'No hay archivo subido') }}
-                                        </div>
+                                        
                                     </div>
                                 @else
                                     <button type="button" class="btn btn-secondary btn-sm btn-create-folder" data-tipo="Planeación">
@@ -245,20 +241,6 @@
                                 <div id="archivoPlaneaciónContainer" class="file-upload-container mt-2">
                                         <input type="file" name="PlaneaciónLocal" class="form-control">
                                         
-                                        <div class="mt-2">
-                                          Archivo subido: 
-                                            @php
-                                                $archivo = old('rutaPlaneacion') ?? session('cursos_paso4.PlaneaciónLocal');
-                                            @endphp
-
-                                            @if (is_array($archivo))
-                                                {{ $archivo['ruta'] ?? json_encode($archivo) }}
-                                            @else
-                                                {{ $archivo ?? 'No hay archivo subido' }}
-                                            @endif
-
-                                        </div>
-
                                     </div>
                                 @endif
                             </div>

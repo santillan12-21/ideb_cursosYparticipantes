@@ -13,6 +13,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class CursosExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
@@ -184,9 +185,13 @@ class CursosExport implements FromCollection, WithHeadings, WithMapping, WithSty
     }
 
     // Ajustar el ancho de las columnas
-    foreach (range('A', $lastColumn) as $column) {
-        $sheet->getColumnDimension($column)->setWidth(15);
-    }
+$lastColumnIndex = Coordinate::columnIndexFromString($lastColumn);
+
+for ($col = 1; $col <= $lastColumnIndex; $col++) {
+    $columnLetter = Coordinate::stringFromColumnIndex($col);
+    $sheet->getColumnDimension($columnLetter)->setWidth(15);
+}
+
 
     // Ancho adicional para columnas específicas
     $sheet->getColumnDimension('B')->setWidth(30); // Nombre del Curso

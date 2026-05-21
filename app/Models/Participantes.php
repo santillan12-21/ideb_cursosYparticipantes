@@ -54,7 +54,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|participantes whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class participantes extends Model
+class Participantes extends Model
 {
     use HasFactory;
 
@@ -65,57 +65,60 @@ class participantes extends Model
 
 
     protected $fillable = [
-        'N',
-        'NombredelPostulante',
-        'Correo',
-        'Telefono',
-        'Edad',
-        'Direccion',
-        'Escolaridad',
-        'Curp',
-        'RazónSocial',
-        'Empresa',
-        'RFCEmpresa',
-        'Ocupacion',
-        'Puesto',
-        'Pago',
-        'EstadoDePago',
-        'FechadelCurso',
-        'estatus'
+        'nombre',
+        'correo',
+        'telefono',
+        'edad',
+        'direccion',
+        'escolaridad',
+        'curp',
+        'razon_social',
+        'empresa',
+        'rfc_empresa',
+        'puesto',
+        'ocupacion',
+        'pago',
+        'estado_pago',
+        'fecha_curso',
+        'estatus',
+        'N'
     ];
 
-    public function setEstadoDePagoAttribute($value)
+    public function setEstadoPagoAttribute($value)
     {
         // Lista de valores permitidos
         $allowedValues = ['Pendiente', 'Pagado', 'Anticipo', 'Cancelado'];
 
         // Si el valor está en la lista permitida, guárdalo; de lo contrario, usa un valor predeterminado
         if (in_array($value, $allowedValues)) {
-            $this->attributes['EstadoDePago'] = $value;
+            $this->attributes['estado_pago'] = $value;
 
             // Si el estado de pago es "Cancelado", establecer el campo Pago en 0
             if ($value === 'Cancelado') {
-                $this->attributes['Pago'] = 0;
+                $this->attributes['pago'] = 0;
             }
         } else {
-            $this->attributes['EstadoDePago'] = 'Pagado'; // Valor predeterminado
+            $this->attributes['estado_pago'] = 'Pagado'; // Valor predeterminado
         }
     }
 
-    public function inscripciones()
-    {
-        return $this->hasMany(Inscripcion::class, 'participante_id');
-    }
-
-    public function getPagoAttribute($value)
-    {
-        return $value ?? '';
-    }
-
-    public function getEstadoDePagoAttribute($value)
-    {
-        return $value ?? 'Pago Pendiente';
-    }
+    // Accessors para mantener compatibilidad con la vista si usa CamelCase
+    public function getNombredelPostulanteAttribute() { return $this->attributes['nombre'] ?? ''; }
+    public function getCorreoAttribute() { return $this->attributes['correo'] ?? ''; }
+    public function getTelefonoAttribute() { return $this->attributes['telefono'] ?? ''; }
+    public function getEdadAttribute() { return $this->attributes['edad'] ?? ''; }
+    public function getDireccionAttribute() { return $this->attributes['direccion'] ?? ''; }
+    public function getEscolaridadAttribute() { return $this->attributes['escolaridad'] ?? ''; }
+    public function getCurpAttribute() { return $this->attributes['curp'] ?? ''; }
+    public function getRazónSocialAttribute() { return $this->attributes['razon_social'] ?? ''; }
+    public function getEmpresaAttribute() { return $this->attributes['empresa'] ?? ''; }
+    public function getRFCEmpresaAttribute() { return $this->attributes['rfc_empresa'] ?? ''; }
+    public function getPuestoAttribute() { return $this->attributes['puesto'] ?? ''; }
+    public function getOcupacionAttribute() { return $this->attributes['ocupacion'] ?? ''; }
+    public function getEstadoDePagoAttribute() { return $this->attributes['estado_pago'] ?? 'Pago Pendiente'; }
+    public function getFechadelCursoAttribute() { return $this->attributes['fecha_curso'] ?? ''; }
+    public function getNAttribute() { return $this->attributes['id'] ?? ''; }
+    public function getPagoAttribute() { return $this->attributes['pago'] ?? ''; }
 
 
     public function cursos()

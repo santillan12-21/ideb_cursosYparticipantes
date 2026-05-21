@@ -12,7 +12,6 @@
         }
         .letterhead {
             position: relative;
-            padding: 20px;
         }
         .letterhead-top {
             display: flex;
@@ -120,7 +119,6 @@
             text-align: right;
             font-size: 12px;
             color: #666;
-            margin-top: 20px;
         }
         @media print {
             .timestamp {
@@ -130,6 +128,20 @@
                 color: #000;
             }
         }
+
+        /* Pie de página */
+footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 50px;
+    text-align: right;
+    font-size: 12px;
+    color: #444;
+    border-top: 1px solid #ccc;
+    padding-top: 5px;
+}
+
     </style>
 </head>
 <body>
@@ -141,11 +153,11 @@
             <div class="contact-info">
                 <div class="contact-item">
                     <img src="{{ public_path('images/phone-icon.png') }}" alt="Teléfono">
-                    <span>33 2343 5465</span>
+                    <span>3337029639 / 3320705533</span>
                 </div>
                 <div class="contact-item">
                     <img src="{{ public_path('images/email-icon.png') }}" alt="Correo">
-                    <span>JMesarGJ@gmail.com</span>
+                    <span>instituto.ideb@idebmexico.com</span>
                 </div>
             </div>
         </div>
@@ -189,9 +201,9 @@
                 @endforeach
             @endif
         </div>
-        <div class="timestamp">
+        <footer>
             Impreso el: {{ \Carbon\Carbon::now('America/Mexico_City')->format('d/m/Y h:i:s A') }}
-        </div>
+        </footer>
     </div>
 </body>
 </html>

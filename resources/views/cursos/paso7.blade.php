@@ -142,9 +142,7 @@
                         <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('FormatoDC5')">Crear carpeta local</button>
                         <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
                             <input type="file" name="FormatoDC5Local" class="form-control">
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso7.FormatoDC5Local') }}
-                                </div>
+                               
                         </div>
                         @endif
                     </div>
@@ -197,9 +195,7 @@
                         <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CertificadoComprobacion')">Crear carpeta local</button>
                         <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
                             <input type="file" name="CertificadoComprobacionLocal" class="form-control">
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso7.CertificadoComprobacionLocal') }}
-                                </div>
+                               
                         </div>
                         @endif
                     </div>
@@ -238,9 +234,7 @@
                         <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CartaPoder')">Crear carpeta local</button>
                         <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
                             <input type="file" name="CartaPoderLocal" class="form-control">
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso7.CartaPoderLocal') }}
-                                </div>
+                              
                             
                         </div>
                          @endif
@@ -274,9 +268,7 @@
                         <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Udemy')">Crear carpeta local</button>
                         <div id="archivoUdemyContainer" style="display: none;" class="mt-2">
                             <input type="file" name="UdemyLocal" class="form-control">
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso7.UdemyLocal') }}
-                                </div>
+                                
                         </div>
                         @endif
                     </div>

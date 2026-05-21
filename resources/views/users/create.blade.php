@@ -13,7 +13,32 @@
     }
     label {
         font-weight: bold;
-
+    }
+    .back-arrow {
+        font-size: 1.5rem;
+        color: #333;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    .back-arrow:hover {
+        color: #007bff;
+    }
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .back-button-container {
+        position: absolute;
+        left: 0;
+    }
+    .botones {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
     }
 </style>
     
@@ -21,7 +46,16 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header" ><h1>{{ __('Crear Usuario') }}</h1></div>
+                <div class="card-header">
+                    <div class="header-container">
+                        <div class="back-button-container">
+                            <a href="{{ route('users.index') }}" class="back-arrow" title="Regresar">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                        </div>
+                        <h1 class="mb-0">{{ __('Crear Usuario') }}</h1>
+                    </div>
+                </div>
 
                 <div class="card-body">
                     @if ($errors->any())
@@ -39,7 +73,7 @@
 
                         <div class="mb-3">
                             <label for="name" class="form-label">{{ __('Nombre') }}</label>
-                            <input  style="width: 100%" id="name" type="text" class="form-control @error('name') is-invalid @enderror"
+                            <input style="width: 100%" id="name" type="text" class="form-control @error('name') is-invalid @enderror"
                                    name="name" value="{{ old('name') }}" required autofocus>
                             @error('name')
                                 <span class="invalid-feedback" role="alert">
@@ -62,7 +96,7 @@
                         <div class="mb-3">
                             <label for="edad" class="form-label">{{ __('Edad') }}</label>
                             <input id="edad" type="number" class="form-control @error('edad') is-invalid @enderror"
-                                   name="edad" value="{{ old('edad') }}" required min="0">
+                                   name="edad" value="{{ old('edad') }}" required min="18" max="90">
                             @error('edad')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -141,8 +175,8 @@
                             @enderror
                         </div>
 
-                        <div class='d-grid gap-2'>
-                            <button type='submit' class='btn btn-primary'>
+                        <div class='botones'>
+                            <button type='submit' class='btn btn-success'>
                                 {{ __('Registrar Usuario') }}
                             </button>
                             <a href="/users" class='btn btn-danger'>

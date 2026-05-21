@@ -124,7 +124,7 @@
                             <div id="archivoDigitalContainer" style="display:none;" class="mt-2">
                                 <input type="file" name="DigitalLocal" class="form-control">
                                 <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso5.DigitalLocal') ?? 'No hay archivo subido' }}
+                                     {{ session('cursos_paso5.DigitalLocal') }}
                                 </div>
                             </div>
                         @else
@@ -157,8 +157,9 @@
                         <div id="archivoImpresoPresentableContainer" style="display: none;" class="mt-2">
                             <input type="file" name="ImpresoPresentableLocal" class="form-control">
                        
+
                                 <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso5.ImpresoPresentableLocal') }}
+                                     {{ session('cursos_paso5.ImpresoPresentableLocal')  }}
                                 </div>
                            
                         </div>

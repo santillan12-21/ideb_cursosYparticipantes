@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use App\Models\RutaLocal;
 
-class RutaArchivosController extends Controller
+class   RutaArchivosController extends Controller
 {
     /**
      * Guarda una nueva ruta en la base de datos.
@@ -43,22 +43,10 @@ class RutaArchivosController extends Controller
                 'updated_at' => now(),
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Carpeta creada y ruta guardada correctamente.',
-                'data' => [
-                    'nombreCarpeta' => $nuevaRuta->nombre_carpeta,
-                    'rutaCarpeta' => $nuevaRuta->ruta_nombre_carpeta,
-                    'rutaCompleta' => $nuevaRuta->rutacompleta,
-                    'timestamp' => $nuevaRuta->created_at,
-                ]
-            ]);
+            return redirect()->route('ruta.archivos')->with('success', 'Carpeta creada y ruta guardada correctamente.');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al procesar la solicitud: ' . $e->getMessage()
-            ], 500);
+            return redirect()->route('ruta.archivos')->with('error', 'Error al procesar la solicitud: ' . $e->getMessage());
         }
     }
 

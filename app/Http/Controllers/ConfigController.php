@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use App\Models\CourseActionLog;
 use Illuminate\Support\Facades\Auth;
-use App\Models\cursos;
+use App\Models\Cursos;
 use App\Models\Setting;
 use App\Models\ParticipantActionLog;
 

@@ -18,8 +18,11 @@ class ArchivosController extends Controller
 
         $archivos = Storage::files($carpeta);
         $carpetas = Storage::directories($carpeta);
+        
+        // Obtener rutas locales físicas configuradas
+        $rutasLocales = \App\Models\RutaLocal::orderBy('created_at', 'desc')->get();
 
-        return view('archivos.index', compact('archivos', 'carpetas', 'carpeta'));
+        return view('archivos.index', compact('archivos', 'carpetas', 'carpeta', 'rutasLocales'));
     }
 
     // Método para subir archivos
