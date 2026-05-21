@@ -286,11 +286,10 @@
                             <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de desactivar este participante?')">
-                                    <i class="fas fa-user-slash"></i> Desactivar
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este participante? Se enviará a la papelera.')">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
                                 </button>
-                            </form>
-                        @endif
+                            </form>                        @endif
                     </td>
                 </tr>
                 @empty

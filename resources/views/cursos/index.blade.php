@@ -73,7 +73,7 @@
 <div class="container-fluid">
     <div class="table-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1><i class="fas fa-folder-open me-2 text-primary"></i>Lista de Cursos</h1>
+            <h1>Lista de Cursos</h1>
             <div>
                 <a href="{{ route('cursos.papelera') }}" class="btn btn-secondary shadow-sm me-2">
                     <i class="fas fa-trash-alt me-1"></i> Papelera
@@ -111,8 +111,8 @@
                             <td>{{ $curso->InstructorResponsable }}</td>
                             <td class="text-success fw-bold">${{ number_format((float)$curso->CostodelCurso, 2) }}</td>
                             <td>
-                                <span class="badge {{ $curso->status ? 'bg-success' : 'bg-danger' }}">
-                                    {{ $curso->status ? 'Activo' : 'Inactivo' }}
+                                <span class="badge {{ $curso->status == 1 ? 'bg-success' : ($curso->status == 0 ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                    {{ $curso->status == 1 ? 'Activo' : ($curso->status == 0 ? 'Suspendido' : 'Eliminado') }}
                                 </span>
                             </td>
                             <td class="text-center">
@@ -120,13 +120,19 @@
                                     <a href="{{ route('cursos.show', $curso->id) }}" class="btn btn-sm btn-outline-info" title="Ver"><i class="fas fa-eye"></i></a>
                                     <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="fas fa-edit"></i></a>
                                     <a href="{{ route('subcursos.iniciar', $curso->id) }}" class="btn btn-sm btn-outline-primary" title="Añadir Subcurso"><i class="fas fa-plus"></i></a>
-                                    <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline;">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Desactivar"><i class="fas fa-power-off"></i></button>
+                                    
+                                    <!-- Botón Suspender/Activar -->
+                                    <form action="{{ route('cursos.toggle-status', $curso->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ $curso->status == 1 ? 'Suspender' : 'Activar' }}">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
                                     </form>
-                                    <form action="{{ route('cursos.eliminar-definitivo', ['id' => $curso->id]) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Borrar definitivamente?')">
+
+                                    <!-- Botón Eliminar (Papelera) -->
+                                    <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Enviar curso a la papelera?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Borrar"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="fas fa-trash"></i> Eliminar</button>
                                     </form>
                                 </div>
                             </td>

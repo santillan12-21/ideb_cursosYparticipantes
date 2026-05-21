@@ -70,6 +70,7 @@ Route::post('/curso/paso7', [CursoController::class, 'guardarPaso7'])->name('cur
 //Vista, modificacion, "eliminacion" y consulta de los cursos
 Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
 Route::get('/cursos/papelera', [CursoController::class, 'papelera'])->name('cursos.papelera');
+Route::post('/cursos/{id}/toggle-status', [CursoController::class, 'toggleStatus'])->name('cursos.toggle-status');
 Route::resource('cursos', CursoController::class);
 Route::get('/curso/editar', [CursoController::class, 'mostrarEdicion'])->name('curso.editar');
 //Para obtener la fecha de inicio de cursos para participantes

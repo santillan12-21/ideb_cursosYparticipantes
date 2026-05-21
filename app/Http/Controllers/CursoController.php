@@ -25,8 +25,8 @@ class CursoController extends Controller
     {
         $instructor = $request->get('instructor');
 
-        // Mostramos solo los cursos principales (parent_id = null) y activos (status = 1)
-        $query = Cursos::whereNull('parent_id')->where('status', 1);
+        // Mostramos los cursos principales (parent_id = null) que estén activos (1) o suspendidos (0)
+        $query = Cursos::whereNull('parent_id')->whereIn('status', [0, 1]);
 
         if ($instructor) {
             $query->where('instructor_responsable', $instructor);
@@ -42,51 +42,59 @@ class CursoController extends Controller
 
     public function papelera()
     {
-        // Cursos principales inactivos
-        $cursos = Cursos::whereNull('parent_id')->where('status', 0)->orderBy('updated_at', 'desc')->get();
+        // Cursos en la papelera (status = 2)
+        $cursos = Cursos::whereNull('parent_id')->where('status', 2)->orderBy('updated_at', 'desc')->get();
         return view('cursos.papelera', compact('cursos'));
     }
 
-
     /**
-     * Mostrar detalles de un curso.
-     */
-    public function show(string $id)
-    {
-        $curso = Cursos::findOrFail($id);
-        return view('cursos.show', compact('curso'));
-    }
-
-    /**
-     * Iniciar el proceso de edición de un curso (muestra los pasos).
-     */
-    public function edit(Cursos $curso)
-    {
-        $coloresPorPaso = $this->calcularProgresoPaso($curso);
-        return view('cursos.edit', compact('curso', 'coloresPorPaso'));
-    }
-
-    /**
-     * Desactivar un curso (status = 0).
+     * Mover un curso a la papelera (status = 2).
      */
     public function destroy(string $id)
     {
         try {
             $curso = Cursos::findOrFail($id);
-            $curso->update(['status' => 0]);
+            $curso->update(['status' => 2]);
 
             CourseActionLog::create([
                 'curso_id' => $curso->id,
                 'nombre_curso' => $curso->nombre,
                 'user_id' => Auth::id(),
-                'accion' => 'Desactivado',
-                'detalles' => 'Curso marcado como inactivo por el usuario.',
+                'accion' => 'Eliminado',
+                'detalles' => 'Curso enviado a la papelera.',
                 'fecha_accion' => now(),
             ]);
 
-            return redirect()->route('cursos.index')->with('success', 'Curso desactivado exitosamente.');
+            return redirect()->route('cursos.index')->with('success', 'Curso enviado a la papelera.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error al desactivar el curso: ' . $e->getMessage());
+            return back()->with('error', 'Error al enviar a la papelera: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Suspender o Activar un curso (alternar entre status 0 y 1).
+     */
+    public function toggleStatus($id)
+    {
+        try {
+            $curso = Cursos::findOrFail($id);
+            $newStatus = ($curso->status == 1) ? 0 : 1;
+            $curso->update(['status' => $newStatus]);
+            
+            $accion = $newStatus == 1 ? 'Activado' : 'Suspendido';
+
+            CourseActionLog::create([
+                'curso_id' => $curso->id,
+                'nombre_curso' => $curso->nombre,
+                'user_id' => Auth::id(),
+                'accion' => $accion,
+                'detalles' => "Curso $accion por el usuario.",
+                'fecha_accion' => now(),
+            ]);
+
+            return redirect()->route('cursos.index')->with('success', "Curso $accion exitosamente.");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al cambiar el estado del curso: ' . $e->getMessage());
         }
     }
 

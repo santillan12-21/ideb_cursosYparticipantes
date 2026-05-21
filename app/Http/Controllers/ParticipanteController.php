@@ -276,7 +276,7 @@ public function papelera(Request $request)
             'fecha_accion' => now(),
         ]);
 
-        return redirect()->route('participantes.index')->with('success', 'Participante desactivado exitosamente.');
+        return redirect()->route('participantes.index')->with('success', 'Participante enviado a la papelera.');
     }
 
     /**
