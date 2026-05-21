@@ -6,7 +6,7 @@
     <h3 class="text-center mt-5">Detalles del Participante</h3>
     
     <div class="text-center mt-3 mb-4">
-        @if(auth()->user()->puesto != 'Operacion')
+        @if(auth()->user()?->puesto != 'Operacion')
         <a href="{{ route('participantes.descargar-pdf', ['id' => $participante->id]) }}" class="btn btn-primary">
             <i class="fas fa-download"></i> Descargar PDF
         </a>

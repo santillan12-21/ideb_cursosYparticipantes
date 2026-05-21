@@ -526,7 +526,7 @@ body .navbar-fijo {
     
   @php
     use Illuminate\Support\Facades\Auth;
-    $userRole = auth()->user()->puesto ?? 'guest';
+    $userRole = auth()->user()?->puesto ?? 'guest';
   @endphp
 
    @auth
@@ -548,7 +548,7 @@ body .navbar-fijo {
                 </button>
                 <div class="user-dropdown" id="userDropdown">
                     <div class="user-info">
-                        <div class="user-name">{{ auth()->user()->name }} {{ ucfirst(auth()->user()->puesto) }}</div>
+                        <div class="user-name">{{ auth()->user()->name }} {{ ucfirst(auth()->user()?->puesto) }}</div>
                         <div class="user-role"></div>
                     </div>
                     
@@ -582,7 +582,7 @@ body .navbar-fijo {
             <i class="fa-solid fa-circle-user"></i> <span>Perfil</span>
         </a>
     </li>
-    @if(auth()->user()->puesto == 'Programador' || auth()->user()->puesto == 'Administrador')
+    @if(auth()->user()?->puesto == 'Programador' || auth()->user()?->puesto == 'Administrador')
     <li class="nav-item">
       <a href="{{ route('configuraciones.index') }}" class="nav-link menu-item {{ request()->is('configuraciones') ? 'active' : '' }}">
           <i class="fas fa-cog"></i> <span>Configuración</span>
@@ -591,7 +591,7 @@ body .navbar-fijo {
      @endif
 
   @endauth
-  @if(auth()->user()->puesto != 'Mantenimiento')
+  @if(auth()->user()?->puesto != 'Mantenimiento')
     <li class="nav-item">
         <a href="/users" class="nav-link menu-item {{ request()->is('users') ? 'active' : '' }}">
            <i class="fa-solid fa-user-plus"></i> <span>Creación usuario</span>
@@ -605,7 +605,7 @@ body .navbar-fijo {
         </a>
   </li>
  
-  @if(auth()->user()->puesto != 'Operacion')
+  @if(auth()->user()?->puesto != 'Operacion')
   <li class="nav-item">
         <a  href="/registro" class="nav-link menu-item {{ request()->is('registro') ? 'active' : '' }}">
             <i class="fa-solid fa-pencil"></i> <span>Registro de participante</span>
@@ -613,7 +613,7 @@ body .navbar-fijo {
   </li>
     @endif
 
-   @if(auth()->user()->puesto != 'Operacion')
+   @if(auth()->user()?->puesto != 'Operacion')
   <li class="nav-item">
         <a  href="/participantes" class="nav-link menu-item {{ request()->is('participantes') ? 'active' : '' }}">
            <i class="fa-solid fa-person"></i><span>Participantes</span>

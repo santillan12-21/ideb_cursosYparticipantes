@@ -90,7 +90,7 @@
 <body>
     @php
         use Illuminate\Support\Facades\Auth;
-        $userRole = auth()->user()->puesto ?? 'guest';
+        $userRole = auth()->user()?->puesto ?? 'guest';
     @endphp
     <header>
         <div class="header-left">

@@ -199,7 +199,7 @@
         </div>
     </div>
 
-    @if(auth()->user()->puesto != 'Operacion')
+    @if(auth()->user()?->puesto != 'Operacion')
         <a href="{{ route('exportar.excel') }}" class="btn btn-success">Exportar a Excel</a>
         <a href="{{ route('exportar.csv') }}" class="btn btn-primary">Exportar a CSV</a>
     @endif
@@ -248,7 +248,9 @@
                     @if($participante->estatus == 0)
                         <td>{{ $participante->N }}</td>
                         <td>{{ $participante->NombredelPostulante }}</td>
-                        <td colspan="15">Inactivo</td>
+                        <td>{{ $participante->Correo }}</td>
+                        <td>{{ $participante->Telefono }}</td>
+                        <td colspan="12" class="text-danger fw-bold">DESACTIVADO</td>
                     @else
                         <td>{{ $participante->N }}</td>
                         <td>{{ $participante->NombredelPostulante }}</td>
@@ -280,17 +282,34 @@
                         <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn btn-sm btn-info" target="_blank">
                             <i class="fas fa-eye"></i> Ver
                         </a>
-                        @if(auth()->user()->puesto != 'Operacion')
-                            <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn btn-sm btn-primary">
-                                <i class="fas fa-edit"></i> Editar
-                            </a>
-                            <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este participante?')">
-                                    <i class="fas fa-trash"></i> Eliminar
-                                </button>
-                            </form>
+                        @if(auth()->user()?->puesto != 'Operacion')
+                            @if($participante->estatus == 1)
+                                <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de desactivar este participante?')">
+                                        <i class="fas fa-user-slash"></i> Desactivar
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('participantes.activar', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Deseas reactivar este participante?')">
+                                        <i class="fas fa-user-check"></i> Activar
+                                    </button>
+                                </form>
+                                <form action="{{ route('participantes.eliminar-definitivo', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="password" name="password" placeholder="Pass Admin" class="form-control form-control-sm d-inline w-auto" required>
+                                    <button type="submit" class="btn btn-sm btn-dark" onclick="return confirm('¿ELIMINAR DEFINITIVAMENTE? Esta acción no se puede deshacer.')">
+                                        <i class="fas fa-trash-alt"></i> Borrar
+                                    </button>
+                                </form>
+                            @endif
                         @endif
                     </td>
                 </tr>

@@ -120,6 +120,11 @@ class Participantes extends Model
     public function getNAttribute() { return $this->attributes['id'] ?? ''; }
     public function getPagoAttribute() { return $this->attributes['pago'] ?? ''; }
 
+    // Mutator para convertir CURP a mayúsculas automáticamente
+    public function setCurpAttribute($value)
+    {
+        $this->attributes['curp'] = strtoupper($value);
+    }
 
     public function cursos()
     {

@@ -117,10 +117,12 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <label for="Telefono" class="form-label">Teléfono</label>
+                        <label for="Telefono" class="form-label">Teléfono (10 dígitos)</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                            <input type="text" class="form-control" id="Telefono" name="Telefono" value="{{ old('Telefono', $participante->Telefono) }}" required readonly>
+                            <input type="text" class="form-control" id="Telefono" name="Telefono" 
+                                   value="{{ old('Telefono', $participante->Telefono) }}" 
+                                   maxlength="10" pattern="\d{10}" title="El teléfono debe tener 10 dígitos numéricos" required readonly>
                             <span class="input-group-text d-none editing-indicator">Editando</span>
                         </div>
                     </div>
@@ -141,10 +143,12 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label for="Curp" class="form-label">CURP</label>
+                        <label for="Curp" class="form-label">CURP (18 caracteres)</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fingerprint"></i></span>
-                            <input type="text" class="form-control" id="Curp" name="Curp" value="{{ old('Curp', $participante->Curp) }}" required readonly>
+                            <input type="text" class="form-control" id="Curp" name="Curp" 
+                                   value="{{ old('Curp', $participante->Curp) }}" 
+                                   maxlength="18" minlength="18" style="text-transform: uppercase;" required readonly>
                             <span class="input-group-text d-none editing-indicator">Editando</span>
                         </div>
                     </div>

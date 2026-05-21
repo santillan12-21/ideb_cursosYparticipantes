@@ -113,7 +113,7 @@ class CursoController extends Controller
     public function eliminarDefinitivo(Request $request, $id)
     {
         try {
-            if (Auth::user()->puesto != 'Administrador') {
+            if (Auth::user()?->puesto != 'Administrador') {
                 return back()->with('error', 'No tienes permisos para realizar esta acción.');
             }
 
@@ -183,8 +183,9 @@ class CursoController extends Controller
 
     public function guardarPaso1(Request $request)
     {
+        $cursoId = session('curso_id');
         $validated = $request->validate([
-            'Nomenclatura' => 'required|string|max:255',
+            'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $cursoId,
             'NombredelCurso' => 'required|string|max:255',
             'DescripciondeCurso' => 'required|string|max:2000',
             'CostodelCurso' => 'required|numeric',
@@ -194,7 +195,6 @@ class CursoController extends Controller
             'Duracioncurso' => 'required|string|max:255',
         ]);
 
-        $cursoId = session('curso_id');
         $curso = Cursos::findOrFail($cursoId);
 
         $curso->update([
@@ -335,6 +335,12 @@ class CursoController extends Controller
 
     public function updatePaso(Request $request, Cursos $curso, $paso)
     {
+        if ($paso == 1) {
+            $request->validate([
+                'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $curso->id,
+            ]);
+        }
+
         $map = [
             'Nomenclatura' => 'nomenclatura', 'NombredelCurso' => 'nombre', 'DescripciondeCurso' => 'descripcion', 'CostodelCurso' => 'costo',
             'InstructorResponsable' => 'instructor_responsable', 'FechadeInicio' => 'fecha_inicio', 'FechadeTermino' => 'fecha_termino',

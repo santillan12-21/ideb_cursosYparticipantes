@@ -110,17 +110,23 @@
                 @csrf
                 <div class="mb-3">
                     @if (session('nomenclatura_generada'))
-                        <input type="text" name="Nomenclatura" class="form-control"
+                        <input type="text" name="Nomenclatura" class="form-control @error('Nomenclatura') is-invalid @enderror"
                             value="{{ session('nomenclatura_generada') }}"
                             readonly required>
                     @else
-                        <input type="text" name="Nomenclatura" class="form-control"
-                            placeholder="Nomenclatura" required>
+                        <input type="text" name="Nomenclatura" class="form-control @error('Nomenclatura') is-invalid @enderror"
+                            placeholder="Nomenclatura" value="{{ old('Nomenclatura') }}" required>
                     @endif
+                    @error('Nomenclatura')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div> 
 
                 <div class="mb-3">
-                    <input type="text" name="NombredelCurso" class="form-control" placeholder="Nombre del Curso"   value="{{ old('NombredelCurso', $curso->NombredelCurso ?? '') }}" required>
+                    <input type="text" name="NombredelCurso" class="form-control @error('NombredelCurso') is-invalid @enderror" placeholder="Nombre del Curso"   value="{{ old('NombredelCurso', $curso->NombredelCurso ?? '') }}" required>
+                    @error('NombredelCurso')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="mb-3">
                 <textarea name="DescripciondeCurso" class="form-control" rows="3" placeholder="Descripción del Curso" required>

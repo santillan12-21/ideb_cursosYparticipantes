@@ -8,8 +8,12 @@
         @method('PUT')
 
         <div class="mb-3">
-            <input type="text" name="Nomenclatura" class="form-control" placeholder="Nomenclatura"
-                   value="{{ $curso->Nomenclatura }}" required>
+            <label class="form-label">Nomenclatura</label>
+            <input type="text" name="Nomenclatura" class="form-control @error('Nomenclatura') is-invalid @enderror" placeholder="Nomenclatura"
+                   value="{{ old('Nomenclatura', $curso->Nomenclatura) }}" required>
+            @error('Nomenclatura')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
         <div class="mb-3">
             <input type="text" name="NombredelCurso" class="form-control" placeholder="Nombre del Curso"

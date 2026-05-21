@@ -88,42 +88,60 @@
 
         <!-- Teléfono -->
         <div class="mb-3">
-            <label for="Telefono" class="form-label">Teléfono</label>
-            <input type="text" class="form-control" id="Telefono" name="Telefono" required>
+            <label for="Telefono" class="form-label">Teléfono (10 dígitos)</label>
+            <input type="text" class="form-control @error('Telefono') is-invalid @enderror" id="Telefono" name="Telefono" 
+                   value="{{ old('Telefono') }}" maxlength="10" pattern="\d{10}" title="Debe tener 10 dígitos numéricos" required>
+            @error('Telefono')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Edad -->
         <div class="mb-3">
             <label for="Edad" class="form-label">Edad</label>
-            <input type="number" class="form-control" id="Edad" name="Edad" min="18" max="90" required>
+            <input type="number" class="form-control @error('Edad') is-invalid @enderror" id="Edad" name="Edad" 
+                   value="{{ old('Edad') }}" min="18" max="90" required>
+            @error('Edad')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Dirección -->
         <div class="mb-3">
             <label for="Direccion" class="form-label">Dirección</label>
-            <input type="text" class="form-control" id="Direccion" name="Direccion" required>
+            <input type="text" class="form-control @error('Direccion') is-invalid @enderror" id="Direccion" name="Direccion" 
+                   value="{{ old('Direccion') }}" required>
+            @error('Direccion')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Escolaridad -->
         <div class="mb-3">
             <label for="Escolaridad" class="form-label">Escolaridad</label>
-            <select class="form-select form-control" id="Escolaridad" name="Escolaridad" required>
-                <option value="" disabled selected>Seleccione escolaridad</option>
-                <option value="Primaria">Primaria</option>
-                <option value="Secundaria">Secundaria</option>
-                <option value="Preparatoria">Preparatoria</option>
-                <option value="Licenciatura">Licenciatura</option>
-                <option value="Maestría">Maestría</option>
-                <option value="Doctorado">Doctorado</option>
-                <option value="Otro">Otro</option>
+            <select class="form-select form-control @error('Escolaridad') is-invalid @enderror" id="Escolaridad" name="Escolaridad" required>
+                <option value="" disabled {{ old('Escolaridad') ? '' : 'selected' }}>Seleccione escolaridad</option>
+                <option value="Primaria" {{ old('Escolaridad') == 'Primaria' ? 'selected' : '' }}>Primaria</option>
+                <option value="Secundaria" {{ old('Escolaridad') == 'Secundaria' ? 'selected' : '' }}>Secundaria</option>
+                <option value="Preparatoria" {{ old('Escolaridad') == 'Preparatoria' ? 'selected' : '' }}>Preparatoria</option>
+                <option value="Licenciatura" {{ old('Escolaridad') == 'Licenciatura' ? 'selected' : '' }}>Licenciatura</option>
+                <option value="Maestría" {{ old('Escolaridad') == 'Maestría' ? 'selected' : '' }}>Maestría</option>
+                <option value="Doctorado" {{ old('Escolaridad') == 'Doctorado' ? 'selected' : '' }}>Doctorado</option>
+                <option value="Otro" {{ old('Escolaridad') == 'Otro' ? 'selected' : '' }}>Otro</option>
             </select>
+            @error('Escolaridad')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- CURP -->
         <div class="mb-3">
-            <label for="Curp" class="form-label">CURP</label>
-            <input type="text" class="form-control" id="Curp" name="Curp" required oninput="validarCURP(this)">
-            <small id="curpError" class="text-danger" style="display: none;">La CURP debe tener 18 caracteres.</small>
+            <label for="Curp" class="form-label">CURP (18 caracteres)</label>
+            <input type="text" class="form-control @error('Curp') is-invalid @enderror" id="Curp" name="Curp" 
+                   value="{{ old('Curp') }}" maxlength="18" minlength="18" style="text-transform: uppercase;" required>
+            @error('Curp')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Razón Social -->

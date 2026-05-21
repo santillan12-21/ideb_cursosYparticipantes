@@ -91,12 +91,12 @@ public function index(Request $request)
         $validated = $request->validate([
             'N' => 'required|string|max:255', // Validar que N esté presente
             'NombredelPostulante' => 'required|string|max:255',
-            'Correo' => 'required|email|max:255',
-            'Telefono' => 'required|string|max:255',
+            'Correo' => 'required|email|max:255|unique:participantes,correo,' . $id,
+            'Telefono' => 'required|string|size:10',
             'Edad' => 'required|integer|min:18|max:90',
             'Direccion' => 'required|string|max:255',
             'Escolaridad' => 'required|string|max:255',
-            'Curp' => 'required|string|max:255',
+            'Curp' => 'required|string|size:18|unique:participantes,curp,' . $id,
             'RazónSocial' => 'nullable|string|max:255',
             'Empresa' => 'required|string|max:255',
             'RFCEmpresa' => 'nullable|string|max:255',
@@ -109,6 +109,9 @@ public function index(Request $request)
         ], [
             'Edad.min' => 'La edad mínima permitida es de 18 años.',
             'Edad.max' => 'La edad máxima permitida es de 90 años.',
+            'Telefono.size' => 'El teléfono debe tener exactamente 10 dígitos.',
+            'Curp.size' => 'La CURP debe tener exactamente 18 caracteres.',
+            'Curp.unique' => 'Esta CURP ya está registrada.',
         ]);
 
             Log::info('Datos validados:', $validated);  // Log para debug
@@ -162,29 +165,32 @@ public function index(Request $request)
      * Guardar un nuevo participante en la base de datos.
      */
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'N' => 'required|string|max:255',
-        'NombredelPostulante' => 'required|string|max:255',
-        'Correo' => 'required|email|max:255',
-        'Telefono' => 'required|string|max:255',
-        'Edad' => 'required|integer|min:18|max:90',
-        'Direccion' => 'required|string|max:255',
-        'Escolaridad' => 'required|string|max:255',
-        'Curp' => 'required|string|max:255',
-        'RazónSocial' => 'nullable|string|max:255',
-        'Empresa' => 'required|string|max:255',
-        'RFCEmpresa' => 'nullable|string|max:255',
-        'Puesto' => 'required|string|max:255',
-        'Ocupacion' => 'required|string|max:255',
-        'Pago' => 'nullable|numeric',
-        'EstadoDePago' => 'required|string|max:255',
-        'FechadelCurso' => 'required|date',
-        'cursos' => 'required|array|min:1',
-    ], [
-        'Edad.min' => 'La edad mínima permitida es de 18 años.',
-        'Edad.max' => 'La edad máxima permitida es de 90 años.',
-    ]);
+    {
+     $validated = $request->validate([
+         'N' => 'required|string|max:255',
+         'NombredelPostulante' => 'required|string|max:255',
+         'Correo' => 'required|email|max:255|unique:participantes,correo',
+         'Telefono' => 'required|string|size:10', // Forzar exactamente 10
+         'Edad' => 'required|integer|min:18|max:90',
+         'Direccion' => 'required|string|max:255',
+         'Escolaridad' => 'required|string|max:255',
+         'Curp' => 'required|string|size:18|unique:participantes,curp',
+         'RazónSocial' => 'nullable|string|max:255',
+         'Empresa' => 'required|string|max:255',
+         'RFCEmpresa' => 'nullable|string|max:255',
+         'Puesto' => 'required|string|max:255',
+         'Ocupacion' => 'required|string|max:255',
+         'Pago' => 'nullable|numeric',
+         'EstadoDePago' => 'required|string|max:255',
+         'FechadelCurso' => 'required|date',
+         'cursos' => 'required|array|min:1',
+     ], [
+         'Edad.min' => 'La edad mínima permitida es de 18 años.',
+         'Edad.max' => 'La edad máxima permitida es de 90 años.',
+         'Telefono.size' => 'El teléfono debe tener exactamente 10 dígitos.',
+         'Curp.size' => 'La CURP debe tener exactamente 18 caracteres.',
+         'Curp.unique' => 'Esta CURP ya está registrada.',
+     ]);
 
     // Mapear los datos validados a los nombres de columna reales de la base de datos
     $participanteData = [
@@ -200,7 +206,7 @@ public function index(Request $request)
         'rfc_empresa' => $validated['RFCEmpresa'],
         'puesto' => $validated['Puesto'],
         'ocupacion' => $validated['Ocupacion'],
-        'pago' => $validated['Pago'],
+        'pago' => $validated['Pago'] ?? 0,
         'estado_pago' => $validated['EstadoDePago'],
         'fecha_curso' => $validated['FechadelCurso'],
         'estatus' => 1,
@@ -374,7 +380,7 @@ public function index(Request $request)
                     'fecha_accion' => now(),
                 ]);
 
-                return redirect()->route('configuraciones.index')->with('success', 'Participante activado exitosamente.');
+                return redirect()->route('participantes.index')->with('success', 'Participante activado exitosamente.');
             } catch (\Exception $e) {
                 return back()->with('error', 'Error al activar el participante: ' . $e->getMessage());
             }
@@ -408,7 +414,7 @@ public function index(Request $request)
                         'fecha_accion' => now(),
                     ]);
 
-                    return redirect()->route('configuraciones.index')->with('success', 'Participante eliminado definitivamente.');
+                    return redirect()->route('participantes.index')->with('success', 'Participante eliminado definitivamente.');
                 } catch (\Exception $e) {
                     return back()->with('error', 'Error al eliminar el participante: ' . $e->getMessage());
                 }

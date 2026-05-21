@@ -71,8 +71,9 @@
             <input type="email" class="form-control" id="Correo" name="Correo" required>
         </div>
         <div class="mb-3">
-            <label for="Telefono" class="form-label">Teléfono</label>
-            <input type="text" class="form-control" id="Telefono" name="Telefono" required>
+            <label for="Telefono" class="form-label">Teléfono (10 dígitos)</label>
+            <input type="text" class="form-control" id="Telefono" name="Telefono" 
+                   maxlength="10" pattern="\d{10}" title="El teléfono debe tener 10 dígitos numéricos" required>
         </div>
         <div class="mb-3">
             <label for="Edad" class="form-label">Edad</label>
@@ -96,8 +97,9 @@
             </select>
         </div>
         <div class="mb-3">
-            <label for="Curp" class="form-label">CURP</label>
-            <input type="text" class="form-control" id="Curp" name="Curp" required>
+            <label for="Curp" class="form-label">CURP (18 caracteres)</label>
+            <input type="text" class="form-control" id="Curp" name="Curp" 
+                   maxlength="18" minlength="18" style="text-transform: uppercase;" required>
         </div>
         <div class="mb-3">
             <label for="RazónSocial" class="form-label">Razón Social</label>

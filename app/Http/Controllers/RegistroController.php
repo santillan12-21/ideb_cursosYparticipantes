@@ -15,29 +15,32 @@ class RegistroController extends Controller
         return view('registro.index', compact('cursos'));
     }
 
-   public function store(Request $request)
-   {
-    $rules = [
-        'NombredelPostulante' => 'required|string|max:255',
-        'Correo' => 'required|email|max:255',
-        'Telefono' => 'required|string|max:255',
-        'Edad' => 'required|integer|min:18|max:90',
-        'Direccion' => 'required|string|max:255',
-        'Escolaridad' => 'required|string|max:255',
-        'Curp' => 'required|string|max:18',
-        'RazónSocial' => 'required|string|max:200',
-        'Empresa' => 'required|string|max:255',
-        'RFCEmpresa' => 'required|string|max:100',
-        'Ocupacion' => 'required|string|max:255',
-        'Puesto' => 'required|string|max:255',
-        'EstadoDePago' => 'required|string|max:255',
-        'cursos' => 'required|array|min:1',
-    ];
+    public function store(Request $request)
+    {
+        $rules = [
+            'NombredelPostulante' => 'required|string|max:255',
+            'Correo' => 'required|email|max:255|unique:participantes,correo',
+            'Telefono' => 'required|string|size:10',
+            'Edad' => 'required|integer|min:18|max:90',
+            'Direccion' => 'required|string|max:255',
+            'Escolaridad' => 'required|string|max:255',
+            'Curp' => 'required|string|size:18|unique:participantes,curp',
+            'RazónSocial' => 'required|string|max:200',
+            'Empresa' => 'required|string|max:255',
+            'RFCEmpresa' => 'required|string|max:100',
+            'Ocupacion' => 'required|string|max:255',
+            'Puesto' => 'required|string|max:255',
+            'EstadoDePago' => 'required|string|max:255',
+            'cursos' => 'required|array|min:1',
+        ];
 
-    $messages = [
-        'Edad.min' => 'La edad mínima permitida es de 18 años.',
-        'Edad.max' => 'La edad máxima permitida es de 90 años.',
-    ];
+        $messages = [
+            'Edad.min' => 'La edad mínima permitida es de 18 años.',
+            'Edad.max' => 'La edad máxima permitida es de 90 años.',
+            'Telefono.size' => 'El teléfono debe tener exactamente 10 dígitos.',
+            'Curp.size' => 'La CURP debe tener exactamente 18 caracteres.',
+            'Curp.unique' => 'Esta CURP ya está registrada.',
+        ];
 
     if (in_array($request->EstadoDePago, ['Pagado', 'Anticipo'])) {
         $rules['Pago'] = ['required', 'regex:/^\d+(\.\d{1,2})?$/'];
