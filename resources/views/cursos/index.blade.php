@@ -74,9 +74,14 @@
     <div class="table-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1><i class="fas fa-folder-open me-2 text-primary"></i>Lista de Cursos</h1>
-            <a href="{{ route('curso.iniciar') }}" class="btn btn-success shadow-sm">
-                <i class="fas fa-plus me-1"></i> Nuevo Curso
-            </a>
+            <div>
+                <a href="{{ route('cursos.papelera') }}" class="btn btn-secondary shadow-sm me-2">
+                    <i class="fas fa-trash-alt me-1"></i> Papelera
+                </a>
+                <a href="{{ route('curso.iniciar') }}" class="btn btn-success shadow-sm">
+                    <i class="fas fa-plus me-1"></i> Nuevo Curso
+                </a>
+            </div>
         </div>
 
         <div class="table-responsive">

@@ -47,8 +47,11 @@
     @if(session('success'))
         <div class="success-message">{{ session('success') }}</div>
     @endif
-    <div class="mb-3">
+    <div class="mb-3 d-flex justify-content-between">
         <a href="{{ route('users.create') }}" class="btn-custom">Crear Nuevo Usuario</a>
+        <a href="{{ route('users.papelera') }}" class="btn btn-secondary">
+            <i class="fas fa-trash-alt"></i> Ver Papelera
+        </a>
     </div>
     <div class="table-responsive">
         <table class="users-table">

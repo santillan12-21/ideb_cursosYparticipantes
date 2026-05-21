@@ -24,7 +24,7 @@ public function index(Request $request)
 {
     $cursos = Cursos::all();
 
-    $query = Participantes::orderBy('id', 'asc');
+    $query = Participantes::where('estatus', 1)->orderBy('id', 'asc');
 
     if ($request->has('search') && !empty($request->search)) {
         $query->where(function ($q) use ($request) {
@@ -55,6 +55,22 @@ public function index(Request $request)
     $participantes = $query->with('cursos')->paginate(10);
 
     return view('participantes.index', compact('cursos', 'participantes'));
+}
+
+public function papelera(Request $request)
+{
+    $cursos = Cursos::all();
+    $query = Participantes::where('estatus', 0)->orderBy('updated_at', 'desc');
+
+    if ($request->filled('search')) {
+        $query->where(function ($q) use ($request) {
+            $q->where('nombre', 'like', '%' . $request->search . '%')
+              ->orWhere('correo', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    $participantes = $query->with('cursos')->paginate(10);
+    return view('participantes.papelera', compact('cursos', 'participantes'));
 }
 
 

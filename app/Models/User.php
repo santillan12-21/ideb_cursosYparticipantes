@@ -63,7 +63,8 @@ class User extends Authenticatable
         'plain_password',
         'puesto',
         'telefono',
-        'edad'
+        'edad',
+        'estatus'
     ];
 
     /**

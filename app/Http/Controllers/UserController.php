@@ -11,8 +11,21 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::where('estatus', 1)->get();
         return view('users.index', compact('users'));
+    }
+
+    public function papelera()
+    {
+        $users = User::where('estatus', 0)->get();
+        return view('users.papelera', compact('users'));
+    }
+
+    public function activar($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['estatus' => 1]);
+        return redirect()->route('users.index')->with('success', 'Usuario reactivado exitosamente.');
     }
 
     public function create()
@@ -97,8 +110,24 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'Usuario eliminado exitosamente');
+        
+        // Si el usuario ya está desactivado, lo borramos definitivamente
+        if ($user->estatus == 0) {
+            // No permitir que el usuario se borre a sí mismo
+            if ($user->id === Auth::id()) {
+                return back()->with('error', 'No puedes eliminar tu propia cuenta definitivamente.');
+            }
+            $user->delete();
+            return redirect()->route('users.papelera')->with('success', 'Usuario eliminado definitivamente.');
+        }
+
+        // Si está activo, lo desactivamos (enviamos a papelera)
+        if ($user->id === Auth::id()) {
+            return back()->with('error', 'No puedes desactivar tu propia cuenta.');
+        }
+
+        $user->update(['estatus' => 0]);
+        return redirect()->route('users.index')->with('success', 'Usuario enviado a la papelera.');
     }
 
     public function profile()

@@ -152,8 +152,13 @@
 
     <h2 class="text-center mt-5">Participantes Inscritos</h2>
 
-    <div class="text-center mb-4">
+    <div class="d-flex justify-content-between mb-4">
         <button id="toggleFilters" class="btn btn-primary">Mostrar/Ocultar Filtros</button>
+        @if(auth()->user()?->puesto != 'Operacion')
+            <a href="{{ route('participantes.papelera') }}" class="btn btn-secondary">
+                <i class="fas fa-trash-alt"></i> Ver Papelera
+            </a>
+        @endif
     </div>
 
     <div id="filtersContainer" class="row mb-4" style="display: none;">
@@ -244,72 +249,47 @@
             </thead>
             <tbody>
                 @forelse($participantes as $participante)
-                <tr @if($participante->estatus == 0) class="inactive-row" @endif>
-                    @if($participante->estatus == 0)
-                        <td>{{ $participante->N }}</td>
-                        <td>{{ $participante->NombredelPostulante }}</td>
-                        <td>{{ $participante->Correo }}</td>
-                        <td>{{ $participante->Telefono }}</td>
-                        <td colspan="12" class="text-danger fw-bold">DESACTIVADO</td>
-                    @else
-                        <td>{{ $participante->N }}</td>
-                        <td>{{ $participante->NombredelPostulante }}</td>
-                        <td>{{ $participante->Correo }}</td>
-                        <td>{{ $participante->Telefono }}</td>
-                        <td>{{ $participante->Edad }}</td>
-                        <td>{{ $participante->Direccion }}</td>
-                        <td>{{ $participante->Escolaridad }}</td>
-                        <td>{{ $participante->Curp }}</td>
-                        <td>{{ $participante->RazónSocial }}</td>
-                        <td>{{ $participante->Empresa }}</td>
-                        <td>{{ $participante->RFCEmpresa }}</td>
-                        <td>{{ $participante->Ocupacion }}</td>
-                        <td>{{ $participante->Puesto }}</td>
-                        <td>${{ number_format(floatval($participante->Pago) ?: 0, 2) }}</td>
-                        <td>{{ $participante->EstadoDePago }}</td>
-                        <td>{{ $participante->FechadelCurso }}</td>
-                        <td>
-                            @if($participante->cursos->isEmpty())
-                                <span>No hay cursos inscritos</span>
-                            @else
-                                @foreach($participante->cursos as $curso)
-                                    {{ $curso->NombredelCurso }} ({{ $curso->pivot->FechadelCurso }})<br/>
-                                @endforeach
-                            @endif
-                        </td>
-                    @endif
+                <tr>
+                    <td>{{ $participante->N }}</td>
+                    <td>{{ $participante->NombredelPostulante }}</td>
+                    <td>{{ $participante->Correo }}</td>
+                    <td>{{ $participante->Telefono }}</td>
+                    <td>{{ $participante->Edad }}</td>
+                    <td>{{ $participante->Direccion }}</td>
+                    <td>{{ $participante->Escolaridad }}</td>
+                    <td>{{ $participante->Curp }}</td>
+                    <td>{{ $participante->RazónSocial }}</td>
+                    <td>{{ $participante->Empresa }}</td>
+                    <td>{{ $participante->RFCEmpresa }}</td>
+                    <td>{{ $participante->Ocupacion }}</td>
+                    <td>{{ $participante->Puesto }}</td>
+                    <td>${{ number_format(floatval($participante->Pago) ?: 0, 2) }}</td>
+                    <td>{{ $participante->EstadoDePago }}</td>
+                    <td>{{ $participante->FechadelCurso }}</td>
+                    <td>
+                        @if($participante->cursos->isEmpty())
+                            <span>No hay cursos inscritos</span>
+                        @else
+                            @foreach($participante->cursos as $curso)
+                                {{ $curso->NombredelCurso }} ({{ $curso->pivot->FechadelCurso }})<br/>
+                            @endforeach
+                        @endif
+                    </td>
                     <td>
                         <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn btn-sm btn-info" target="_blank">
                             <i class="fas fa-eye"></i> Ver
                         </a>
                         @if(auth()->user()?->puesto != 'Operacion')
-                            @if($participante->estatus == 1)
-                                <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-edit"></i> Editar
-                                </a>
-                                <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de desactivar este participante?')">
-                                        <i class="fas fa-user-slash"></i> Desactivar
-                                    </button>
-                                </form>
-                            @else
-                                <form action="{{ route('participantes.activar', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Deseas reactivar este participante?')">
-                                        <i class="fas fa-user-check"></i> Activar
-                                    </button>
-                                </form>
-                                <form action="{{ route('participantes.eliminar-definitivo', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="password" name="password" placeholder="Pass Admin" class="form-control form-control-sm d-inline w-auto" required>
-                                    <button type="submit" class="btn btn-sm btn-dark" onclick="return confirm('¿ELIMINAR DEFINITIVAMENTE? Esta acción no se puede deshacer.')">
-                                        <i class="fas fa-trash-alt"></i> Borrar
-                                    </button>
-                                </form>
-                            @endif
+                            <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de desactivar este participante?')">
+                                    <i class="fas fa-user-slash"></i> Desactivar
+                                </button>
+                            </form>
                         @endif
                     </td>
                 </tr>

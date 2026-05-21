@@ -25,8 +25,8 @@ class CursoController extends Controller
     {
         $instructor = $request->get('instructor');
 
-        // Mostramos solo los cursos principales (parent_id = null)
-        $query = Cursos::whereNull('parent_id');
+        // Mostramos solo los cursos principales (parent_id = null) y activos (status = 1)
+        $query = Cursos::whereNull('parent_id')->where('status', 1);
 
         if ($instructor) {
             $query->where('instructor_responsable', $instructor);
@@ -38,6 +38,13 @@ class CursoController extends Controller
         $subcursos = Cursos::whereNotNull('parent_id')->get(); 
 
         return view('cursos.index', compact('cursos', 'subcursos'));
+    }
+
+    public function papelera()
+    {
+        // Cursos principales inactivos
+        $cursos = Cursos::whereNull('parent_id')->where('status', 0)->orderBy('updated_at', 'desc')->get();
+        return view('cursos.papelera', compact('cursos'));
     }
 
 
@@ -113,6 +120,11 @@ class CursoController extends Controller
     public function eliminarDefinitivo(Request $request, $id)
     {
         try {
+            // Validar la contraseña del usuario autenticado
+            if (!Hash::check($request->password, Auth::user()->password)) {
+                return back()->with('error', 'Contraseña incorrecta.');
+            }
+
             if (Auth::user()?->puesto != 'Administrador') {
                 return back()->with('error', 'No tienes permisos para realizar esta acción.');
             }

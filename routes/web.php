@@ -39,6 +39,8 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 //Ruta para crear usuario de inicio de sesion
 // Rutas existentes
 // Rutas de usuario
+Route::get('/users/papelera', [UserController::class, 'papelera'])->name('users.papelera');
+Route::post('/users/{id}/activar', [UserController::class, 'activar'])->name('users.activar');
 Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
@@ -67,6 +69,7 @@ Route::post('/curso/paso7', [CursoController::class, 'guardarPaso7'])->name('cur
 
 //Vista, modificacion, "eliminacion" y consulta de los cursos
 Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
+Route::get('/cursos/papelera', [CursoController::class, 'papelera'])->name('cursos.papelera');
 Route::resource('cursos', CursoController::class);
 Route::get('/curso/editar', [CursoController::class, 'mostrarEdicion'])->name('curso.editar');
 //Para obtener la fecha de inicio de cursos para participantes
@@ -74,8 +77,9 @@ Route::get('/cursos/{id}/fecha-inicio', [CursoController::class, 'getFechaInicio
 
 
 
-//Vista, modificacion, "eliminacion" y consulta de los participantes
+// Vista, modificacion, "eliminacion" y consulta de los participantes
 Route::get('/participantes', [ParticipanteController::class, 'index'])->name('participantes.index');
+Route::get('/participantes/papelera', [ParticipanteController::class, 'papelera'])->name('participantes.papelera');
 Route::get('/participantes/create', [ParticipanteController::class, 'create'])->name('participantes.create');
 Route::get('/participantes/cursos-detalles', [ParticipanteController::class, 'getCursosDetalles'])->name('participantes.cursos-detalles');
 Route::post('/participantes', [ParticipanteController::class, 'store'])->name('participantes.store');
