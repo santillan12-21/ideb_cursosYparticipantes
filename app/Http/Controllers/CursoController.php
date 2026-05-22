@@ -23,18 +23,27 @@ class CursoController extends Controller
      */
     public function index(Request $request)
     {
+        $search = $request->get('search');
         $instructor = $request->get('instructor');
 
         // Mostramos los cursos principales (parent_id = null) que estén activos (1) o suspendidos (0)
         $query = Cursos::whereNull('parent_id')->whereIn('status', [0, 1]);
 
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('nomenclatura', 'like', "%{$search}%")
+                  ->orWhere('descripcion', 'like', "%{$search}%");
+            });
+        }
+
         if ($instructor) {
             $query->where('instructor_responsable', $instructor);
         }
 
-        $cursos = $query->orderBy('created_at', 'desc')->get();
+        $cursos = $query->orderBy('created_at', 'desc')->paginate(5)->withQueryString();
 
-        // Obtenemos todos los subcursos para el filtro de instructores
+        // Obtenemos todos los subcursos para el filtro de instructores (si se sigue necesitando en la vista)
         $subcursos = Cursos::whereNotNull('parent_id')->get(); 
 
         return view('cursos.index', compact('cursos', 'subcursos'));
@@ -153,7 +162,9 @@ class CursoController extends Controller
     public function iniciarCurso()
     {
         try {
+            $tempId = Str::random(8);
             $curso = Cursos::create([
+                'nomenclatura' => 'TEMP-' . $tempId,
                 'nombre' => 'Borrador Curso ' . date('Y-m-d H:i'),
                 'status' => 1,
             ]);
@@ -174,9 +185,11 @@ class CursoController extends Controller
     {
         try {
             $parent = Cursos::findOrFail($id);
+            $tempId = Str::random(8);
             
             // Creamos el subcurso borrador vinculándolo al padre
             $subcurso = Cursos::create([
+                'nomenclatura' => 'TEMP-SUB-' . $tempId,
                 'nombre' => 'Subcurso de ' . $parent->nombre . ' - ' . date('Y-m-d H:i'),
                 'parent_id' => $parent->id,
                 'status' => 1,
@@ -334,6 +347,17 @@ class CursoController extends Controller
 
         session()->forget(['curso_id', 'cursos_paso1', 'cursos_paso2', 'cursos_paso3', 'cursos_paso4', 'cursos_paso5', 'cursos_paso6']);
         return redirect()->route('cursos.index')->with('success', 'Curso creado con éxito.');
+    }
+
+    public function show(Cursos $curso)
+    {
+        return view('cursos.show', compact('curso'));
+    }
+
+    public function edit(Cursos $curso)
+    {
+        $coloresPorPaso = $this->calcularProgresoPaso($curso);
+        return view('cursos.edit', compact('curso', 'coloresPorPaso'));
     }
 
     // --- EDICIÓN POR PASOS ---

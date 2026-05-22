@@ -112,6 +112,7 @@ use Carbon\Carbon;
 class Cursos extends Model
 {
     protected $fillable = [
+        'parent_id',
         'nomenclatura',
         'nombre',
         'descripcion',
@@ -155,6 +156,16 @@ class Cursos extends Model
         'status',
         'duracion'
     ];
+
+    public function subcursos()
+    {
+        return $this->hasMany(Cursos::class, 'parent_id');
+    }
+
+    public function cursoPadre()
+    {
+        return $this->belongsTo(Cursos::class, 'parent_id');
+    }
 
     // Accessors para mantener compatibilidad con la vista (Mapeo total)
     public function getNomenclaturaAttribute() { return $this->attributes['nomenclatura'] ?? ''; }
