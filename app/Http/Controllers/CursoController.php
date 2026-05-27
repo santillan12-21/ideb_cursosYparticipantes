@@ -43,7 +43,7 @@ class CursoController extends Controller
 
         $cursos = $query->orderBy('created_at', 'desc')->paginate(5)->withQueryString();
 
-        // Obtenemos todos los subcursos para el filtro de instructores
+        // Obtenemos todos los subcursos para el filtro de instructores (si se sigue necesitando en la vista)
         $subcursos = Cursos::whereNotNull('parent_id')->get(); 
 
         return view('cursos.index', compact('cursos', 'subcursos'));
@@ -383,6 +383,17 @@ class CursoController extends Controller
 
         session()->forget(['curso_id', 'cursos_paso1', 'cursos_paso2', 'cursos_paso3', 'cursos_paso4', 'cursos_paso5', 'cursos_paso6']);
         return redirect()->route('cursos.index')->with('success', 'Curso creado con éxito.');
+    }
+
+    public function show(Cursos $curso)
+    {
+        return view('cursos.show', compact('curso'));
+    }
+
+    public function edit(Cursos $curso)
+    {
+        $coloresPorPaso = $this->calcularProgresoPaso($curso);
+        return view('cursos.edit', compact('curso', 'coloresPorPaso'));
     }
 
     // --- EDICIÓN POR PASOS ---

@@ -671,16 +671,14 @@ body .navbar-fijo {
             <h6>Filtros Adicionales</h6>
             <div class="mb-3">
                 <label for="instructorFilter" class="form-label">Instructor</label>
-                <select id="instructorFilter" class="form-select">
+                <select id="instructorFilter" class="form-select" onchange="window.location.href='{{ route('cursos.index') }}?instructor=' + this.value + '&search={{ request('search') }}'">
                     <option value="">Todos los Instructores</option>
                     @php
-                        // Combina instructores de cursos y subcursos, elimina vacíos y duplicados
-                        $instructores = $cursos->pluck('InstructorResponsable')
-                            ->merge($subcursos->pluck('InstructorResponsable'))
-                            ->filter()
-                            ->unique()
-                            ->sort()
-                            ->values();
+                        // Obtenemos todos los instructores de la BD para el filtro, no solo los de la página actual
+                        $instructores = \App\Models\Cursos::whereNotNull('instructor_responsable')
+                            ->distinct()
+                            ->pluck('instructor_responsable')
+                            ->sort();
                     @endphp
                     @foreach($instructores as $instructor)
                         <option value="{{ $instructor }}" {{ request('instructor') == $instructor ? 'selected' : '' }}>{{ $instructor }}</option>

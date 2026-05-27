@@ -57,11 +57,12 @@
     
     .pagination .page-link { color: var(--dark-color); }
     .pagination .active .page-link { background-color: var(--dark-color); border-color: var(--dark-color); color: white; }
+    .info-label { font-weight: bold; color: #555; }
 </style>
 
 <div class="container-fluid">
     <div class="table-container">
-        <!-- Header -->
+        <!-- Header con Búsqueda y Acciones -->
         <div class="row mb-4 align-items-center">
             <div class="col-md-4">
                 <h1 class="h3 mb-0 fw-bold">Gestión de Cursos</h1>
@@ -77,6 +78,7 @@
                     <a href="{{ route('exportar.cursos.excel') }}" class="btn btn-outline-success"><i class="fas fa-file-excel me-1"></i> Excel</a>
                     <a href="{{ route('exportar.cursos.csv') }}" class="btn btn-outline-info"><i class="fas fa-file-csv me-1"></i> CSV</a>
                     <a href="{{ route('curso.iniciar') }}" class="btn btn-success fw-bold"><i class="fas fa-plus me-1"></i> Nuevo Curso</a>
+                    <a href="{{ route('cursos.papelera') }}" class="btn btn-secondary shadow-sm"><i class="fas fa-trash-alt"></i> Papelera</a>
                 </div>
             </div>
         </div>
@@ -84,15 +86,16 @@
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
                 {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
-        <!-- Tabla Principal (7 campos originales) -->
+        <!-- Tabla Principal -->
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-hover">
                 <thead>
                     <tr>
+                        <th style="width: 50px;"></th>
                         <th>Nomenclatura</th>
                         <th>Nombre del Curso</th>
                         <th>Descripción</th>
@@ -105,10 +108,12 @@
                 <tbody>
                     @forelse($cursos as $curso)
                         <tr id="row-{{ $curso->id }}">
-                            <td class="fw-bold">
+                            <td class="text-center">
                                 <button class="btn-expand" onclick="toggleDetails({{ $curso->id }})">
                                     <i class="fas fa-plus-circle"></i>
                                 </button>
+                            </td>
+                            <td class="fw-bold">
                                 <span class="text-primary">{{ $curso->nomenclatura }}</span>
                             </td>
                             <td class="fw-bold">{{ $curso->nombre }}</td>
@@ -119,38 +124,75 @@
                             <td class="text-center sticky-col">
                                 <div class="action-btns">
                                     <a href="{{ route('cursos.show', $curso->id) }}" class="btn btn-sm btn-info text-white" title="Ver"><i class="fas fa-eye"></i></a>
-                                    <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-sm btn-warning {{ $curso->status != 1 ? 'disabled' : '' }}" title="Editar"><i class="fas fa-edit"></i></a>
+                                    
+                                    @if($curso->status == 1)
+                                        <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-sm btn-warning" title="Editar"><i class="fas fa-edit"></i></a>
+                                    @else
+                                        <button class="btn btn-sm btn-warning disabled" title="Curso desactivado"><i class="fas fa-edit"></i></button>
+                                    @endif
+
                                     <form action="{{ route('cursos.toggle-status', $curso->id) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm {{ $curso->status == 1 ? 'btn-success' : 'btn-secondary' }}"><i class="fas fa-power-off"></i></button>
+                                        <button type="submit" class="btn btn-sm {{ $curso->status == 1 ? 'btn-success' : 'btn-secondary' }}" title="{{ $curso->status == 1 ? 'Desactivar' : 'Activar' }}">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
                                     </form>
-                                    <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿A papelera?')">
+
+                                    <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Enviar curso a la papelera?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                        <!-- Sección Subcursos -->
+                        <!-- Fila Desplegable -->
                         <tr id="details-{{ $curso->id }}" style="display: none;">
-                            <td colspan="7" class="p-0">
+                            <td colspan="8" class="p-0">
                                 <div class="expanded-section">
-                                    <div class="subcourse-header">
-                                        <h6 class="fw-bold text-dark mb-1">Gestión de Subcursos</h6>
-                                        <a href="{{ route('subcursos.iniciar', $curso->id) }}" class="btn btn-sm btn-primary {{ $curso->status != 1 ? 'disabled' : '' }} mb-3">
-                                            <i class="fas fa-plus me-1"></i> Agregar Subcurso
-                                        </a>
-                                    </div>
-                                    <div class="subcourse-table-container">
-                                        <div id="sub-list-{{ $curso->id }}">
-                                            <div class="text-center py-4 text-muted">Cargando subcursos...</div>
+                                    <div class="row">
+                                        <div class="col-md-5 border-end">
+                                            <h5 class="mb-3 text-primary">Información Adicional</h5>
+                                            <div class="mb-2"><span class="info-label">Descripción:</span> <p class="mb-1 text-wrap" style="max-width: 100%">{{ $curso->descripcion }}</p></div>
+                                            <div class="mb-2"><span class="info-label">Instructor:</span> {{ $curso->instructor_responsable }}</div>
+                                            <div class="mb-2"><span class="info-label">Costo:</span> <span class="text-success fw-bold">${{ number_format((float)$curso->costo, 2) }}</span></div>
+                                            <div class="mb-2">
+                                                <span class="info-label">Estatus:</span>
+                                                <span class="badge status-badge {{ $curso->status == 1 ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $curso->status == 1 ? 'Activo' : 'Desactivado' }}
+                                                </span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <span class="info-label">Modalidad:</span>
+                                                @if($curso->virtual == 'Sí') <span class="badge bg-primary">Virtual</span> @endif
+                                                @if($curso->presencial == 'Sí') <span class="badge bg-secondary">Presencial</span> @endif
+                                                @if($curso->mixto == 'Sí') <span class="badge bg-info">Mixto</span> @endif
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7 ps-4">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h5 class="mb-0 text-primary">Subcursos Relacionados</h5>
+                                                @if($curso->status == 1)
+                                                    <a href="{{ route('subcursos.iniciar', $curso->id) }}" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-plus me-1"></i> Agregar Subcurso
+                                                    </a>
+                                                @else
+                                                    <button class="btn btn-sm btn-primary disabled"><i class="fas fa-plus me-1"></i> Agregar Subcurso</button>
+                                                @endif
+                                            </div>
+                                            <div class="subcourse-table-container">
+                                                <div id="sub-list-{{ $curso->id }}" class="subcourse-table">
+                                                    <div class="text-center py-3"><i class="fas fa-spinner fa-spin"></i> Cargando subcursos...</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="text-center py-5 text-muted">No se encontraron registros.</td></tr>
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No se encontraron cursos que coincidan con la búsqueda.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -165,81 +207,60 @@
 
 <script>
     function toggleDetails(id) {
-        const row = document.getElementById(`details-${id}`);
-        const btn = document.querySelector(`#row-${id} .btn-expand`);
-        const icon = btn.querySelector('i');
-        if (row.style.display === 'none') {
-            row.style.display = 'table-row';
-            btn.classList.add('active');
+        const detailsRow = document.getElementById(`details-${id}`);
+        const button = document.querySelector(`#row-${id} .btn-expand`);
+        const icon = button.querySelector('i');
+
+        if (detailsRow.style.display === 'none') {
+            detailsRow.style.display = 'table-row';
+            button.classList.add('active');
             icon.classList.replace('fa-plus-circle', 'fa-minus-circle');
             loadSubcourses(id);
         } else {
-            row.style.display = 'none';
-            btn.classList.remove('active');
+            detailsRow.style.display = 'none';
+            button.classList.remove('active');
             icon.classList.replace('fa-minus-circle', 'fa-plus-circle');
         }
     }
 
     function loadSubcourses(parentId) {
         const container = document.getElementById(`sub-list-${parentId}`);
+        
         fetch(`/cursos/subcursos/${parentId}`)
-            .then(res => res.json())
+            .then(response => response.json())
             .then(data => {
                 if (data.length > 0) {
                     let html = `<table class="table table-sm mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-3">Nomenclatura</th>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Duración</th>
-                                <th>Inicio</th>
-                                <th>Término</th>
-                                <th>Instructor</th>
-                                <th>Costo</th>
-                                <th>Modalidad</th>
-                                <th>Estatus</th>
-                                <th class="text-center sub-sticky-col">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nomenclatura</th>
+                                            <th>Nombre</th>
+                                            <th>Estatus</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
                     data.forEach(sub => {
-                        const sBadge = sub.status == 1 ? 'bg-success' : 'bg-secondary';
-                        const sText = sub.status == 1 ? 'Activo' : 'Suspendido';
-                        const tBtn = sub.status == 1 ? 'btn-success' : 'btn-secondary';
+                        const statusBadge = sub.status == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Desactivado</span>';
                         html += `<tr>
-                            <td class="ps-3 fw-bold text-primary">${sub.nomenclatura}</td>
-                            <td class="fw-bold">${sub.nombre}</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>${sub.instructor || '-'}</td>
-                            <td class="fw-bold text-success">$${sub.costo}</td>
-                            <td><span class="badge bg-white text-dark border">${sub.modalidad}</span></td>
-                            <td><span class="badge ${sBadge}">${sText}</span></td>
-                            <td class="text-center sub-sticky-col">
-                                <div class="action-btns">
-                                    <a href="/cursos/${sub.id}" class="btn btn-xs btn-info text-white"><i class="fas fa-eye"></i></a>
-                                    <a href="/cursos/${sub.id}/edit" class="btn btn-xs btn-warning ${sub.status != 1 ? 'disabled' : ''}"><i class="fas fa-edit"></i></a>
-                                    <form action="/cursos/${sub.id}/toggle-status" method="POST" style="display:inline;">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <button class="btn btn-xs ${tBtn}"><i class="fas fa-power-off"></i></button>
-                                    </form>
-                                    <form action="/cursos/${sub.id}" method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar?')">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>`;
+                                    <td class="fw-bold text-primary">${sub.nomenclatura || 'N/A'}</td>
+                                    <td>${sub.nombre}</td>
+                                    <td>${statusBadge}</td>
+                                    <td class="text-center">
+                                        <a href="/cursos/${sub.id}" class="btn btn-xs btn-outline-info me-1"><i class="fas fa-eye"></i></a>
+                                        ${sub.status == 1 ? `<a href="/cursos/${sub.id}/edit" class="btn btn-xs btn-outline-warning"><i class="fas fa-edit"></i></a>` : ''}
+                                    </td>
+                                 </tr>`;
                     });
                     html += `</tbody></table>`;
                     container.innerHTML = html;
                 } else {
-                    container.innerHTML = '<div class="p-4 text-center text-muted">Sin subcursos.</div>';
+                    container.innerHTML = '<div class="text-center py-3 text-muted small">No hay subcursos registrados.</div>';
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="text-danger py-3 small text-center">Error al cargar subcursos.</div>';
             });
     }
 </script>
