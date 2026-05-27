@@ -85,7 +85,7 @@ class CursosExport implements FromCollection, WithHeadings, WithMapping, WithSty
             $curso->parent_id,
             $curso->NombredelCurso,
             $curso->DescripciondeCurso,
-            '$' . number_format($curso->CostodelCurso, 2),
+            '$' . number_format((float)($curso->CostodelCurso ?: 0), 2),
             $curso->InstructorResponsable,
             $curso->FechadeInicio ? \Carbon\Carbon::parse($curso->FechadeInicio)->format('d/m/Y') : '',
             $curso->FechadeTermino ? \Carbon\Carbon::parse($curso->FechadeTermino)->format('d/m/Y') : '',

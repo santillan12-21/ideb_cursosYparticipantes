@@ -23,21 +23,55 @@ class CursoController extends Controller
      */
     public function index(Request $request)
     {
+        $search = $request->get('search');
         $instructor = $request->get('instructor');
 
         // Mostramos los cursos principales (parent_id = null) que estén activos (1) o suspendidos (0)
         $query = Cursos::whereNull('parent_id')->whereIn('status', [0, 1]);
 
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('nomenclatura', 'like', "%{$search}%")
+                  ->orWhere('descripcion', 'like', "%{$search}%");
+            });
+        }
+
         if ($instructor) {
             $query->where('instructor_responsable', $instructor);
         }
 
-        $cursos = $query->orderBy('created_at', 'desc')->get();
+        $cursos = $query->orderBy('created_at', 'desc')->paginate(5)->withQueryString();
 
         // Obtenemos todos los subcursos para el filtro de instructores
         $subcursos = Cursos::whereNotNull('parent_id')->get(); 
 
         return view('cursos.index', compact('cursos', 'subcursos'));
+    }
+
+    public function obtenerSubcursos($cursoId, Request $request)
+    {
+        try {
+            $subcursos = Cursos::where('parent_id', $cursoId)->get()->map(function($sub) {
+                $modalidades = [];
+                if ($sub->virtual == 1) $modalidades[] = 'Virtual';
+                if ($sub->presencial == 1) $modalidades[] = 'Presencial';
+                if ($sub->mixto == 1) $modalidades[] = 'Mixto';
+
+                return [
+                    'id' => $sub->id,
+                    'nomenclatura' => $sub->nomenclatura,
+                    'nombre' => $sub->nombre,
+                    'instructor' => $sub->instructor_responsable,
+                    'costo' => number_format((float)$sub->costo, 2),
+                    'status' => $sub->status,
+                    'modalidad' => !empty($modalidades) ? implode(', ', $modalidades) : 'N/A',
+                ];
+            });
+            return response()->json($subcursos);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function papelera()
@@ -147,13 +181,26 @@ class CursoController extends Controller
         }
     }
 
+    public function show(Cursos $curso)
+    {
+        return view('cursos.show', compact('curso'));
+    }
+
+    public function edit(Cursos $curso)
+    {
+        $coloresPorPaso = $this->calcularProgresoPaso($curso);
+        return view('cursos.edit', compact('curso', 'coloresPorPaso'));
+    }
+
     /**
      * Iniciar la creación de un nuevo curso.
      */
     public function iniciarCurso()
     {
         try {
+            $tempId = Str::random(8);
             $curso = Cursos::create([
+                'nomenclatura' => 'TEMP-' . $tempId,
                 'nombre' => 'Borrador Curso ' . date('Y-m-d H:i'),
                 'status' => 1,
             ]);
@@ -174,9 +221,11 @@ class CursoController extends Controller
     {
         try {
             $parent = Cursos::findOrFail($id);
+            $tempId = Str::random(8);
             
             // Creamos el subcurso borrador vinculándolo al padre
             $subcurso = Cursos::create([
+                'nomenclatura' => 'TEMP-SUB-' . $tempId,
                 'nombre' => 'Subcurso de ' . $parent->nombre . ' - ' . date('Y-m-d H:i'),
                 'parent_id' => $parent->id,
                 'status' => 1,
@@ -426,17 +475,4 @@ class CursoController extends Controller
     public function exportarCsv() { return Excel::download(new CursosExport(Cursos::where('status', 1)->get()), 'cursos.csv'); }
     public function rutas() { return view('cursos.ruta'); }
     public function prepararRutaSubcurso() { return back()->with('error', 'Función no disponible en el hosting actual.'); }
-
-    /**
-     * Obtener subcursos.
-     */
-    public function obtenerSubcursos($cursoId, Request $request)
-    {
-        try {
-            $subcursos = Cursos::where('parent_id', $cursoId)->get();
-            return response()->json($subcursos);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
 }

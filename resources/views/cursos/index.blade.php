@@ -2,216 +2,245 @@
 @section('title', '- Lista de Cursos')
 
 @section('content')
-<!-- DataTables & Extra CSS -->
-<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet">
-
 <style>
-    .container-fluid {
-        padding: 20px;
+    :root {
+        --primary-color: #0d6efd;
+        --secondary-color: #6c757d;
+        --success-color: #198754;
+        --dark-color: #212529;
+        --danger-color: #dc3545;
     }
-    .table-container {
-        background: white;
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    .container-fluid { padding: 20px; }
+    .table-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    
+    /* Tamaño de letra uniforme */
+    .table thead th { 
+        background-color: var(--dark-color) !important; color: white !important; 
+        padding: 15px; font-weight: 600; white-space: nowrap; font-size: 0.9rem; 
     }
-    .table {
-        border-collapse: separate;
-        border-spacing: 0 8px;
+    .table td { padding: 12px 15px; white-space: nowrap; font-size: 0.9rem; border-bottom: 1px solid #f1f3f5; }
+    
+    /* Columna Acciones Fija */
+    .sticky-col {
+        position: sticky !important;
+        right: 0;
+        background-color: white !important;
+        z-index: 5;
+        box-shadow: -5px 0 10px rgba(0,0,0,0.05);
     }
-    .table thead th {
-        background-color: #212529 !important;
-        color: white !important;
-        border: none;
-        padding: 15px;
+    th.sticky-col { background-color: var(--dark-color) !important; z-index: 6; }
+    
+    .btn-expand { background: none; border: none; color: var(--primary-color); font-size: 1.1rem; cursor: pointer; transition: transform 0.2s; padding: 0; margin-right: 5px; }
+    .btn-expand.active { transform: rotate(45deg); color: #dc3545; }
+    
+    .status-badge { font-size: 0.75rem; padding: 0.4em 0.8em; border-radius: 20px; }
+    .action-btns .btn { margin-right: 2px; border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+    
+    /* Sección Subcursos */
+    .expanded-section { background-color: #f8faff; border-left: 4px solid var(--primary-color); padding: 20px; }
+    .subcourse-header { margin-bottom: 15px; }
+    .subcourse-table-container { 
+        background: white; border-radius: 10px; border: 1px solid #dee2e6; 
+        overflow-x: auto; position: relative;
     }
-    .table tbody tr {
-        background-color: #ffffff;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
+    
+    /* Sticky Acciones Subcursos */
+    .sub-sticky-col {
+        position: sticky !important;
+        right: 0;
+        background-color: #ffffff !important;
+        z-index: 5;
+        box-shadow: -5px 0 10px rgba(0,0,0,0.05);
+        border-left: 1px solid #dee2e6;
     }
-    .table td {
-        padding: 12px 15px;
-        vertical-align: middle;
-        border: none !important;
-    }
-    /* Estilo para Subcursos (Efecto Carpeta) */
-    .subcourse-row {
-        background-color: #f8faff !important;
-        display: none; /* Ocultos por defecto */
-    }
-    .subcourse-indent {
-        padding-left: 40px !important;
-        position: relative;
-    }
-    .subcourse-indent::before {
-        content: '└─';
-        position: absolute;
-        left: 15px;
-        color: #0d6efd;
-        font-weight: bold;
-    }
-    .btn-folder {
-        background: none;
-        border: none;
-        color: #0d6efd;
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0;
-        margin-right: 10px;
-    }
-    .badge-sub {
-        background-color: #e7f1ff;
-        color: #0d6efd;
-        border: 1px solid #0d6efd;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-    }
+    th.sub-sticky-col { background-color: #e9ecef !important; z-index: 6; }
+    
+    .pagination .page-link { color: var(--dark-color); }
+    .pagination .active .page-link { background-color: var(--dark-color); border-color: var(--dark-color); color: white; }
 </style>
 
 <div class="container-fluid">
     <div class="table-container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Lista de Cursos</h1>
-            <div>
-                <a href="{{ route('cursos.papelera') }}" class="btn btn-secondary shadow-sm me-2">
-                    <i class="fas fa-trash-alt me-1"></i> Papelera
-                </a>
-                <a href="{{ route('curso.iniciar') }}" class="btn btn-success shadow-sm">
-                    <i class="fas fa-plus me-1"></i> Nuevo Curso
-                </a>
+        <!-- Header -->
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-4">
+                <h1 class="h3 mb-0 fw-bold">Gestión de Cursos</h1>
+            </div>
+            <div class="col-md-8 text-end">
+                <div class="d-flex justify-content-end gap-2">
+                    <form action="{{ route('cursos.index') }}" method="GET" class="d-flex me-3">
+                        <div class="input-group shadow-sm">
+                            <input type="text" name="search" class="form-control" placeholder="Buscar curso..." value="{{ request('search') }}">
+                            <button type="submit" class="btn btn-dark"><i class="fas fa-search"></i></button>
+                        </div>
+                    </form>
+                    <a href="{{ route('exportar.cursos.excel') }}" class="btn btn-outline-success"><i class="fas fa-file-excel me-1"></i> Excel</a>
+                    <a href="{{ route('exportar.cursos.csv') }}" class="btn btn-outline-info"><i class="fas fa-file-csv me-1"></i> CSV</a>
+                    <a href="{{ route('curso.iniciar') }}" class="btn btn-success fw-bold"><i class="fas fa-plus me-1"></i> Nuevo Curso</a>
+                </div>
             </div>
         </div>
 
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        <!-- Tabla Principal (7 campos originales) -->
         <div class="table-responsive">
-            <table id="cursosTable" class="table">
+            <table class="table">
                 <thead>
                     <tr>
                         <th>Nomenclatura</th>
                         <th>Nombre del Curso</th>
-                        <th>Instructor</th>
-                        <th>Costo</th>
-                        <th>Estatus</th>
-                        <th class="text-center">Acciones</th>
+                        <th>Descripción</th>
+                        <th>Duración</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Término</th>
+                        <th class="text-center sticky-col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($cursos as $curso)
-                        <tr class="parent-row" data-id="{{ $curso->id }}">
+                    @forelse($cursos as $curso)
+                        <tr id="row-{{ $curso->id }}">
                             <td class="fw-bold">
-                                <button class="btn-folder toggle-hierarchy" data-id="{{ $curso->id }}">
-                                    <i class="fas fa-folder"></i>
+                                <button class="btn-expand" onclick="toggleDetails({{ $curso->id }})">
+                                    <i class="fas fa-plus-circle"></i>
                                 </button>
-                                {{ $curso->Nomenclatura }}
+                                <span class="text-primary">{{ $curso->nomenclatura }}</span>
                             </td>
-                            <td>
-                                <div class="fw-bold text-dark">{{ $curso->NombredelCurso }}</div>
-                            </td>
-                            <td>{{ $curso->InstructorResponsable }}</td>
-                            <td class="text-success fw-bold">${{ number_format((float)$curso->CostodelCurso, 2) }}</td>
-                            <td>
-                                <span class="badge {{ $curso->status == 1 ? 'bg-success' : ($curso->status == 0 ? 'bg-warning text-dark' : 'bg-danger') }}">
-                                    {{ $curso->status == 1 ? 'Activo' : ($curso->status == 0 ? 'Suspendido' : 'Eliminado') }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <div class="btn-group">
-                                    <a href="{{ route('cursos.show', $curso->id) }}" class="btn btn-sm btn-outline-info" title="Ver"><i class="fas fa-eye"></i></a>
-                                    <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="fas fa-edit"></i></a>
-                                    <a href="{{ route('subcursos.iniciar', $curso->id) }}" class="btn btn-sm btn-outline-primary" title="Añadir Subcurso"><i class="fas fa-plus"></i></a>
-                                    
-                                    <!-- Botón Suspender/Activar -->
+                            <td class="fw-bold">{{ $curso->nombre }}</td>
+                            <td title="{{ $curso->descripcion }}">{{ \Illuminate\Support\Str::limit($curso->descripcion, 40) }}</td>
+                            <td>{{ $curso->duracion }}</td>
+                            <td>{{ $curso->fecha_inicio ? \Carbon\Carbon::parse($curso->fecha_inicio)->format('d/m/Y') : '-' }}</td>
+                            <td>{{ $curso->fecha_termino ? \Carbon\Carbon::parse($curso->fecha_termino)->format('d/m/Y') : '-' }}</td>
+                            <td class="text-center sticky-col">
+                                <div class="action-btns">
+                                    <a href="{{ route('cursos.show', $curso->id) }}" class="btn btn-sm btn-info text-white" title="Ver"><i class="fas fa-eye"></i></a>
+                                    <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-sm btn-warning {{ $curso->status != 1 ? 'disabled' : '' }}" title="Editar"><i class="fas fa-edit"></i></a>
                                     <form action="{{ route('cursos.toggle-status', $curso->id) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ $curso->status == 1 ? 'Suspender' : 'Activar' }}">
-                                            <i class="fas fa-power-off"></i>
-                                        </button>
+                                        <button type="submit" class="btn btn-sm {{ $curso->status == 1 ? 'btn-success' : 'btn-secondary' }}"><i class="fas fa-power-off"></i></button>
                                     </form>
-
-                                    <!-- Botón Eliminar (Papelera) -->
-                                    <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Enviar curso a la papelera?')">
+                                    <form action="{{ route('cursos.destroy', $curso->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿A papelera?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="fas fa-trash"></i> Eliminar</button>
+                                        <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                        <!-- Aquí se inyectarán los subcursos dinámicamente -->
-                        <tr id="sub-container-{{ $curso->id }}" class="subcourse-row">
-                            <td colspan="6" class="p-0">
-                                <div id="sub-list-{{ $curso->id }}">
-                                    <!-- Cargando... -->
+                        <!-- Sección Subcursos -->
+                        <tr id="details-{{ $curso->id }}" style="display: none;">
+                            <td colspan="7" class="p-0">
+                                <div class="expanded-section">
+                                    <div class="subcourse-header">
+                                        <h6 class="fw-bold text-dark mb-1">Gestión de Subcursos</h6>
+                                        <a href="{{ route('subcursos.iniciar', $curso->id) }}" class="btn btn-sm btn-primary {{ $curso->status != 1 ? 'disabled' : '' }} mb-3">
+                                            <i class="fas fa-plus me-1"></i> Agregar Subcurso
+                                        </a>
+                                    </div>
+                                    <div class="subcourse-table-container">
+                                        <div id="sub-list-{{ $curso->id }}">
+                                            <div class="text-center py-4 text-muted">Cargando subcursos...</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr><td colspan="7" class="text-center py-5 text-muted">No se encontraron registros.</td></tr>
+                    @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="text-muted small">Mostrando {{ $cursos->firstItem() ?: 0 }} a {{ $cursos->lastItem() ?: 0 }} de {{ $cursos->total() }} registros</div>
+            {{ $cursos->links('pagination::bootstrap-4') }}
         </div>
     </div>
 </div>
 
-@push('scripts')
 <script>
-    $(document).ready(function() {
-        $('.toggle-hierarchy').on('click', function() {
-            const id = $(this).data('id');
-            const row = $(`#sub-container-${id}`);
-            const icon = $(this).find('i');
+    function toggleDetails(id) {
+        const row = document.getElementById(`details-${id}`);
+        const btn = document.querySelector(`#row-${id} .btn-expand`);
+        const icon = btn.querySelector('i');
+        if (row.style.display === 'none') {
+            row.style.display = 'table-row';
+            btn.classList.add('active');
+            icon.classList.replace('fa-plus-circle', 'fa-minus-circle');
+            loadSubcourses(id);
+        } else {
+            row.style.display = 'none';
+            btn.classList.remove('active');
+            icon.classList.replace('fa-minus-circle', 'fa-plus-circle');
+        }
+    }
 
-            if (row.is(':visible')) {
-                row.hide();
-                icon.removeClass('fa-folder-open').addClass('fa-folder');
-            } else {
-                row.show();
-                icon.removeClass('fa-folder').addClass('fa-folder-open');
-                loadSubcoursesInTable(id);
-            }
-        });
-
-        function loadSubcoursesInTable(parentId) {
-            const container = $(`#sub-list-${parentId}`);
-            container.html('<div class="text-center py-2"><i class="fas fa-spinner fa-spin"></i> Cargando subcursos...</div>');
-
-            $.get(`/cursos/subcursos/${parentId}`, function(data) {
+    function loadSubcourses(parentId) {
+        const container = document.getElementById(`sub-list-${parentId}`);
+        fetch(`/cursos/subcursos/${parentId}`)
+            .then(res => res.json())
+            .then(data => {
                 if (data.length > 0) {
-                    let html = '<table class="table mb-0 w-100" style="background-color: #f1f4f9;">';
+                    let html = `<table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Nomenclatura</th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Duración</th>
+                                <th>Inicio</th>
+                                <th>Término</th>
+                                <th>Instructor</th>
+                                <th>Costo</th>
+                                <th>Modalidad</th>
+                                <th>Estatus</th>
+                                <th class="text-center sub-sticky-col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
                     data.forEach(sub => {
-                        // Usar los nombres de propiedad correctos del modelo (PascalCase por los accessors)
-                        const nomenclatura = sub.Nomenclatura || sub.nomenclatura || 'N/A';
-                        const nombre = sub.NombredelCurso || sub.nombre || 'Sin nombre';
-                        const instructor = sub.InstructorResponsable || sub.instructor_responsable || '-';
-                        const costo = sub.CostodelCurso || sub.costo || '0';
-                        const status = sub.status == 1 ? 'Activo' : 'Inactivo';
-                        const badgeClass = sub.status == 1 ? 'bg-success' : 'bg-danger';
-
-                        html += `
-                        <tr class="border-bottom">
-                            <td style="width: 50px"></td>
-                            <td class="subcourse-indent fw-bold text-muted">${nomenclatura} <span class="badge badge-sub ms-2">Sub</span></td>
-                            <td class="text-muted">${nombre}</td>
-                            <td class="text-muted">${instructor}</td>
-                            <td class="text-muted">$${parseFloat(costo).toLocaleString()}</td>
-                            <td><span class="badge ${badgeClass} opacity-75">${status}</span></td>
-                            <td class="text-center">
-                                <div class="btn-group">
-                                    <a href="/cursos/${sub.id}" class="btn btn-xs btn-outline-info" title="Ver"><i class="fas fa-eye"></i></a>
-                                    <a href="/cursos/${sub.id}/edit" class="btn btn-xs btn-outline-warning" title="Editar"><i class="fas fa-edit"></i></a>
+                        const sBadge = sub.status == 1 ? 'bg-success' : 'bg-secondary';
+                        const sText = sub.status == 1 ? 'Activo' : 'Suspendido';
+                        const tBtn = sub.status == 1 ? 'btn-success' : 'btn-secondary';
+                        html += `<tr>
+                            <td class="ps-3 fw-bold text-primary">${sub.nomenclatura}</td>
+                            <td class="fw-bold">${sub.nombre}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>${sub.instructor || '-'}</td>
+                            <td class="fw-bold text-success">$${sub.costo}</td>
+                            <td><span class="badge bg-white text-dark border">${sub.modalidad}</span></td>
+                            <td><span class="badge ${sBadge}">${sText}</span></td>
+                            <td class="text-center sub-sticky-col">
+                                <div class="action-btns">
+                                    <a href="/cursos/${sub.id}" class="btn btn-xs btn-info text-white"><i class="fas fa-eye"></i></a>
+                                    <a href="/cursos/${sub.id}/edit" class="btn btn-xs btn-warning ${sub.status != 1 ? 'disabled' : ''}"><i class="fas fa-edit"></i></a>
+                                    <form action="/cursos/${sub.id}/toggle-status" method="POST" style="display:inline;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-xs ${tBtn}"><i class="fas fa-power-off"></i></button>
+                                    </form>
+                                    <form action="/cursos/${sub.id}" method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>`;
                     });
-                    html += '</table>';
-                    container.html(html);
+                    html += `</tbody></table>`;
+                    container.innerHTML = html;
                 } else {
-                    container.html('<div class="text-center text-muted small py-2">No se encontraron subcursos para este registro.</div>');
+                    container.innerHTML = '<div class="p-4 text-center text-muted">Sin subcursos.</div>';
                 }
-            }).fail(function() {
-                container.html('<div class="text-danger small py-2 text-center">Error al conectar con el servidor.</div>');
             });
-        }
-    });
+    }
 </script>
-@endpush
 @endsection
