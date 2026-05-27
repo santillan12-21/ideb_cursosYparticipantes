@@ -95,7 +95,7 @@
     <div class="row justify-content-center">
         <div class="col-xl-10">
             
-            <a href="javascript:history.back()" class="back-arrow" title="Regresar">
+            <a href="{{ route('participantes.index') }}" class="back-arrow" title="Regresar">
                 <i class="fas fa-arrow-left"></i>
             </a>
 

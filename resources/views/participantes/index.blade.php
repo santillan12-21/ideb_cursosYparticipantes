@@ -8,7 +8,7 @@
     .table thead th { background-color: #212529 !important; color: white !important; padding: 15px; }
     .sticky-col { position: sticky !important; right: 0; background-color: white !important; z-index: 5; box-shadow: -5px 0 10px rgba(0,0,0,0.05); }
     /* Botones uniformes */
-    .btn-action-part {
+    .btn-action {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -17,13 +17,21 @@
         font-size: 13px;
         font-weight: 600;
         transition: all 0.2s ease;
-        height: 34px;
-        min-width: 40px;
+        height: 38px;
+        width: 120px;
         margin: 2px;
         border: none;
         color: white !important;
+        text-decoration: none;
     }
-    .btn-action-part:hover { transform: translateY(-1px); opacity: 0.9; }
+    .btn-action:hover {
+        transform: translateY(-1px);
+        opacity: 0.9;
+        color: white !important;
+    }
+    .btn-action i {
+        margin-right: 8px;
+    }
 
     .btn-info-p { background-color: #17a2b8; }
     .btn-warning-p { background-color: #ffc107; color: #212529 !important; }
@@ -42,18 +50,18 @@
             </div>
             <div class="col-md-6 text-end">
                 <div class="d-flex justify-content-end gap-2 flex-wrap">
-                    <button id="toggleFilters" class="btn-action-part btn-dark-p shadow-sm" style="height: 40px; min-width: 100px;">
-                        <i class="fas fa-filter me-1"></i> Filtros
+                    <button id="toggleFilters" class="btn-action btn-dark-p shadow-sm" style="height: 40px; width: auto; min-width: 110px;">
+                        <i class="fas fa-filter"></i> Filtros
                     </button>
                     @if(auth()->user()?->puesto != 'Operacion')
-                        <a href="{{ route('exportar.excel') }}" class="btn-action-part btn-success-p shadow-sm" style="height: 40px; min-width: 100px;">
-                            <i class="fas fa-file-excel me-1"></i> Excel
+                        <a href="{{ route('exportar.excel') }}" class="btn-action btn-success-p shadow-sm" style="height: 40px; width: auto; min-width: 110px;">
+                            <i class="fas fa-file-excel"></i> Excel
                         </a>
-                        <a href="{{ route('exportar.csv') }}" class="btn-action-part btn-primary-p shadow-sm" style="height: 40px; min-width: 100px;">
-                            <i class="fas fa-file-csv me-1"></i> CSV
+                        <a href="{{ route('exportar.csv') }}" class="btn-action btn-primary-p shadow-sm" style="height: 40px; width: auto; min-width: 110px;">
+                            <i class="fas fa-file-csv"></i> CSV
                         </a>
-                        <a href="{{ route('participantes.papelera') }}" class="btn-action-part btn-secondary-p shadow-sm" style="height: 40px; min-width: 100px;">
-                            <i class="fas fa-trash-alt me-1"></i> Papelera
+                        <a href="{{ route('participantes.papelera') }}" class="btn-action btn-secondary-p shadow-sm" style="height: 40px; width: auto; min-width: 110px;">
+                            <i class="fas fa-trash-alt"></i> Papelera
                         </a>
                     @endif
                 </div>
@@ -126,25 +134,22 @@
                         <td>{{ $participante->Empresa }}</td>
                         <td>${{ number_format(floatval($participante->Pago) ?: 0, 2) }}</td>
                         <td>
-                            @php
-                                $badgeClass = match($participante->EstadoDePago) {
-                                    'Pagado' => 'bg-success',
-                                    'Pendiente' => 'bg-warning text-dark',
-                                    'Anticipo' => 'bg-info',
-                                    'Cancelado' => 'bg-danger',
-                                    default => 'bg-secondary'
-                                };
-                            @endphp
-                            <span class="badge {{ $badgeClass }}" style="padding: 8px; min-width: 80px;">{{ $participante->EstadoDePago }}</span>
+                            <span class="badge bg-light text-dark border" style="padding: 8px; min-width: 85px; font-weight: 500;">{{ $participante->EstadoDePago }}</span>
                         </td>
                         <td class="text-center sticky-col">
-                            <div class="d-flex justify-content-center">
-                                <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn-action-part btn-info-p" target="_blank" title="Ver"><i class="fas fa-eye"></i></a>
+                            <div class="d-flex justify-content-center flex-wrap">
+                                <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn-action btn-info-p" target="_blank" title="Ver">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
                                 @if(auth()->user()?->puesto != 'Operacion')
-                                    <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn-action-part btn-warning-p" title="Editar"><i class="fas fa-edit"></i></a>
-                                    <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST">
+                                    <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn-action btn-warning-p" title="Editar">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" onsubmit="return confirm('¿Mover participante a la papelera?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn-action-part btn-danger-p" onclick="return confirm('¿A papelera?')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="btn-action btn-danger-p" title="Eliminar">
+                                            <i class="fas fa-trash"></i> Borrar
+                                        </button>
                                     </form>
                                 @endif
                             </div>

@@ -109,18 +109,13 @@
             <form action="{{ route('curso.paso1.guardar') }}" method="POST">
                 @csrf
                 <div class="mb-3">
-                    @if (session('nomenclatura_generada'))
-                        <input type="text" name="Nomenclatura" class="form-control @error('Nomenclatura') is-invalid @enderror"
-                            value="{{ session('nomenclatura_generada') }}"
-                            readonly required>
-                    @else
-                        <input type="text" name="Nomenclatura" class="form-control @error('Nomenclatura') is-invalid @enderror"
-                            placeholder="Nomenclatura" value="{{ old('Nomenclatura') }}" required>
-                    @endif
+                    <label for="Nomenclatura" class="form-label fw-bold small text-uppercase text-muted">Nomenclatura del Curso</label>
+                    <input type="text" name="Nomenclatura" id="Nomenclatura" class="form-control @error('Nomenclatura') is-invalid @enderror"
+                        placeholder="Ingrese la nomenclatura manualmente" value="{{ old('Nomenclatura', session('nomenclatura_generada')) }}" required>
                     @error('Nomenclatura')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                </div> 
+                </div>
 
                 <div class="mb-3">
                     <input type="text" name="NombredelCurso" class="form-control @error('NombredelCurso') is-invalid @enderror" placeholder="Nombre del Curso"   value="{{ old('NombredelCurso', $curso->NombredelCurso ?? '') }}" required>

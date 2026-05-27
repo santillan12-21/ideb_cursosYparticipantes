@@ -37,15 +37,20 @@
         font-size: 13px;
         font-weight: 600;
         transition: all 0.2s ease;
-        height: 34px;
-        min-width: 100px;
+        height: 38px;
+        width: 120px;
         margin: 2px;
         border: none;
         color: white !important;
+        text-decoration: none;
     }
     .btn-action:hover {
         transform: translateY(-1px);
         opacity: 0.9;
+        color: white !important;
+    }
+    .btn-action i {
+        margin-right: 8px;
     }
 
     .btn-info-modern { background-color: #17a2b8; }
@@ -53,6 +58,7 @@
     .btn-danger-modern { background-color: #dc3545; }
     .btn-success-modern { background-color: #28a745; }
     .btn-secondary-modern { background-color: #6c757d; }
+    .btn-dark-modern { background-color: #212529; }
 
     .puesto-badge {
         padding: 5px 12px;

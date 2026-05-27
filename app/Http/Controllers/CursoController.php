@@ -53,19 +53,16 @@ class CursoController extends Controller
     {
         try {
             $subcursos = Cursos::where('parent_id', $cursoId)->get()->map(function($sub) {
-                $modalidades = [];
-                if ($sub->virtual == 1) $modalidades[] = 'Virtual';
-                if ($sub->presencial == 1) $modalidades[] = 'Presencial';
-                if ($sub->mixto == 1) $modalidades[] = 'Mixto';
-
                 return [
                     'id' => $sub->id,
-                    'nomenclatura' => $sub->nomenclatura,
-                    'nombre' => $sub->nombre,
-                    'instructor' => $sub->instructor_responsable,
-                    'costo' => number_format((float)$sub->costo, 2),
+                    'nomenclatura' => $sub->Nomenclatura ?: $sub->nomenclatura,
+                    'nombre' => $sub->NombredelCurso ?: $sub->nombre,
+                    'descripcion' => $sub->DescripciondeCurso ?: $sub->descripcion,
+                    'duracion' => $sub->Duracioncurso ?: $sub->duracion,
+                    'costo' => number_format((float)($sub->CostodelCurso ?: $sub->costo), 2),
+                    'fecha_inicio' => $sub->FechadeInicio ? \Carbon\Carbon::parse($sub->FechadeInicio)->format('d/m/Y') : '-',
+                    'fecha_termino' => $sub->FechadeTermino ? \Carbon\Carbon::parse($sub->FechadeTermino)->format('d/m/Y') : '-',
                     'status' => $sub->status,
-                    'modalidad' => !empty($modalidades) ? implode(', ', $modalidades) : 'N/A',
                 ];
             });
             return response()->json($subcursos);
@@ -76,9 +73,12 @@ class CursoController extends Controller
 
     public function papelera()
     {
-        // Cursos en la papelera (status = 2)
+        // Cursos principales en la papelera (status = 2)
         $cursos = Cursos::whereNull('parent_id')->where('status', 2)->orderBy('updated_at', 'desc')->get();
-        return view('cursos.papelera', compact('cursos'));
+        // Subcursos en la papelera (status = 2)
+        $subcursos = Cursos::whereNotNull('parent_id')->where('status', 2)->orderBy('updated_at', 'desc')->get();
+        
+        return view('cursos.papelera', compact('cursos', 'subcursos'));
     }
 
     /**
