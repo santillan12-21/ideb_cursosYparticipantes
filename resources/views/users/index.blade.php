@@ -1,121 +1,166 @@
 @extends('home')
 @section('title', '- Lista de Usuarios')
-@section('content')
 
+@section('content')
 <style>
-    .success-message {
-        color: green;
-        margin-bottom: 20px;
+    .users-container {
+        padding: 40px 20px;
     }
-    .users-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
+    .table-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
-    .users-table th, .users-table td {
-        border: 1px solid #ddd !important;
-        padding: 10px !important;
-        text-align: left !important;
+    .table thead th {
+        background-color: #212529 !important;
+        color: white !important;
+        padding: 15px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
     }
-    .users-table th {
-        background-color: #000;
-        color: #fff;
+    .table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f3f5;
     }
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
+    
+    /* Botones uniformes */
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        height: 34px;
+        min-width: 100px;
+        margin: 2px;
+        border: none;
+        color: white !important;
     }
-    .btn-custom {
-        background-color: #000;
-        color: #fff;
-        padding: 10px 15px;
-        text-decoration: none;
-        border-radius: 5px;
-        display: inline-block;
+    .btn-action:hover {
+        transform: translateY(-1px);
+        opacity: 0.9;
     }
-    .btn-custom:hover {
-        background-color: #444;
-        color: white;
-    }
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
+
+    .btn-info-modern { background-color: #17a2b8; }
+    .btn-warning-modern { background-color: #ffc107; color: #212529 !important; }
+    .btn-danger-modern { background-color: #dc3545; }
+    .btn-success-modern { background-color: #28a745; }
+    .btn-secondary-modern { background-color: #6c757d; }
+
+    .puesto-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #495057;
     }
 </style>
 
-<div class="container-fluid py-4">
-    <h1>Lista de Usuarios</h1>
-    @if(session('success'))
-        <div class="success-message">{{ session('success') }}</div>
-    @endif
-    <div class="mb-3 d-flex justify-content-between">
-        <a href="{{ route('users.create') }}" class="btn-custom">Crear Nuevo Usuario</a>
-        <a href="{{ route('users.papelera') }}" class="btn btn-secondary">
-            <i class="fas fa-trash-alt"></i> Ver Papelera
-        </a>
-    </div>
-    <div class="table-responsive">
-        <table class="users-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Email</th>
-                    <th>Puesto</th>
-                    <th>Edad</th>
-                    <th>Teléfono</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($users as $user)
+<div class="container-fluid users-container">
+    <div class="table-card">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h1 class="h3 mb-0" style="font-weight: 300;">Gestión de Usuarios</h1>
+            <div class="d-flex gap-2">
+                <a href="{{ route('users.create') }}" class="btn-action btn-success-modern shadow-sm" style="min-width: 180px; height: 40px;">
+                    <i class="fas fa-plus me-2"></i> Nuevo Usuario
+                </a>
+                <a href="{{ route('users.papelera') }}" class="btn-action btn-secondary-modern shadow-sm" style="min-width: 150px; height: 40px;">
+                    <i class="fas fa-trash-alt me-2"></i> Papelera
+                </a>
+            </div>
+        </div>
+
+        @if(session('success'))
+            <div class="alert alert-success border-0 shadow-sm alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
                     <tr>
-                        <td>{{ $user->id }}</td>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->apellido }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->puesto }}</td>
-                        <td>{{ $user->edad }}</td>
-                        <td>{{ $user->telefono }}</td>
-                        <td>
-                            <a href="#" class="btn btn-sm btn-info view-password" data-id="{{ $user->id }}">Ver Contraseña</a>
-                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning">Editar</a>
-                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar usuario?')">Eliminar</button>
-                            </form>
-                        </td>
+                        <th class="text-center">ID</th>
+                        <th>Nombre Completo</th>
+                        <th>Correo Electrónico</th>
+                        <th>Puesto</th>
+                        <th class="text-center">Edad</th>
+                        <th>Teléfono</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="8" class="text-center">No hay usuarios registrados.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($users as $user)
+                        <tr>
+                            <td class="text-center text-muted">#{{ $user->id }}</td>
+                            <td class="fw-bold">{{ $user->name }} {{ $user->apellido }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td><span class="puesto-badge">{{ $user->puesto }}</span></td>
+                            <td class="text-center">{{ $user->edad }}</td>
+                            <td>{{ $user->telefono }}</td>
+                            <td>
+                                <div class="d-flex justify-content-center flex-wrap">
+                                    <button class="btn-action btn-info-modern view-password" data-id="{{ $user->id }}" title="Ver Contraseña">
+                                        <i class="fas fa-key me-1"></i> Contraseña
+                                    </button>
+                                    <a href="{{ route('users.edit', $user->id) }}" class="btn-action btn-warning-modern" title="Editar">
+                                        <i class="fas fa-edit me-1"></i> Editar
+                                    </a>
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Enviar usuario a la papelera?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn-action btn-danger-modern" title="Eliminar">
+                                            <i class="fas fa-trash me-1"></i> Borrar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">No se encontraron usuarios registrados.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <!-- Modal para ingresar la contraseña del administrador -->
-<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="passwordModalLabel">Ver Contraseña</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title" style="font-weight: 300;">Confirmación de Seguridad</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="passwordForm">
                     @csrf
                     <input type="hidden" id="userId" name="user_id">
-                    <div class="mb-3">
-                        <label for="admin_password" class="form-label">Ingrese su contraseña de administrador:</label>
-                        <input type="password" class="form-control" id="admin_password" name="admin_password" required>
+                    <p class="text-muted small mb-4">Para visualizar la contraseña de este usuario, ingrese su contraseña de administrador/programador.</p>
+                    <div class="mb-4">
+                        <label for="admin_password" class="form-label fw-bold small text-muted">Contraseña Admin</label>
+                        <div class="input-group border rounded">
+                            <span class="input-group-text bg-white border-0"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control border-0" id="admin_password" name="admin_password" required placeholder="••••••••">
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Verificar</button>
+                    <button type="submit" class="btn btn-primary w-100 btn-action" style="height: 45px; border-radius: 8px;">
+                        <i class="fas fa-shield-alt me-2"></i> Verificar y Mostrar
+                    </button>
                 </form>
-                <div id="passwordResult" class="mt-3"></div>
+                <div id="passwordResult" class="mt-4"></div>
             </div>
         </div>
     </div>
@@ -124,7 +169,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const passwordModal = document.getElementById('passwordModal');
+        const passwordModalElement = document.getElementById('passwordModal');
         const passwordForm = document.getElementById('passwordForm');
         const passwordResult = document.getElementById('passwordResult');
         let modalInstance = null;
@@ -135,38 +180,47 @@
                 e.preventDefault();
                 const userId = this.getAttribute('data-id');
                 document.getElementById('userId').value = userId;
-                passwordResult.innerHTML = ''; // Limpiar resultados anteriores
-                if(!modalInstance) {
-                    modalInstance = new bootstrap.Modal(passwordModal);
+                document.getElementById('admin_password').value = '';
+                passwordResult.innerHTML = '';
+                
+                if (!modalInstance) {
+                    modalInstance = new bootstrap.Modal(passwordModalElement);
                 }
                 modalInstance.show();
             });
         });
 
-        // Enviar la solicitud para verificar la contraseña del administrador
+        // Enviar la solicitud
         passwordForm.addEventListener('submit', function (e) {
             e.preventDefault();
+            
+            passwordResult.innerHTML = '<div class="text-center py-2"><i class="fas fa-spinner fa-spin me-2"></i> Verificando...</div>';
 
             const formData = new FormData(this);
-            const userId = formData.get('user_id');
+            const userId = document.getElementById('userId').value;
 
             fetch(`/users/${userId}/show-password`, {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 },
             })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    passwordResult.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    passwordResult.innerHTML = `<div class="alert alert-danger border-0 shadow-sm small">${data.error}</div>`;
                 } else {
-                    passwordResult.innerHTML = `<div class="alert alert-success">Contraseña: ${data.password}</div>`;
+                    passwordResult.innerHTML = `
+                        <div class="alert alert-success border-0 shadow-sm">
+                            <div class="small fw-bold mb-1">Contraseña recuperada:</div>
+                            <div class="h5 mb-0 text-center font-monospace">${data.password}</div>
+                        </div>`;
                 }
             })
             .catch(error => {
-                passwordResult.innerHTML = `<div class="alert alert-danger">Ocurrió un error al procesar la solicitud.</div>`;
+                passwordResult.innerHTML = `<div class="alert alert-danger border-0 shadow-sm small">Error en la comunicación con el servidor.</div>`;
             });
         });
     });

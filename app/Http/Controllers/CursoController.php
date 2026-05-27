@@ -385,17 +385,6 @@ class CursoController extends Controller
         return redirect()->route('cursos.index')->with('success', 'Curso creado con éxito.');
     }
 
-    public function show(Cursos $curso)
-    {
-        return view('cursos.show', compact('curso'));
-    }
-
-    public function edit(Cursos $curso)
-    {
-        $coloresPorPaso = $this->calcularProgresoPaso($curso);
-        return view('cursos.edit', compact('curso', 'coloresPorPaso'));
-    }
-
     // --- EDICIÓN POR PASOS ---
 
     public function editPaso(Cursos $curso, $paso)

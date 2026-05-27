@@ -1,182 +1,218 @@
-@php
-    // Obtener el logo desde la configuración
-    $setting = \App\Models\Setting::first();
-    $logoPath = $setting && $setting->logo ? asset('storage/' . $setting->logo) : asset('images/default-logo.png');
-@endphp
+@extends('home')
+@section('title', '- Detalles del Curso')
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles del Curso</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+@section('content')
+<style>
+    .details-container {
+        margin-top: 50px;
+        padding-bottom: 50px;
+    }
+    
+    /* Botón de regreso minimalista (tipo flecha circular) */
+    .back-arrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background-color: rgba(0,0,0,0.05);
+        color: #333;
+        border-radius: 50%;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+    .back-arrow:hover {
+        background-color: #0d6efd;
+        color: white;
+        transform: translateX(-3px);
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-        }
+    .details-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        overflow: hidden;
+        background: white;
+        margin-bottom: 30px;
+    }
+    .details-header {
+        background: #212529;
+        padding: 30px;
+        color: white;
+        border-bottom: 4px solid #0d6efd;
+    }
+    .details-header h1 {
+        margin: 0;
+        font-weight: 300;
+        font-size: 1.8rem;
+    }
+    
+    .section-card {
+        border: none;
+        border-radius: 12px;
+        background: #fcfcfc;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid #f0f0f0;
+    }
+    .section-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #0d6efd;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
 
-        header {
-            background-color: #000000;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    .data-item { margin-bottom: 15px; }
+    .data-label { font-weight: 700; color: #666; font-size: 0.8rem; display: block; margin-bottom: 3px; }
+    .data-value { color: #212529; font-size: 1rem; }
+    .data-value.highlight { color: #198754; font-weight: 700; }
+    
+    .btn-download {
+        border-radius: 30px;
+        padding: 8px 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+        background-color: #dc3545;
+        color: white !important;
+        border: none;
+    }
+    .btn-download:hover {
+        background-color: #bb2d3b;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    }
 
-        header img {
-            width: 100px;
-            height: auto;
-            margin-right: 20px;
-        }
+    .link-drive { color: #0d6efd; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .link-drive:hover { text-decoration: underline; }
+</style>
 
-        nav {
-            display: flex;
-            align-items: center;
-        }
+<div class="container details-container">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            
+            <a href="javascript:history.back()" class="back-arrow" title="Regresar">
+                <i class="fas fa-arrow-left"></i>
+            </a>
 
-        nav a, .logout-button {
-            color: #fff;
-            margin-right: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-        }
+            <div class="card details-card">
+                <div class="details-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <span class="badge bg-primary mb-2">{{ $curso->Nomenclatura }}</span>
+                        <h1>{{ $curso->nombre ?: $curso->NombredelCurso }}</h1>
+                    </div>
+                    @if(auth()->user()->puesto != 'Operacion')
+                        <a href="{{ route('cursos.pdf', $curso->id) }}" class="btn btn-download shadow-sm">
+                            <i class="fas fa-file-pdf me-2"></i> Descargar
+                        </a>
+                    @endif
+                </div>
 
-        nav a:hover, .logout-button:hover {
-            text-decoration: underline;
-        }
+                <div class="card-body p-4 p-md-5">
+                    <div class="row">
+                        <div class="col-lg-7">
+                            <div class="section-card">
+                                <h5 class="section-title"><i class="fas fa-info-circle me-2"></i> General</h5>
+                                <div class="data-item">
+                                    <span class="data-label">Descripción</span>
+                                    <div class="data-value text-justify">{{ $curso->descripcion ?: $curso->DescripciondeCurso }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">Instructor</span>
+                                            <div class="data-value">{{ $curso->instructor_responsable ?: $curso->InstructorResponsable }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">Costo</span>
+                                            <div class="data-value highlight">${{ number_format((float)($curso->costo ?: $curso->CostodelCurso), 2) }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-        .logout-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
+                            <div class="section-card">
+                                <h5 class="section-title"><i class="fas fa-calendar-alt me-2"></i> Cronograma</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="data-item">
+                                            <span class="data-label">Inicio</span>
+                                            <div class="data-value">{{ \Carbon\Carbon::parse($curso->fecha_inicio ?: $curso->FechadeInicio)->format('d/m/Y') }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="data-item">
+                                            <span class="data-label">Término</span>
+                                            <div class="data-value">{{ \Carbon\Carbon::parse($curso->fecha_termino ?: $curso->FechadeTermino)->format('d/m/Y') }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="data-item">
+                                            <span class="data-label">Duración</span>
+                                            <div class="data-value">{{ $curso->duracion ?: $curso->Duracioncurso }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-        .container {
-            text-align: center;
-            padding: 40px;
-        }
+                            <div class="section-card">
+                                <h5 class="section-title"><i class="fas fa-laptop-house me-2"></i> Modalidad</h5>
+                                <div class="d-flex flex-wrap gap-3">
+                                    @php $v = ($curso->virtual ?: $curso->Virtual) == 'Si' || ($curso->virtual ?: $curso->Virtual) == 'Sí'; @endphp
+                                    <div class="px-3 py-2 border rounded-3 {{ $v ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">VIRTUAL: {{ $v ? 'SÍ' : 'NO' }}</div>
+                                    @php $p = ($curso->presencial ?: $curso->Presencial) == 'Si' || ($curso->presencial ?: $curso->Presencial) == 'Sí'; @endphp
+                                    <div class="px-3 py-2 border rounded-3 {{ $p ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">PRESENCIAL: {{ $p ? 'SÍ' : 'NO' }}</div>
+                                    @php $m = ($curso->mixto ?: $curso->Mixto) == 'Si' || ($curso->mixto ?: $curso->Mixto) == 'Sí'; @endphp
+                                    <div class="px-3 py-2 border rounded-3 {{ $m ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">MIXTO: {{ $m ? 'SÍ' : 'NO' }}</div>
+                                </div>
+                            </div>
+                        </div>
 
-        h1 {
-            margin-bottom: 30px;
-            font-size: 2em;
-        }
+                        <div class="col-lg-5">
+                            <div class="section-card">
+                                <h5 class="section-title"><i class="fas fa-file-alt me-2"></i> Recursos</h5>
+                                <div class="list-group list-group-flush border rounded mb-3">
+                                    <div class="list-group-item d-flex justify-content-between py-2">
+                                        <span class="small fw-bold">Temario</span>
+                                        @if($curso->drive_temario ?: $curso->DriveTemario) <a href="{{ $curso->drive_temario ?: $curso->DriveTemario }}" target="_blank" class="link-drive">Ver</a> @else <span class="text-muted small">N/A</span> @endif
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between py-2">
+                                        <span class="small fw-bold">Itinerario</span>
+                                        @if($curso->drive_itinerario ?: $curso->DriveItinerario) <a href="{{ $curso->drive_itinerario ?: $curso->DriveItinerario }}" target="_blank" class="link-drive">Ver</a> @else <span class="text-muted small">N/A</span> @endif
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between py-2">
+                                        <span class="small fw-bold">Planeación</span>
+                                        @if($curso->drive_planeacion ?: $curso->DrivePlaneación) <a href="{{ $curso->drive_planeacion ?: $curso->DrivePlaneación }}" target="_blank" class="link-drive">Ver</a> @else <span class="text-muted small">N/A</span> @endif
+                                    </div>
+                                </div>
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            justify-items: center;
-        }
-
-        .grid a,
-        .grid button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 180px;
-            height: 50px;
-            background-color: #000;
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
-            text-align: center;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .grid a:hover,
-        .grid button:hover {
-            background-color: #444;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <a href="/Inicio">
-            <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="width: 200px; height: 70px;">
-        </a>
-    </header>
-
-    <div class="container py-5">
-        <h1>Detalles del Curso: {{ $curso->NombredelCurso }}</h1>
-
-        <div class="mb-4">
-            @if(auth()->user()->puesto != 'Operacion')
-            <a href="{{ route('cursos.pdf', $curso->id) }}" class="btn btn-secondary">Descargar PDF</a>
-            @endif
-            <a href="{{ route('cursos.index') }}" class="btn btn-primary">Regresar a la Lista de Cursos</a>
-        </div>
-
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Información General</h5>
-                <p><strong>Nomenclatura:</strong> {{ $curso->Nomenclatura }}</p>
-                <p><strong>Descripción:</strong> {{ $curso->DescripciondeCurso }}</p>
-                <p><strong>Costo:</strong> ${{ number_format((float)$curso->CostodelCurso, 2) }}</p>
-                <p><strong>Instructor Responsable:</strong> {{ $curso->InstructorResponsable }}</p>
-                <p><strong>Fecha de Inicio:</strong> {{ \Carbon\Carbon::parse($curso->FechadeInicio)->format('d/m/Y') }}</p>
-                <p><strong>Fecha de Término:</strong> {{ \Carbon\Carbon::parse($curso->FechadeTermino)->format('d/m/Y') }}</p>
-                <p><strong>Duración: {{ $curso->Duracioncurso}}</strong></p>
-
-                <h5>Modalidad</h5>
-                <p><strong>Virtual:</strong> {{ $curso->Virtual == 'Si' ? 'Sí' : 'No' }}</p>
-                <p><strong>Presencial:</strong> {{ $curso->Presencial == 'Si' ? 'Sí' : 'No' }}</p>
-                <p><strong>Mixto:</strong> {{ $curso->Mixto == 'Si' ? 'Sí' : 'No' }}</p>
-
-                <h5>Formato de Flyer / Imagen</h5>
-                <p><strong>Sin Fecha:</strong> {{ $curso->SinFecha }}</p>
-                <p><strong>Sin Fecha Drive:</strong> @if($curso->DriveSinFecha) <a href="{{ $curso->DriveSinFecha }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>Facebook:</strong> {{ $curso->Facebook }}</p>
-                <p><strong>Facebook Drive:</strong> @if($curso->DriveFacebook) <a href="{{ $curso->DriveFacebook }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>Linkedin:</strong> {{ $curso->Linkedin }}</p>
-                <p><strong>Linkedin Drive:</strong> @if($curso->DriveLinkedin) <a href="{{ $curso->DriveLinkedin }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>Instagram:</strong> {{ $curso->Instagram }}</p>
-                <p><strong>Instagram Drive:</strong> @if($curso->DriveInstagram) <a href="{{ $curso->DriveInstagram }}" target="_blank">Ver</a> @else No disponible @endif</p>
-
-                <h5>Documentos del Curso</h5>
-                <p><strong>Temario:</strong> {{ $curso->Temario }}</p>
-                <p><strong>Temario Drive:</strong> @if($curso->DriveTemario) <a href="{{ $curso->DriveTemario }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>Itinerario:</strong> {{ $curso->Itinerario }}</p>
-                <p><strong>Itinerario Drive:</strong> @if($curso->DriveItinerario) <a href="{{ $curso->DriveItinerario }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>Planeación:</strong> {{ $curso->Planeación }}</p>
-                <p><strong>Planeación Drive:</strong> @if($curso->DrivePlaneación) <a href="{{ $curso->DrivePlaneación }}" target="_blank">Ver</a> @else No disponible @endif</p>
-
-                <h5>Material de Apoyo</h5>
-                <p><strong>Digital:</strong> {{ $curso->Digital }}</p>
-                <p><strong>Digital Drive:</strong> @if($curso->DriveDigital) <a href="{{ $curso->DriveDigital }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>Impreso Presentable:</strong> {{ $curso->Impreso_Presentable }}</p>
-
-                <h5>Documentos de Evaluación</h5>
-                <p><strong>Presentación:</strong> {{ $curso->Presentación }}</p>
-                <p><strong>Evaluación Diagnóstica:</strong> {{ $curso->Evaluación_diagnostica }}</p>
-                <p><strong>Evaluación de Satisfacción:</strong> {{ $curso->EvaluaciondeSatisfacción }}</p>
-                <p><strong>Evaluación Final:</strong> {{ $curso->EvaluacionFinal }}</p>
-                <p><strong>DC3:</strong> {{ $curso->DC3 }}</p>
-
-                <h5>Documentación STPS y Certificados</h5>
-                <p><strong>Fecha Registro STPS:</strong> {{ $curso->FechadeRegistro_STPS ? \Carbon\Carbon::parse($curso->FechadeRegistro_STPS)->format('d/m/Y') : 'No disponible' }}</p>
-                <p><strong>Formato DC5:</strong> @if($curso->Formato_DC5) <a href="{{ $curso->Formato_DC5 }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>Formato DC5 - ¿Tiene Firma?:</strong> {{ $curso->Formato_DC5_Tienefirma }}</p>
-                <p><strong>Certificado de Comprobación:</strong> {{ $curso->Certificadodecomprobacion }}</p>
-                <p><strong>Drive de Certificado de Comprobación:</strong> @if($curso->DrivedeCertificadodecomprobacion) <a href="{{ $curso->DrivedeCertificadodecomprobacion }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>Carta Poder - ¿Tiene Firma?:</strong> {{ $curso->Cartapoder_tienefirma }}</p>
-                <p><strong>Drive Carta Poder:</strong> @if($curso->DriveCartapoder) <a href="{{ $curso->DriveCartapoder }}" target="_blank">Ver</a> @else No disponible @endif</p>
-                <p><strong>UDEMY:</strong> {{ $curso->UDEMY }}</p>
-                <p><strong>Enlace UDEMY:</strong> <a href="{{ $curso->EnlaceUDEMY }}" target="_blank">Ver</a></p>
+                                <span class="data-label mb-2">Evaluación y Certificación</span>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-light text-dark border">Diag: {{ $curso->evaluacion_diagnostica ?: $curso->Evaluación_diagnostica }}</span>
+                                    <span class="badge bg-light text-dark border">DC3: {{ $curso->dc3 ?: $curso->DC3 }}</span>
+                                </div>
+                            </div>
+                            
+                            @if(($curso->udemy ?: $curso->UDEMY) == 'Si' || ($curso->udemy ?: $curso->UDEMY) == 'Sí')
+                            <div class="section-card bg-primary text-white border-0">
+                                <h5 class="section-title text-white"><i class="fas fa-graduation-cap me-2"></i> UDEMY</h5>
+                                <a href="{{ $curso->enlace_udemy ?: $curso->EnlaceUDEMY }}" target="_blank" class="btn btn-sm btn-light w-100 fw-bold">PLATAFORMA</a>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</body>
-</html>
+</div>
+@endsection

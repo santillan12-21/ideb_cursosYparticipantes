@@ -99,10 +99,11 @@ Route::get('/export-db', [DatabaseController::class, 'export'])->name('database.
 Route::post('/import-db', [DatabaseController::class, 'import'])->name('database.import');
 
 Route::get('/cursos/{id}/pdf', function ($id) {
-    $curso = cursos::findOrFail($id);
+    $curso = \App\Models\Cursos::findOrFail($id);
 
     $pdf = Pdf::loadView('cursos.pdf', compact('curso'));
-    return $pdf->download('curso_detalles.pdf');
+    $filename = \Illuminate\Support\Str::slug($curso->nombre ?: $curso->NombredelCurso) . '.pdf';
+    return $pdf->download($filename);
 })->name('cursos.pdf');
 
 Route::get('/cursos/{curso}/edit', [CursoController::class, 'edit'])->name('cursos.edit');

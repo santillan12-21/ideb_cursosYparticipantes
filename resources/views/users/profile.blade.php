@@ -18,10 +18,16 @@
         transform: translateY(-5px);
     }
     .profile-header {
-        background: linear-gradient(135deg, #000000 0%, #333333 100%);
+        background: #212529;
         padding: 40px 20px;
         text-align: center;
         color: white;
+        border-bottom: 4px solid #0d6efd;
+    }
+    .profile-header h3 {
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        margin-top: 10px;
     }
     .profile-avatar {
         width: 120px;

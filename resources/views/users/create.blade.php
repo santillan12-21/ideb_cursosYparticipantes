@@ -1,65 +1,65 @@
 @extends('home')
 @section('title', '- Crear Usuario')
-@section('nav')
 
+@section('content')
 <style>
-   .container {
-    margin-top: 10% !important;
-   }
-   h1
-    {
-         text-align: center;
-         margin-bottom: 20px;
+    .create-container {
+        margin-top: 50px;
+        padding-bottom: 50px;
     }
-    label {
-        font-weight: bold;
+    .create-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        overflow: hidden;
+        background: white;
     }
-    .back-arrow {
-        font-size: 1.5rem;
-        color: #333;
-        text-decoration: none;
-        transition: color 0.3s;
-    }
-    .back-arrow:hover {
-        color: #007bff;
-    }
-    .header-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .create-header {
+        background: linear-gradient(135deg, #212529 0%, #343a40 100%);
+        padding: 40px 30px;
+        color: white;
+        border-bottom: 4px solid #28a745;
+        text-align: center;
         position: relative;
-        margin-bottom: 20px;
     }
-    .back-button-container {
-        position: absolute;
-        left: 0;
+    .create-header h2 {
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
     }
-    .botones {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 20px;
+    .user-icon-header {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
+    .form-section-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border: 1px solid #e9ecef;
     }
 </style>
-    
-<div class="container mt-4">
+
+<div class="container create-container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-container">
-                        <div class="back-button-container">
-                            <a href="{{ route('users.index') }}" class="back-arrow" title="Regresar">
-                                <i class="fas fa-arrow-left"></i>
-                            </a>
-                        </div>
-                        <h1 class="mb-0">{{ __('Crear Usuario') }}</h1>
+        <div class="col-lg-9">
+            
+            <div class="card create-card">
+                <div class="create-header">
+                    <a href="{{ route('users.index') }}" class="back-arrow" title="Regresar">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div class="user-icon-header">
+                        <i class="fas fa-user-circle"></i>
                     </div>
+                    <h2 class="mb-0">Añadir Usuario</h2>
+                    <p class="mb-0 mt-2 opacity-75">Complete la información para registrar una nueva cuenta</p>
                 </div>
 
-                <div class="card-body">
+                <div class="card-body p-4 p-md-5">
                     @if ($errors->any())
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger border-0 shadow-sm mb-4">
                             <ul class="mb-0">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -71,116 +71,114 @@
                     <form method="POST" action="{{ route('users.store') }}">
                         @csrf
 
-                        <div class="mb-3">
-                            <label for="name" class="form-label">{{ __('Nombre') }}</label>
-                            <input style="width: 100%" id="name" type="text" class="form-control @error('name') is-invalid @enderror"
-                                   name="name" value="{{ old('name') }}" required autofocus>
-                            @error('name')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-12 mb-4">
+                                <h5 class="form-section-title text-primary"><i class="fas fa-id-card me-2"></i> Datos de Identificación</h5>
+                                <div class="form-section-card shadow-sm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="name" class="form-label small fw-bold text-muted">Nombre(s)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                                <input type="text" name="name" id="name" class="form-control form-control-with-icon" value="{{ old('name') }}" placeholder="Ej. Juan" required autofocus>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="apellido" class="form-label small fw-bold text-muted">Apellido(s)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                                                <input type="text" name="apellido" id="apellido" class="form-control form-control-with-icon" value="{{ old('apellido') }}" placeholder="Ej. Pérez" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-4">
+                                <h5 class="form-section-title text-primary"><i class="fas fa-briefcase me-2"></i> Información Laboral</h5>
+                                <div class="form-section-card shadow-sm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="puesto" class="form-label small fw-bold text-muted">Puesto Asignado</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-id-badge"></i></span>
+                                                <select name="puesto" id="puesto" class="form-select form-control-with-icon" required>
+                                                    <option value="">Seleccione el cargo...</option>
+                                                    <option value="Programador" {{ old('puesto') == 'Programador' ? 'selected' : '' }}>Programador</option>
+                                                    <option value="Administrador" {{ old('puesto') == 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                                                    <option value="Mantenimiento" {{ old('puesto') == 'Mantenimiento' ? 'selected' : '' }}>Mantenimiento</option>
+                                                    <option value="Operacion" {{ old('puesto') == 'Operacion' ? 'selected' : '' }}>Operación</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="email" class="form-label small fw-bold text-muted">Correo Institucional</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                                <input type="email" name="email" id="email" class="form-control form-control-with-icon" value="{{ old('email') }}" placeholder="usuario@idebmexico.com" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-4">
+                                <h5 class="form-section-title text-primary"><i class="fas fa-info-circle me-2"></i> Detalles Adicionales</h5>
+                                <div class="form-section-card shadow-sm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="telefono" class="form-label small fw-bold text-muted">Teléfono de Contacto</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                                <input type="text" name="telefono" id="telefono" class="form-control form-control-with-icon" value="{{ old('telefono') }}" placeholder="10 dígitos" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edad" class="form-label small fw-bold text-muted">Edad del Usuario</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                                <input type="number" name="edad" id="edad" class="form-control form-control-with-icon" value="{{ old('edad') }}" min="18" max="90" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-4">
+                                <h5 class="form-section-title text-primary"><i class="fas fa-shield-alt me-2"></i> Credenciales de Acceso</h5>
+                                <div class="form-section-card shadow-sm" style="background-color: #fff9f0; border-color: #ffe8cc;">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="password" class="form-label small fw-bold text-muted">Contraseña</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                                <input type="password" name="password" id="password" class="form-control form-control-with-icon" placeholder="Mínimo 8 caracteres" required>
+                                                <button type="button" class="btn btn-outline-secondary" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none;" onclick="togglePassword('password')">
+                                                    <i class="fas fa-eye" id="eye-password"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="password_confirmation" class="form-label small fw-bold text-muted">Confirmar Contraseña</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-check-double"></i></span>
+                                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control form-control-with-icon" placeholder="Repita la contraseña" required>
+                                                <button type="button" class="btn btn-outline-secondary" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none;" onclick="togglePassword('password_confirmation')">
+                                                    <i class="fas fa-eye" id="eye-password_confirmation"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="apellido" class="form-label">{{ __('Apellido') }}</label>
-                            <input id="apellido" type="text" class="form-control @error('apellido') is-invalid @enderror"
-                                   name="apellido" value="{{ old('apellido') }}" required>
-                            @error('apellido')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edad" class="form-label">{{ __('Edad') }}</label>
-                            <input id="edad" type="number" class="form-control @error('edad') is-invalid @enderror"
-                                   name="edad" value="{{ old('edad') }}" required min="18" max="90">
-                            @error('edad')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="telefono" class="form-label">{{ __('Teléfono') }}</label>
-                            <input id="telefono" type="text" class="form-control @error('telefono') is-invalid @enderror"
-                                   name="telefono" value="{{ old('telefono') }}" required>
-                            @error('telefono')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="email" class="form-label">{{ __('Email') }}</label>
-                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                                   name="email" value="{{ old('email') }}" required>
-                            @error('email')
-                                <span class="invalid-feedback" role='alert'>
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="puesto" class='form-label'>{{ __('Puesto') }}</label>
-                            <select id='puesto' class='form-control @error('puesto') is-invalid @enderror' name='puesto' required>
-                                <option value="">Seleccione un puesto</option>
-                                <option value='Programador' {{ old('puesto') == 'Programador' ? 'selected' : '' }}>
-                                    {{ __('Programador') }}
-                                </option>
-                                <option value='Administrador' {{ old('puesto') == 'Administrador' ? 'selected' : '' }}>
-                                    {{ __('Administrador') }}
-                                </option>
-                                <option value='Mantenimiento' {{ old('puesto') == 'Mantenimiento' ? 'selected' : '' }}>
-                                    {{ __('Mantenimiento') }}
-                                </option>
-                                <option value='Operacion' {{ old('puesto') == 'Operacion' ? 'selected' : '' }}>
-                                    {{ __('Operación') }}
-                                </option>
-                            </select>
-                            @error('puesto')
-                                <span class='invalid-feedback' role='alert'>
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class='mb-3'>
-                            <label for='password' class='form-label'>{{ __('Contraseña') }}</label>
-                            <input id='password' type='password'
-                                   class='form-control @error("password") is-invalid @enderror'
-                                   name='password' required>
-                            @error('password')
-                                <span class='invalid-feedback' role='alert'>
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <!-- Campo para confirmar contraseña -->
-                        <div class='mb-3'>
-                            <label for='password_confirmation' class='form-label'>{{ __('Confirmar Contraseña') }}</label>
-                            <input id='password_confirmation' type='password'
-                                   class='form-control @error("password_confirmation") is-invalid @enderror'
-                                   name='password_confirmation' required>
-                            @error('password_confirmation')
-                                <span class='invalid-feedback' role='alert'>
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class='botones'>
-                            <button type='submit' class='btn btn-success'>
-                                {{ __('Registrar Usuario') }}
+                        <div class="botones-container">
+                            <button type="submit" class="btn btn-success btn-custom shadow-sm">
+                                <i class="fas fa-save me-2"></i> Crear Usuario
                             </button>
-                            <a href="/users" class='btn btn-danger'>
-                                {{ __('Cancelar') }}
+                            <a href="{{ route('users.index') }}" class="btn btn-danger btn-custom shadow-sm">
+                                <i class="fas fa-times me-2"></i> Cancelar
                             </a>
                         </div>
                     </form>
@@ -189,4 +187,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    function togglePassword(fieldId) {
+        const input = document.getElementById(fieldId);
+        const icon = document.getElementById('eye-' + fieldId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+</script>
 @endsection

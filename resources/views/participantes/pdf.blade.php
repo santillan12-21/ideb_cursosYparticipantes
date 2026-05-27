@@ -2,208 +2,216 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles del Participante</title>
+    <title>Ficha del Participante - {{ $participante->NombredelPostulante }}</title>
     <style>
+        @page {
+            margin: 1.5cm;
+        }
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .letterhead {
-            position: relative;
-        }
-        .letterhead-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        .logo {
-            width: 150px;
-            margin-right: 20px;
-        }
-        .logo img {
-            width: 100%;
-            height: auto;
-        }
-        .contact-info {
-            text-align: right;
+            font-family: 'Helvetica', 'Arial', sans-serif;
             color: #333;
-            font-size: 12px;
+            line-height: 1.4;
+            font-size: 10pt;
         }
-        .letterhead-bottom {
-            position: absolute;
-            bottom: 0;
-            left: 0;
+        .header-table {
             width: 100%;
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-        }
-        .card {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
-            position: relative;
-            background-color: rgba(255, 255, 255, 0.95);
-        }
-        /* Estilo específico para la tarjeta de detalles con logo de fondo */
-        .card.details-card {
-            position: relative;
-            overflow: hidden;
-        }
-        .card.details-card::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 800px;
-            height: 800px;
-            background-image: url("{{ public_path('images/logo4.jpg') }}");
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.10;
-            z-index: 0;
-            pointer-events: none;
-        }
-        .card h5 {
-            font-size: 18px;
-            color: #000;
-            border-bottom: 2px solid #ccc;
+            border-bottom: 2px solid #0d6efd;
             padding-bottom: 10px;
             margin-bottom: 20px;
-            position: relative;
         }
-        .info-text {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 10px;
-            position: relative;
-        }
-        .info-text .info-title {
-            font-weight: bold;
-            color: #000;
-        }
+        .logo { width: 150px; }
         .contact-info {
-            display: flex;
-            align-items: center;
-        }
-        .contact-item {
-            display: flex;
-            align-items: center;
-            margin-right: 15px;
-        }
-        .contact-item img {
-            width: 20px;
-            margin-right: 5px;
-        }
-        .contact-item span {
-            color: blue;
-        }
-        .timestamp {
             text-align: right;
-            font-size: 12px;
-            color: #666;
+            font-size: 8pt;
+            color: #555;
         }
-        @media print {
-            .timestamp {
-                display: block !important;
-                text-align: right;
-                font-size: 12px;
-                color: #000;
-            }
+        
+        h1 {
+            color: #212529;
+            font-size: 18pt;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+        }
+        .id-badge {
+            color: #0d6efd;
+            font-weight: bold;
+            font-size: 12pt;
+            margin-bottom: 20px;
         }
 
-        /* Pie de página */
-footer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    height: 50px;
-    text-align: right;
-    font-size: 12px;
-    color: #444;
-    border-top: 1px solid #ccc;
-    padding-top: 5px;
-}
+        .section-title {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+            font-size: 11pt;
+            font-weight: bold;
+            padding: 6px 10px;
+            border-left: 4px solid #0d6efd;
+            margin: 20px 0 10px 0;
+            text-transform: uppercase;
+        }
 
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .info-table td {
+            padding: 5px;
+            vertical-align: top;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+            width: 30%;
+        }
+        .value {
+            color: #212529;
+            width: 70%;
+        }
+
+        .course-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .course-list th {
+            background-color: #212529;
+            color: white;
+            padding: 8px;
+            font-size: 9pt;
+            text-align: left;
+        }
+        .course-list td {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            font-size: 9pt;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8pt;
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+        }
+        .highlight {
+            color: #198754;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <div class="letterhead">
-        <div class="letterhead-top">
-            <div class="logo">
-                <img src="{{ public_path('images/logo4.jpg') }}" alt="Logo IDEB">
-            </div>
-            <div class="contact-info">
-                <div class="contact-item">
-                    <img src="{{ public_path('images/phone-icon.png') }}" alt="Teléfono">
-                    <span>3337029639 / 3320705533</span>
-                </div>
-                <div class="contact-item">
-                    <img src="{{ public_path('images/email-icon.png') }}" alt="Correo">
-                    <span>instituto.ideb@idebmexico.com</span>
-                </div>
-            </div>
-        </div>
-        <div class="letterhead-bottom">
-            Instituto de Capacitación Industrial
-        </div>
-    </div>
-    <div class="container">
-        <div class="card details-card">
-            <h5>Detalles del Participante: {{ $participante->NombredelPostulante }}</h5>
-            <p class="info-text"><span class="info-title">Id:</span> {{ $participante->N}}</p>
-            <p class="info-text"><span class="info-title">Nombre:</span> {{ $participante->NombredelPostulante }}</p>
-            <p class="info-text"><span class="info-title">Correo Electrónico:</span> {{ $participante->Correo }}</p>
-            <p class="info-text"><span class="info-title">Teléfono:</span> {{ $participante->Telefono }}</p>
-            <p class="info-text"><span class="info-title">Edad:</span> {{ $participante->Edad }}</p>
-            <p class="info-text"><span class="info-title">Dirección:</span> {{ $participante->Direccion }}</p>
-            <p class="info-text"><span class="info-title">Escolaridad:</span> {{ $participante->Escolaridad }}</p>
-            <p class="info-text"><span class="info-title">CURP:</span> {{ $participante->Curp }}</p>
-            <p class="info-text"><span class="info-title">Razón Social:</span> {{ $participante->RazónSocial }}</p>
-            <p class="info-text"><span class="info-title">Empresa:</span> {{ $participante->Empresa }}</p>
-            <p class="info-text"><span class="info-title">RFC Empresa:</span> {{ $participante->RFCEmpresa }}</p>
-            <p class="info-text"><span class="info-title">Ocupación:</span> {{ $participante->Ocupacion }}</p>
-            <p class="info-text"><span class="info-title">Puesto:</span> {{ $participante->Puesto }}</p>
-            @php
-                                $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;
-                            @endphp
-                            ${{ number_format($pago, 2) }},
-            <p class="info-text"><span class="info-title">Estado de Pago:</span> {{ $participante->EstadoDePago }}</p>
-            <p class="info-text"><span class="info-title">Fecha del Curso:</span> {{ \Carbon\Carbon::parse($participante->FechadelCurso)->format('d/m/Y') }}</p>
-        </div>
-        <div class="card">
-            <h5>Cursos Inscritos</h5>
-            @if($participante->cursos->isEmpty())
-                <p class="info-text">No hay cursos inscritos.</p>
-            @else
+    <table class="header-table">
+        <tr>
+            <td><img src="{{ public_path('images/logo4.jpg') }}" class="logo"></td>
+            <td class="contact-info">
+                <b>Instituto I-DEB</b><br>
+                instituto.ideb@idebmexico.com<br>
+                3337029639 / 3320705533
+            </td>
+        </tr>
+    </table>
+
+    <h1>{{ $participante->NombredelPostulante }}</h1>
+    <div class="id-badge">ID REGISTRO: {{ $participante->N }}</div>
+
+    <div class="section-title">Información Personal</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Correo Electrónico:</td>
+            <td class="value">{{ $participante->Correo }}</td>
+        </tr>
+        <tr>
+            <td class="label">Teléfono:</td>
+            <td class="value">{{ $participante->Telefono }}</td>
+        </tr>
+        <tr>
+            <td class="label">Edad:</td>
+            <td class="value">{{ $participante->Edad }} años</td>
+        </tr>
+        <tr>
+            <td class="label">CURP:</td>
+            <td class="value">{{ $participante->Curp }}</td>
+        </tr>
+        <tr>
+            <td class="label">Dirección:</td>
+            <td class="value">{{ $participante->Direccion }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">Información Académica y Laboral</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Escolaridad:</td>
+            <td class="value">{{ $participante->Escolaridad }}</td>
+        </tr>
+        <tr>
+            <td class="label">Ocupación:</td>
+            <td class="value">{{ $participante->Ocupacion }}</td>
+        </tr>
+        <tr>
+            <td class="label">Puesto:</td>
+            <td class="value">{{ $participante->Puesto }}</td>
+        </tr>
+        <tr>
+            <td class="label">Empresa:</td>
+            <td class="value">{{ $participante->Empresa ?: 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">RFC Empresa:</td>
+            <td class="value">{{ $participante->RFCEmpresa ?: 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Razón Social:</td>
+            <td class="value">{{ $participante->RazónSocial ?: 'N/A' }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">Estado de Pago</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Monto Total:</td>
+            <td class="value highlight">
+                @php $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0; @endphp
+                ${{ number_format($pago, 2) }} MXN
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Estatus de Pago:</td>
+            <td class="value"><b>{{ $participante->EstadoDePago }}</b></td>
+        </tr>
+    </table>
+
+    <div class="section-title">Cursos Inscritos</div>
+    @if($participante->cursos->isEmpty())
+        <p>No cuenta con cursos registrados actualmente.</p>
+    @else
+        <table class="course-list">
+            <thead>
+                <tr>
+                    <th>Nombre del Curso</th>
+                    <th>Nomenclatura</th>
+                    <th>Fecha de Inscripción</th>
+                </tr>
+            </thead>
+            <tbody>
                 @foreach($participante->cursos as $curso)
-                    <p class="info-text">
-                        <span class="info-title">{{ $curso->NombredelCurso }}:</span>
-                        Fecha del Curso: {{ \Carbon\Carbon::parse($curso->pivot->FechadelCurso)->format('d/m/Y') }}
-                    </p>
+                    <tr>
+                        <td>{{ $curso->NombredelCurso }}</td>
+                        <td>{{ $curso->Nomenclatura }}</td>
+                        <td>{{ \Carbon\Carbon::parse($curso->pivot->FechadelCurso)->format('d/m/Y') }}</td>
+                    </tr>
                 @endforeach
-            @endif
-        </div>
-        <footer>
-            Impreso el: {{ \Carbon\Carbon::now('America/Mexico_City')->format('d/m/Y h:i:s A') }}
-        </footer>
+            </tbody>
+        </table>
+    @endif
+
+    <div class="footer">
+        Documento oficial del Instituto I-DEB | Generado el {{ date('d/m/Y H:i') }}
     </div>
 </body>
 </html>

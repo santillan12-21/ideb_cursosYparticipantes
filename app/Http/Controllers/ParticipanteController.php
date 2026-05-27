@@ -351,8 +351,8 @@ public function papelera(Request $request)
         // Cargar la vista PDF y pasar los datos
         $pdf = Pdf::loadView('participantes.pdf', compact('participante'));
 
-        // Descargar el PDF
-        return $pdf->download('detalles-participante-' . $participante->nombre . '.pdf');
+        $filename = \Illuminate\Support\Str::slug($participante->NombredelPostulante ?: $participante->nombre) . '.pdf';
+        return $pdf->download($filename);
     }
 
     /**

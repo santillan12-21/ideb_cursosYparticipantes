@@ -29,11 +29,6 @@
             color: #333;
         }
         
-        
-
-
-       
-
         .logout-button {
             background: none;
             border: none;

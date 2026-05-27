@@ -1,52 +1,236 @@
-<!-- resources/views/participantes/detalles.blade.php -->
-@extends('layouts.app')
+@extends('home')
+@section('title', '- Detalles del Participante')
 
 @section('content')
-<div class="container">
-    <h3 class="text-center mt-5">Detalles del Participante</h3>
+<style>
+    .details-container {
+        margin-top: 50px;
+        padding-bottom: 50px;
+    }
     
-    <div class="text-center mt-3 mb-4">
-        @if(auth()->user()?->puesto != 'Operacion')
-        <a href="{{ route('participantes.descargar-pdf', ['id' => $participante->id]) }}" class="btn btn-primary">
-            <i class="fas fa-download"></i> Descargar PDF
-        </a>
-        @endif
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">Regresar</a>
-    </div>
+    /* Botón de regreso minimalista */
+    .back-arrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background-color: rgba(0,0,0,0.05);
+        color: #333;
+        border-radius: 50%;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+    .back-arrow:hover {
+        background-color: #0d6efd;
+        color: white;
+        transform: translateX(-3px);
+    }
 
-    <div class="card mt-4">
-        <div class="card-body">
-            <h5 class="card-title">{{ $participante->NombredelPostulante }}</h5>
-            <p><strong>Id:</strong> {{ $participante->N }}</p>
-            <p><strong>Correo:</strong> {{ $participante->Correo }}</p>
-            <p><strong>Teléfono:</strong> {{ $participante->Telefono }}</p>
-            <p><strong>Edad:</strong> {{ $participante->Edad }}</p>
-            <p><strong>Dirección:</strong> {{ $participante->Direccion }}</p>
-            <p><strong>Escolaridad:</strong> {{ $participante->Escolaridad }}</p>
-            <p><strong>CURP:</strong> {{ $participante->Curp }}</p>
-            <p><strong>Razón Social:</strong> {{ $participante->RazónSocial }}</p>
-            <p><strong>Empresa:</strong> {{ $participante->Empresa }}</p>
-            <p><strong>RFC Empresa:</strong> {{ $participante->RFCEmpresa }}</p>
-            <p><strong>Ocupación:</strong> {{ $participante->Ocupacion }}</p>
-            <p><strong>Puesto:</strong> {{ $participante->Puesto }}</p>
-            <p><strong>Pago:</strong> @php
-                $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;
-            @endphp
-            ${{ number_format($pago, 2) }}</p>
-            <p><strong>Estado de Pago:</strong> {{ $participante->EstadoDePago }}</p>
-            <p><strong>Fecha del Curso:</strong> {{ $participante->FechadelCurso }}</p>
-            <p><strong>Cursos Inscritos:</strong></p>
-            @if($participante->cursos->isEmpty())
-                <p>No hay cursos inscritos</p>
-            @else
-                <ul>
-                    @foreach($participante->cursos as $curso)
-                        <li>{{ $curso->NombredelCurso }} ({{ $curso->pivot->FechadelCurso }})</li>
-                    @endforeach
-                </ul>
-            @endif
+    .details-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        overflow: hidden;
+        background: white;
+        margin-bottom: 30px;
+    }
+    .details-header {
+        background: #212529;
+        padding: 30px;
+        color: white;
+        border-bottom: 4px solid #0d6efd;
+    }
+    .details-header h1 {
+        margin: 0;
+        font-weight: 300;
+        font-size: 1.8rem;
+    }
+    
+    .section-card {
+        border: none;
+        border-radius: 12px;
+        background: #fcfcfc;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid #f0f0f0;
+    }
+    .section-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #0d6efd;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .data-item { margin-bottom: 15px; }
+    .data-label { font-weight: 700; color: #666; font-size: 0.8rem; display: block; margin-bottom: 3px; }
+    .data-value { color: #212529; font-size: 1rem; }
+    .data-value.highlight { color: #198754; font-weight: 700; }
+    
+    .btn-download {
+        border-radius: 30px;
+        padding: 8px 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+        background-color: #dc3545;
+        color: white !important;
+        border: none;
+    }
+    .btn-download:hover {
+        background-color: #bb2d3b;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    }
+</style>
+
+<div class="container details-container">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            
+            <a href="javascript:history.back()" class="back-arrow" title="Regresar">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+
+            <div class="card details-card">
+                <div class="details-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <span class="badge bg-primary mb-2">ID: {{ $participante->N }}</span>
+                        <h1>{{ $participante->NombredelPostulante }}</h1>
+                    </div>
+                    @if(auth()->user()->puesto != 'Operacion')
+                        <a href="{{ route('participantes.descargar-pdf', ['id' => $participante->id]) }}" class="btn btn-download shadow-sm">
+                            <i class="fas fa-file-pdf me-2"></i> Descargar
+                        </a>
+                    @endif
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <div class="row">
+                        <!-- Columna Principal -->
+                        <div class="col-lg-7">
+                            <div class="section-card">
+                                <h5 class="section-title"><i class="fas fa-user me-2"></i> Información Personal</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">Correo Electrónico</span>
+                                            <div class="data-value">{{ $participante->Correo }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">Teléfono</span>
+                                            <div class="data-value">{{ $participante->Telefono }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">Edad</span>
+                                            <div class="data-value">{{ $participante->Edad }} años</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">CURP</span>
+                                            <div class="data-value">{{ $participante->Curp }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="data-item">
+                                            <span class="data-label">Dirección</span>
+                                            <div class="data-value">{{ $participante->Direccion }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <h5 class="section-title"><i class="fas fa-building me-2"></i> Información Laboral y Académica</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">Escolaridad</span>
+                                            <div class="data-value">{{ $participante->Escolaridad }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">Ocupación</span>
+                                            <div class="data-value">{{ $participante->Ocupacion }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">Empresa</span>
+                                            <div class="data-value">{{ $participante->Empresa ?: 'N/A' }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-item">
+                                            <span class="data-label">RFC Empresa</span>
+                                            <div class="data-value">{{ $participante->RFCEmpresa ?: 'N/A' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Secundaria -->
+                        <div class="col-lg-5">
+                            <div class="section-card">
+                                <h5 class="section-title"><i class="fas fa-credit-card me-2"></i> Estado de Pago</h5>
+                                <div class="data-item">
+                                    <span class="data-label">Monto Pagado</span>
+                                    @php
+                                        $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;
+                                    @endphp
+                                    <div class="data-value highlight" style="font-size: 1.5rem;">${{ number_format($pago, 2) }}</div>
+                                </div>
+                                <div class="data-item">
+                                    <span class="data-label">Estatus</span>
+                                    @php
+                                        $badgeClass = match($participante->EstadoDePago) {
+                                            'Pagado' => 'bg-success',
+                                            'Pendiente' => 'bg-warning text-dark',
+                                            'Anticipo' => 'bg-info',
+                                            'Cancelado' => 'bg-danger',
+                                            default => 'bg-secondary'
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }} p-2 w-100" style="font-size: 0.9rem;">{{ $participante->EstadoDePago }}</span>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <h5 class="section-title"><i class="fas fa-graduation-cap me-2"></i> Cursos Inscritos</h5>
+                                @if($participante->cursos->isEmpty())
+                                    <p class="text-muted small">No hay cursos registrados.</p>
+                                @else
+                                    <ul class="list-group list-group-flush">
+                                        @foreach($participante->cursos as $curso)
+                                            <li class="list-group-item px-0 bg-transparent py-2">
+                                                <div class="fw-bold small text-dark">{{ $curso->NombredelCurso }}</div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">
+                                                    <i class="fas fa-calendar-alt me-1"></i> {{ $curso->pivot->FechadelCurso ?: 'Fecha no especificada' }}
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
 </div>
 @endsection
