@@ -21,7 +21,7 @@
 
     .container-fluid { padding: 20px; }
     .table-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .table thead th { background-color: #212529 !important; color: white !important; padding: 15px; white-space: nowrap; }
+    .table thead th { background-color: #000 !important; color: white !important; padding: 15px; white-space: nowrap; }
     .table td { vertical-align: middle; }
     
     .btn-expand { background: none; border: none; color: #0d6efd; font-size: 1.2rem; cursor: pointer; transition: transform 0.2s; }
@@ -72,25 +72,42 @@
     .expanded-section { background-color: #fcfcfc; padding: 25px; border-radius: 0 0 10px 10px; border: 1px solid #eee; border-top: none; }
     .info-label { font-weight: bold; color: #555; }
 
-    /* Paginación negra/gris y alineada a la derecha */
+    /* Paginación estilo LOGS (DataTables/Dark) */
     .pagination-wrapper {
         display: flex;
         justify-content: flex-end;
-        margin-top: 20px;
+        margin-top: 30px;
+    }
+    .pagination {
+        gap: 5px;
     }
     .pagination .page-link {
-        color: #212529;
-        border: 1px solid #dee2e6;
-        padding: 8px 16px;
+        color: #333 !important;
+        border: none !important;
+        background: transparent !important;
+        border-radius: 8px !important;
+        padding: 8px 16px !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin: 0 2px;
     }
     .pagination .page-item.active .page-link {
-        background-color: #212529;
-        border-color: #212529;
-        color: white;
+        background-color: #000 !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     .pagination .page-link:hover {
-        background-color: #e9ecef;
-        color: #000;
+        background-color: #000 !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transform: translateY(-1px);
+    }
+    .pagination .page-item.disabled .page-link {
+        background-color: transparent !important;
+        color: #ccc !important;
+        box-shadow: none !important;
+        transform: none !important;
     }
 </style>
 
@@ -165,8 +182,9 @@
                             <td class="small">{{ $curso->fecha_inicio ? \Carbon\Carbon::parse($curso->fecha_inicio)->format('d/m/Y') : '-' }}</td>
                             <td class="small">{{ $curso->fecha_termino ? \Carbon\Carbon::parse($curso->fecha_termino)->format('d/m/Y') : '-' }}</td>
                             <td>
-                                <span class="badge {{ $curso->status == 1 ? 'bg-success' : 'bg-secondary' }}" style="padding: 8px; min-width: 80px;">
-                                    {{ $curso->status == 1 ? 'Activo' : 'Inactivo' }}
+                                @php $estatus = $curso->estatus_progreso; @endphp
+                                <span class="badge {{ $estatus['color'] }}" style="padding: 8px; min-width: 80px;">
+                                    {{ $estatus['texto'] }}
                                 </span>
                             </td>
                             <td class="text-center sticky-col">
@@ -197,19 +215,15 @@
                         <tr id="details-{{ $curso->id }}" style="display: none;">
                             <td colspan="11" class="p-0">
                                 <div class="expanded-section">
-                                    <div class="row align-items-center mb-4">
-                                        <div class="col-md-6">
-                                            <h5 class="mb-0 text-dark" style="font-weight: 300;">
-                                                <i class="fas fa-level-down-alt me-2"></i> Subcursos de: <span class="fw-bold text-primary">{{ $curso->nombre }}</span>
-                                            </h5>
-                                        </div>
-                                        <div class="col-md-6 text-md-start mt-3 mt-md-0">
-                                            @if(auth()->user()?->puesto != 'Operacion')
-                                                <a href="{{ route('subcursos.iniciar', $curso->id) }}" class="btn-action btn-primary-c shadow-sm" style="width: auto; padding: 0 20px; height: 38px;">
-                                                    <i class="fas fa-plus"></i> Agregar Subcurso
-                                                </a>
-                                            @endif
-                                        </div>
+                                    <div class="mb-4 text-start">
+                                        <h5 class="mb-3 text-dark" style="font-weight: 300;">
+                                             Subcursos de: <span class="fw-bold text-primary">{{ $curso->nombre }}</span>
+                                        </h5>
+                                        @if(auth()->user()?->puesto != 'Operacion')
+                                            <a href="{{ route('subcursos.iniciar', $curso->id) }}" class="btn-action btn-primary-c shadow-sm" style="width: auto; padding: 0 20px; height: 38px;">
+                                                <i class="fas fa-plus me-2"></i> Agregar Subcurso
+                                            </a>
+                                        @endif
                                     </div>
                                     <div id="sub-list-{{ $curso->id }}">
                                         <div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>
@@ -224,7 +238,7 @@
             </table>
         </div>
         <div class="pagination-wrapper">
-            {{ $cursos->links('pagination::bootstrap-4') }}
+            {{ $cursos->links('vendor.pagination.custom-dark') }}
         </div>
     </div>
 </div>
@@ -252,22 +266,23 @@
         fetch(`/cursos/subcursos/${parentId}`)
             .then(response => response.json())
             .then(data => {
+                let html = `<div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nomenclatura</th>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Duración</th>
+                                        <th>Costo</th>
+                                        <th>Inicio</th>
+                                        <th>Término</th>
+                                        <th>Estatus</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                
                 if (data.length > 0) {
-                    let html = `<div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Nomenclatura</th>
-                                            <th>Nombre</th>
-                                            <th>Descripción</th>
-                                            <th>Duración</th>
-                                            <th>Costo</th>
-                                            <th>Inicio</th>
-                                            <th>Término</th>
-                                            <th>Estatus</th>
-                                            <th class="text-center">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
                     data.forEach(sub => {
                         const statusBadge = sub.status == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>';
                         const desc = sub.descripcion ? (sub.descripcion.length > 30 ? sub.descripcion.substring(0,30) + '...' : sub.descripcion) : '-';
@@ -307,11 +322,12 @@
                                     </td>
                                  </tr>`;
                     });
-                    html += `</tbody></table></div>`;
-                    container.innerHTML = html;
                 } else {
-                    container.innerHTML = '<div class="text-center py-3 text-muted small">No hay subcursos registrados para este curso.</div>';
+                    html += `<tr><td colspan="9" class="text-center py-4 text-muted small">No hay subcursos registrados para este curso.</td></tr>`;
                 }
+                
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
             })
             .catch(error => {
                 console.error('Error:', error);

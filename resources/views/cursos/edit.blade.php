@@ -79,7 +79,9 @@
         @for ($paso = 1; $paso <= 7; $paso++)
             <div class="col-md-6">
                 @php
-                    $colorClass = str_replace('btn-', 'btn-', ($coloresPorPaso[$paso] ?? 'secondary')) . '-custom';
+                    $progresoInfo = $coloresPorPaso[$paso] ?? ['class' => 'btn-secondary', 'texto' => 'Pendiente'];
+                    $colorClass = str_replace('btn-', 'btn-', $progresoInfo['class']) . '-custom';
+                    $textoEstado = $progresoInfo['texto'];
                     $titles = [
                         1 => 'Datos del Curso',
                         2 => 'Modalidad del Curso',
@@ -105,7 +107,7 @@
                     </div>
                     <div class="step-content">
                         <span class="step-title">{{ $titles[$paso] }}</span>
-                        <span class="step-subtitle">{{ $subtitles[$paso] }}</span>
+                        <span class="step-subtitle">{{ $subtitles[$paso] }} ({{ $textoEstado }})</span>
                     </div>
                     <div class="step-arrow">
                         <i class="fas fa-chevron-right text-muted"></i>

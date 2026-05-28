@@ -1,375 +1,336 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Curso - Paso 7</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+@extends('layouts.app')
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-            color: #333;
-        }
-        header {
-            background-color: #000000;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-        }
-        header img {
-            width: 100px;
-            height: auto;
-        }
-        .modal-header {
-            background-color: #000;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 1rem;
-        }
-        .modal-header img {
-            background-color: transparent;
-            max-width: 200px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-        .modal-body {
-            text-align: center;
-            font-size: 16px;
-        }
-        .step-indicator {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .step {
-            font-size: 14px;
-            color: #777;
-            font-weight: bold;
-        }
-        .step.active {
-            color: #007bff;
-        }
-        .support-text {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #555;
-        }
-        .modal-dialog {
-            max-width: 80%;
-            max-height: 90vh;
-        }
-        .modal-content {
-            height: 90%;
-        }
-        .modal-body {
-            height: calc(100% - 120px);
-            overflow-y: auto;
-        }
-        .modal-footer {
-            display: flex;
-            justify-content: center;
-        }
-        .buttons-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .form-container {
-            padding-top: 30px;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
-    </header>
-    <div class="container py-5">
+@section('content')
+<style>
+    .step-container {
+        padding: 50px 0;
+        background-color: #f4f7f6;
+        min-height: calc(100vh - 80px);
+    }
+    .step-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        background: white;
+    }
+    .step-header {
+        background: linear-gradient(135deg, #000000 0%, #333333 100%);
+        padding: 30px;
+        color: white;
+        text-align: center;
+    }
+    .step-header h2 {
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 0;
+    }
+    .form-section-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid #e9ecef;
+    }
+    .form-label {
+        font-weight: 700;
+        color: #495057;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    .input-group-text {
+        background-color: #ffffff;
+        color: #6c757d;
+        border-right: none;
+    }
+    .form-control, .form-select {
+        border-left: none;
+        padding: 10px 15px;
+    }
+    .form-control:focus, .form-select:focus {
+        box-shadow: none;
+        border-color: #dee2e6;
+    }
+    .botones-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    .btn-custom {
+        border-radius: 30px;
+        padding: 12px 35px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    .stps-title {
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #333;
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
+
+<div class="step-container">
+    <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h3 class="text-center mb-4">Documentación STPS y Certificados</h3>
-                <div class="alert alert-info text-center">
-                    <strong>Atención:</strong> Si ya completaste este paso al crear el curso original, haz clic en <strong>"Finalizar"</strong> sin volver a subir los archivos.<br>
-                    Esto aplica solo si ya entregaste toda la documentación en el curso padre.
-                </div>
-                @if(session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                <form action="{{ route('curso.guardar-paso7') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-3">
-                        <label class="form-label">Fecha de Registro STPS</label>
-                        <input type="date" name="FechadeRegistro_STPS" class="form-control" value="{{ old('FechadeRegistro_STPS', $datosPadre->FechadeRegistro_STPS ?? '') }}"
->
-                    </div>
-                    <!-- Formato DC5 -->
-                    <div class="mb-3">
-                        <label class="form-label">URL Drive (opcional) de DC5</label>
-                        <input type="text" name="Formato_DC5" class="form-control"  value="{{ old('Formato_DC5', $datosPadre->Formato_DC5 ?? '') }}">
-                        @error('Formato_DC5')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local (opcional)</label>
-                         @if ($archivosLocales['DC5'] === 'actual')
-                                <div class="alert alert-success p-2">
-                                    Este archivo ya fue subido en el curso original
-                                </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('FormatoDC5')">
-                                    Actualizar archivo local
-                                </button>
-                                <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
-                                <input type="file" name="FormatoDC5Local" class="form-control"> 
-                                </div>
-                            @else
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('FormatoDC5')">Crear carpeta local</button>
-                        <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
-                            <input type="file" name="FormatoDC5Local" class="form-control">
-                               
-                        </div>
-                        @endif
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Formato DC5 - ¿Tiene firma?</label>
-                        <select name="Formato_DC5_Tienefirma" class="form-select" required>
-                           <option value="" disabled {{ old('Formato_DC5_Tienefirma', $curso->Formato_DC5_Tienefirma ?? $datosPadre->Formato_DC5_Tienefirma ?? '') == '' ? 'selected' : '' }}>Seleccione una opción</option>
-                            <option value="Si" {{ old('Formato_DC5_Tienefirma', $curso->Formato_DC5_Tienefirma ?? $datosPadre->Formato_DC5_Tienefirma ?? '') == 'Si' ? 'selected' : '' }}>Sí</option>
-                            <option value="No" {{ old('Formato_DC5_Tienefirma', $curso->Formato_DC5_Tienefirma ?? $datosPadre->Formato_DC5_Tienefirma ?? '') == 'No' ? 'selected' : '' }}>No</option>
-                        </select>
-                        @error('Formato_DC5_Tienefirma')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
+            <div class="col-lg-10">
+                <div class="card step-card">
+                    <div class="step-header">
+                        <h2>Paso 7: Documentación STPS y Certificados</h2>
+                        <p class="mb-0 mt-2 opacity-75">Finalización y trámites oficiales</p>
                     </div>
 
-
-                    <!-- Certificado de Comprobación -->
-                    <div class="mb-3">
-                        <label class="form-label">Certificado de Comprobación</label>
-                        <select name="Certificadodecomprobacion" class="form-select" required>
-                             <option value="" disabled {{ old('Certificadodecomprobacion', $curso->Certificadodecomprobacion ?? $datosPadre->Certificadodecomprobacion ?? '') == '' ? 'selected' : '' }}>Seleccione una opción</option>
-                                <option value="Ya obtenida" {{ old('Certificadodecomprobacion', $curso->Certificadodecomprobacion ?? $datosPadre->Certificadodecomprobacion ?? '') == 'Ya obtenida' ? 'selected' : '' }}>Ya obtenida</option>
-                                <option value="En proceso" {{ old('Certificadodecomprobacion', $curso->Certificadodecomprobacion ?? $datosPadre->Certificadodecomprobacion ?? '') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
-                                <option value="No obtenida" {{ old('Certificadodecomprobacion', $curso->Certificadodecomprobacion ?? $datosPadre->Certificadodecomprobacion ?? '') == 'No obtenida' ? 'selected' : '' }}>No obtenida</option>
-                        </select>
-                        @error('Certificadodecomprobacion')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">URL Drive (opcional) de Certificado de Comprobación</label>
-                        <input type="text" name="DrivedeCertificadodecomprobacion" class="form-control" value="{{ old('DrivedeCertificadodecomprobacion', $datosPadre->DrivedeCertificadodecomprobacion ?? '') }}">
-                        @error('DrivedeCertificadodecomprobacion')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local (opcional)</label>
-                         @if ($archivosLocales['CertificadoComprobacion'] === 'actual')
-                                <div class="alert alert-success p-2">
-                                    Este archivo ya fue subido en el curso original
-                                </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CertificadoComprobacion')">
-                                    Actualizar archivo local
-                                </button>
-                                 <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="CertificadoComprobacionLocal" class="form-control">
-                                </div>
-                            @else
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CertificadoComprobacion')">Crear carpeta local</button>
-                        <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="CertificadoComprobacionLocal" class="form-control">
-                               
+                    <div class="card-body p-4 p-md-5">
+                        <div class="alert alert-info text-center shadow-sm mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Atención:</strong> Si ya completaste este paso al crear el curso original, haz clic en <strong>"Finalizar"</strong> sin volver a subir los archivos.
                         </div>
-                        @endif
-                    </div>
-                    <!-- Carta Poder -->
-                    <div class="mb-3">
-                        <label class="form-label">Carta Poder - ¿Tiene firma?</label>
-                        <select name="Cartapoder_tienefirma" class="form-select" required>
-                              <option value="" disabled {{ old('Cartapoder_tienefirma', $curso->Cartapoder_tienefirma ?? $datosPadre->Cartapoder_tienefirma ?? '') == '' ? 'selected' : '' }}>Seleccione una opción</option>
-                                <option value="Si" {{ old('Cartapoder_tienefirma', $curso->Cartapoder_tienefirma ?? $datosPadre->Cartapoder_tienefirma ?? '') == 'Si' ? 'selected' : '' }}>Sí</option>
-                                <option value="No" {{ old('Cartapoder_tienefirma', $curso->Cartapoder_tienefirma ?? $datosPadre->Cartapoder_tienefirma ?? '') == 'No' ? 'selected' : '' }}>No</option>
-                        </select>
-                        @error('Cartapoder_tienefirma')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">URL Drive (opcional) de Carta Poder</label>
-                        <input type="text" name="DriveCartapoder" class="form-control" value="{{ old('DriveCartapoder', $datosPadre ? $datosPadre->DriveCartapoder : '') }}">
-                        @error('DriveCartapoder')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local (opcional)</label>
-                         @if ($archivosLocales['cartapoder'] === 'actual')
-                                <div class="alert alert-success p-2">
-                                    Este archivo ya fue subido en el curso original
-                                </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CartaPoder')">
-                                    Actualizar archivo local
-                                </button>
-                                <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="CartaPoderLocal" class="form-control">
-                                </div>
-                            @else
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('CartaPoder')">Crear carpeta local</button>
-                        <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="CartaPoderLocal" class="form-control">
-                              
+
+                        <form action="{{ route('curso.guardar-paso7') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
                             
-                        </div>
-                         @endif
-                    </div>
+                            <div class="form-section-card shadow-sm">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="FechadeRegistro_STPS" class="form-label">Fecha de Registro STPS</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                            <input type="date" name="FechadeRegistro_STPS" id="FechadeRegistro_STPS" class="form-control" 
+                                                value="{{ old('FechadeRegistro_STPS', $datosPadre->FechadeRegistro_STPS ?? '') }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <!-- UDEMY -->
-                    <div class="mb-3">
-                        <label class="form-label">UDEMY</label>
-                        <select name="UDEMY" class="form-select" required>
-                            <option value="" disabled {{ old('UDEMY', $curso->UDEMY ?? $datosPadre->UDEMY ?? '') == '' ? 'selected' : '' }}>Seleccione una opción</option>
-                            <option value="Prellenado" {{ old('UDEMY', $curso->UDEMY ?? $datosPadre->UDEMY ?? '') == 'Prellenado' ? 'selected' : '' }}>Prellenado</option>
-                            <option value="No se ha prellenado" {{ old('UDEMY', $curso->UDEMY ?? $datosPadre->UDEMY ?? '') == 'No se ha prellenado' ? 'selected' : '' }}>No se ha prellenado</option>
-                        </select>
-                        @error('UDEMY')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local (opcional)</label>
-                         @if ($archivosLocales['Udemy'] === 'actual')
-                                <div class="alert alert-success p-2">
-                                    Este archivo ya fue subido en el curso original
+                            <!-- Formato DC5 -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="stps-title"><i class="fas fa-file-contract"></i> Formato DC5</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="Formato_DC5" class="form-label">URL Drive (opcional)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
+                                            <input type="text" name="Formato_DC5" id="Formato_DC5" class="form-control" 
+                                                value="{{ old('Formato_DC5', $datosPadre->Formato_DC5 ?? '') }}" placeholder="https://drive.google.com/...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="Formato_DC5_Tienefirma" class="form-label">¿Tiene firma?</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-signature"></i></span>
+                                            <select name="Formato_DC5_Tienefirma" id="Formato_DC5_Tienefirma" class="form-select" required>
+                                                <option value="" disabled selected>Seleccione una opción</option>
+                                                <option value="Si" {{ old('Formato_DC5_Tienefirma', $datosPadre->Formato_DC5_Tienefirma ?? '') == 'Si' ? 'selected' : '' }}>Sí</option>
+                                                <option value="No" {{ old('Formato_DC5_Tienefirma', $datosPadre->Formato_DC5_Tienefirma ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Archivo Local (opcional)</label>
+                                        @if ($archivosLocales['DC5'] === 'actual')
+                                            <div class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.85rem;">
+                                                <i class="fas fa-check-circle me-1"></i> Este archivo ya fue subido en el curso original
+                                            </div>
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('FormatoDC5')">
+                                                <i class="fas fa-sync-alt me-1"></i> Actualizar archivo local
+                                            </button>
+                                            <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
+                                                <input type="file" name="FormatoDC5Local" class="form-control"> 
+                                            </div>
+                                        @else
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('FormatoDC5')">
+                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
+                                            </button>
+                                            <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
+                                                <input type="file" name="FormatoDC5Local" class="form-control">
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Udemy')">
-                                    Actualizar archivo local
+                            </div>
+
+                            <!-- Certificado de Comprobación -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="stps-title"><i class="fas fa-stamp"></i> Certificado de Comprobación</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="Certificadodecomprobacion" class="form-label">Estado</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                            <select name="Certificadodecomprobacion" id="Certificadodecomprobacion" class="form-select" required>
+                                                <option value="" disabled selected>Seleccione una opción</option>
+                                                <option value="Ya obtenida" {{ old('Certificadodecomprobacion', $datosPadre->Certificadodecomprobacion ?? '') == 'Ya obtenida' ? 'selected' : '' }}>Ya obtenida</option>
+                                                <option value="En proceso" {{ old('Certificadodecomprobacion', $datosPadre->Certificadodecomprobacion ?? '') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
+                                                <option value="No obtenida" {{ old('Certificadodecomprobacion', $datosPadre->Certificadodecomprobacion ?? '') == 'No obtenida' ? 'selected' : '' }}>No obtenida</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="DrivedeCertificadodecomprobacion" class="form-label">URL Drive (opcional)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
+                                            <input type="text" name="DrivedeCertificadodecomprobacion" id="DrivedeCertificadodecomprobacion" class="form-control" 
+                                                value="{{ old('DrivedeCertificadodecomprobacion', $datosPadre->DrivedeCertificadodecomprobacion ?? '') }}" placeholder="https://drive.google.com/...">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Archivo Local (opcional)</label>
+                                        @if ($archivosLocales['CertificadoComprobacion'] === 'actual')
+                                            <div class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.85rem;">
+                                                <i class="fas fa-check-circle me-1"></i> Este archivo ya fue subido en el curso original
+                                            </div>
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('CertificadoComprobacion')">
+                                                <i class="fas fa-sync-alt me-1"></i> Actualizar archivo local
+                                            </button>
+                                            <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
+                                                <input type="file" name="CertificadoComprobacionLocal" class="form-control">
+                                            </div>
+                                        @else
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('CertificadoComprobacion')">
+                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
+                                            </button>
+                                            <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
+                                                <input type="file" name="CertificadoComprobacionLocal" class="form-control">
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Carta Poder -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="stps-title"><i class="fas fa-file-signature"></i> Carta Poder</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="Cartapoder_tienefirma" class="form-label">¿Tiene firma?</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-signature"></i></span>
+                                            <select name="Cartapoder_tienefirma" id="Cartapoder_tienefirma" class="form-select" required>
+                                                <option value="" disabled selected>Seleccione una opción</option>
+                                                <option value="Si" {{ old('Cartapoder_tienefirma', $datosPadre->Cartapoder_tienefirma ?? '') == 'Si' ? 'selected' : '' }}>Sí</option>
+                                                <option value="No" {{ old('Cartapoder_tienefirma', $datosPadre->Cartapoder_tienefirma ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="DriveCartapoder" class="form-label">URL Drive (opcional)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
+                                            <input type="text" name="DriveCartapoder" id="DriveCartapoder" class="form-control" 
+                                                value="{{ old('DriveCartapoder', $datosPadre->DriveCartapoder ?? '') }}" placeholder="https://drive.google.com/...">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Archivo Local (opcional)</label>
+                                        @if ($archivosLocales['cartapoder'] === 'actual')
+                                            <div class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.85rem;">
+                                                <i class="fas fa-check-circle me-1"></i> Este archivo ya fue subido en el curso original
+                                            </div>
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('CartaPoder')">
+                                                <i class="fas fa-sync-alt me-1"></i> Actualizar archivo local
+                                            </button>
+                                            <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
+                                                <input type="file" name="CartaPoderLocal" class="form-control">
+                                            </div>
+                                        @else
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('CartaPoder')">
+                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
+                                            </button>
+                                            <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
+                                                <input type="file" name="CartaPoderLocal" class="form-control">
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- UDEMY -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="stps-title"><i class="fas fa-graduation-cap"></i> UDEMY</div>
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="UDEMY" class="form-label">Estado UDEMY</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                            <select name="UDEMY" id="UDEMY" class="form-select" required>
+                                                <option value="" disabled selected>Seleccione una opción</option>
+                                                <option value="Prellenado" {{ old('UDEMY', $datosPadre->UDEMY ?? '') == 'Prellenado' ? 'selected' : '' }}>Prellenado</option>
+                                                <option value="No se ha prellenado" {{ old('UDEMY', $datosPadre->UDEMY ?? '') == 'No se ha prellenado' ? 'selected' : '' }}>No se ha prellenado</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Archivo Local (opcional)</label>
+                                        @if ($archivosLocales['Udemy'] === 'actual')
+                                            <div class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.85rem;">
+                                                <i class="fas fa-check-circle me-1"></i> Este archivo ya fue subido en el curso original
+                                            </div>
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('Udemy')">
+                                                <i class="fas fa-sync-alt me-1"></i> Actualizar archivo local
+                                            </button>
+                                            <div id="archivoUdemyContainer" style="display: none;" class="mt-2">
+                                                <input type="file" name="UdemyLocal" class="form-control">
+                                            </div>
+                                        @else
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('Udemy')">
+                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
+                                            </button>
+                                            <div id="archivoUdemyContainer" style="display: none;" class="mt-2">
+                                                <input type="file" name="UdemyLocal" class="form-control">
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="botones-container">
+                                <button type="submit" class="btn btn-dark btn-custom shadow-sm">
+                                    <i class="fas fa-check-circle me-2"></i> Finalizar
                                 </button>
-                                <div id="archivoUdemyContainer" style="display: none;" class="mt-2">
-                                <input type="file" name="UdemyLocal" class="form-control">
-                                </div>
-                            @else
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpeta('Udemy')">Crear carpeta local</button>
-                        <div id="archivoUdemyContainer" style="display: none;" class="mt-2">
-                            <input type="file" name="UdemyLocal" class="form-control">
-                                
-                        </div>
-                        @endif
-                    </div>
-                    <!-- Botones -->
-                    <div class="mb-3 d-flex justify-content-between">
-                        <!-- Botón Finalizar -->
-                        <button type="submit" class="btn btn-success">Finalizar</button>
-                        <!-- Botón Atrás -->
-                        <a href="{{ route('curso.paso6') }}" class="btn btn-secondary">Atrás</a>
-                        <!-- Botón Cancelar -->
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
-                    </div>
-                </form>
-                <!-- Modal -->
-                <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                        <div class="modal-content">
-                            <!-- Encabezado del Modal -->
-                            <div class="modal-header">
-                                <img src="{{ asset('images/logo3.png') }}" alt="Logo">
-                                <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                <a href="{{ route('curso.paso6') }}" class="btn btn-secondary btn-custom shadow-sm">
+                                    <i class="fas fa-arrow-left me-2"></i> Regresar
+                                </a>
                             </div>
-                            <!-- Cuerpo del Modal -->
-                            <div class="modal-body">
-                                <div class="step-indicator">
-                                    <div class="step">Paso 1 Datos del Curso</div>
-                                    <div class="step">Paso 2 Modalidad del Curso</div>
-                                    <div class="step">Paso 3 Formato de Flyer / Imagen</div>
-                                    <div class="step">Paso 4 Documentos del Curso</div>
-                                    <div class="step">Paso 5 Material de Apoyo</div>
-                                    <div class="step">Paso 6 Documentos de Evaluación</div>
-                                    <div class="step active">Paso 7 Documentación STPS y Certificados</div>
-                                </div>
-                                <p>Al dar click a Confirmar se va a borrar toda la información y lo regresará a la venta de inicio.</p>
-                                <div class="buttons-container">
-                                    <a href="{{ route('cursos.index') }}" class="btn btn-primary">Confirmar</a>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                </div>
-                            </div>
-                            <!-- Pie de página del Modal -->
-                            <div class='modal-footer text-center'>
-                                Soporte y servicios técnicos y de ingeniería.
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-       function crearCarpeta(tipo) {
-        // Validar que el tipo sea uno de los permitidos
-        const tiposPermitidos = ['FormatoDC5', 'CertificadoComprobacion', 'CartaPoder', 'Udemy'];
-        if (!tiposPermitidos.includes(tipo)) {
-            alert('Error: Tipo de carpeta no válido.');
-            return;
-        }
-
-        // Realizar la solicitud POST al servidor para crear la carpeta
-        fetch('/crear-carpeta', {
+<script>
+    function crearCarpeta(tipo) {
+        fetch('{{ route("crear.carpeta") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Token CSRF para protección contra ataques CSRF
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({
-                tipo: tipo, // Enviar el tipo de carpeta al servidor
-                nombreCarpeta: tipo // El nombre de la carpeta será igual al tipo
-            })
+            body: JSON.stringify({ tipo: tipo, nombreCarpeta: tipo })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Carpeta creada exitosamente: ' + data.ruta);
-
-                // Mostrar el contenedor de archivos correspondiente
                 const contenedor = document.getElementById(`archivo${tipo}Container`);
-                if (contenedor) {
-                    contenedor.style.display = 'block';
-                }
-
-                // Limpiar el campo de archivo si existe
-                const inputArchivo = document.querySelector(`input[name="${tipo}Local"]`);
-                if (inputArchivo) {
-                    inputArchivo.value = ''; // Limpiar el campo de archivo
-                }
+                if (contenedor) contenedor.style.display = 'block';
             } else {
                 alert('Error: ' + data.message);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Ocurrió un error al crear la carpeta. Por favor, inténtelo nuevamente.');
         });
     }
-    </script>
-</body>
-</html>
+</script>
+@endsection

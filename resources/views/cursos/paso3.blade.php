@@ -1,230 +1,264 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Curso - Paso 3</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+@extends('layouts.app')
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-            color: #333;
-        }
-        header {
-            background-color: #000000;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-        }
-        header img {
-            width: 100px;
-            height: auto;
-        }
-        .step-indicator {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .step {
-            font-size: 14px;
-            color: #777;
-            font-weight: bold;
-        }
-        .step.active {
-            color: #007bff;
-        }
-        .support-text {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #555;
-        }
-        .modal-header {
-            background-color: #000;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 1rem;
-        }
-        .modal-header img {
-            background-color: transparent;
-            max-width: 200px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-        .modal-body {
-            text-align: center;
-            font-size: 16px;
-        }
-        .modal-footer {
-            display: flex;
-            justify-content: center;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
-    </header>
-    <div class="container py-5">
+@section('content')
+<style>
+    .step-container {
+        padding: 50px 0;
+        background-color: #f4f7f6;
+        min-height: calc(100vh - 80px);
+    }
+    .step-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        background: white;
+    }
+    .step-header {
+        background: linear-gradient(135deg, #000000 0%, #333333 100%);
+        padding: 30px;
+        color: white;
+        text-align: center;
+    }
+    .step-header h2 {
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 0;
+    }
+    .form-section-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid #e9ecef;
+    }
+    .form-label {
+        font-weight: 700;
+        color: #495057;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    .input-group-text {
+        background-color: #ffffff;
+        color: #6c757d;
+        border-right: none;
+    }
+    .form-control {
+        border-left: none;
+        padding: 10px 15px;
+    }
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #dee2e6;
+    }
+    .botones-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    .btn-custom {
+        border-radius: 30px;
+        padding: 12px 35px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    .platform-title {
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #333;
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
+
+<div class="step-container">
+    <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h3 class="text-center mb-4">Formato de Flyer / Imagen</h3>
-
-                @if(session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                <form action="{{ route('curso.paso3.guardar') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-
-                   <!-- Sin Fecha -->
-                    <div class="mb-3">
-                        <label class="form-label">Porcentaje de Sin Fecha</label>
-                        <input type="text" name="SinFecha" class="form-control" value="{{ old('SinFecha') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">URL Drive (opcional)</label>
-                        <input type="text" name="DriveSinFecha" class="form-control" value="{{ old('DriveSinFecha') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local (opcional)</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpetasLocales()">Crear carpeta local</button>
-                        <div id="archivoSinFechaContainer" style="display: {{ isset($carpetasExistentes['SinFecha']) && $carpetasExistentes['SinFecha'] ? 'block' : 'none' }};" class="mt-2">
-                            <input type="file" name="SinFechaLocal" class="form-control">
-                            @if(session('cursos_paso3.SinFechaLocal'))
-                                 Archivo subido: {{ session('cursos_paso3.SinFechaLocal') ?? 'No hay archivo subido'}}
-                            @endif
-                        </div>
+            <div class="col-lg-10">
+                <div class="card step-card">
+                    <div class="step-header">
+                        <h2>Paso 3: Formato de Flyer / Imagen</h2>
+                        <p class="mb-0 mt-2 opacity-75">Material gráfico y redes sociales</p>
                     </div>
 
-                    <!-- Facebook -->
-                    <div class="mb-3">
-                        <label class="form-label">Porcentaje de Facebook</label>
-                        <input type="text" name="Facebook" class="form-control" value="{{ old('Facebook') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">URL Drive (opcional)</label>
-                        <input type="text" name="DriveFacebook" class="form-control" value="{{ old('DriveFacebook') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local (opcional)</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpetasLocales()">Crear carpeta local</button>
-                        <div id="archivoFacebookContainer" style="display: {{ isset($carpetasExistentes['Facebook']) && $carpetasExistentes['Facebook'] ? 'block' : 'none' }};" class="mt-2">
-                            <input type="file" name="FacebookLocal" class="form-control">
-                            @if(session('cursos_paso3.FacebookLocal'))
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso3.FacebookLocal') ?? 'No hay archivo subido' }}
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- LinkedIn -->
-                    <div class="mb-3">
-                        <label class="form-label">Porcentaje de LinkedIn</label>
-                        <input type="text" name="Linkedin" class="form-control" value="{{ old('Linkedin') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">URL Drive (opcional)</label>
-                        <input type="text" name="DriveLinkedin" class="form-control" value="{{ old('DriveLinkedin') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local (opcional)</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpetasLocales()">Crear carpeta local</button>
-                        <div id="archivoLinkedInContainer" style="display: {{ isset($carpetasExistentes['LinkedIn']) && $carpetasExistentes['LinkedIn'] ? 'block' : 'none' }};" class="mt-2">
-                            <input type="file" name="LinkedInLocal" class="form-control">
-                            @if(session('cursos_paso3.LinkedInLocal'))
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso3.LinkedInLocal') ?? 'No hay archivo subido' }}
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Instagram -->
-                    <div class="mb-3">
-                        <label class="form-label">Porcentaje de Instagram</label>
-                        <input type="text" name="Instagram" class="form-control" value="{{ old('Instagram') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">URL Drive (opcional)</label>
-                        <input type="text" name="DriveInstagram" class="form-control" value="{{ old('DriveInstagram') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivo Local (opcional)</label>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="crearCarpetasLocales()">Crear carpeta local</button>
-                        <div id="archivoInstagramContainer" style="display: {{ isset($carpetasExistentes['Instagram']) && $carpetasExistentes['Instagram'] ? 'block' : 'none' }};" class="mt-2">
-                            <input type="file" name="InstagramLocal" class="form-control">
-                            @if(session('cursos_paso3.InstagramLocal'))
-                                <div class="mt-2">
-                                    Archivo subido: {{ session('cursos_paso3.InstagramLocal') }}
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                    <!-- Botones -->
-                    <div class="mb-3 d-flex justify-content-between">
-                        <!-- Botón Siguiente -->
-                        <button type="submit" class="btn btn-success">Siguiente</button>
-                        <!-- Botón Atrás -->
-                        <a href="{{ route('curso.paso2') }}" class="btn btn-secondary">Atrás</a>
-                        <!-- Botón Cancelar -->
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
-                            Cancelar
-                        </button>
-                        <button type="button" class="btn btn-warning" id="finalizarForzadoBtn">Finalización Forzada</button>
-                    </div>
-                </form>
-
-                <!-- Modal de Confirmación para Cancelar -->
-                <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                        <div class="modal-content">
-                            <!-- Encabezado del Modal -->
-                            <div class="modal-header">
-                                <img src="{{ asset('images/logo3.png') }}" alt="Logo">
-                                <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                            </div>
-                            <!-- Cuerpo del Modal -->
-                            <div class="modal-body">
-                                <div class="step-indicator">
-                                    <div class="step">Paso 1 Datos del Curso</div>
-                                    <div class="step">Paso 2 Modalidad del Curso</div>
-                                    <div class="step active">Paso 3 Formato de Flyer / Imagen</div>
-                                    <div class="step">Paso 4 Documentos del Curso</div>
-                                    <div class="step">Paso 5 Material de Apoyo</div>
-                                    <div class="step">Paso 6 Documentos de Evaluación</div>
-                                    <div class="step">Paso 7 Documentación STPS y Certificados</div>
-                                </div>
-                                <p>Al dar click a Confirmar se va a borrar toda la información y lo regresará a la venta de inicio.</p>
-                                <div class="buttons-container">
-                                    <a href="{{ route('cursos.index') }}" class="btn btn-primary">Confirmar</a>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <div class="card-body p-4 p-md-5">
+                        <form action="{{ route('curso.paso3.guardar') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            
+                            <!-- Sin Fecha -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="platform-title"><i class="fas fa-calendar-times"></i> Sin Fecha</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="SinFecha" class="form-label">Porcentaje</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-percentage"></i></span>
+                                            <input type="text" name="SinFecha" id="SinFecha" class="form-control" value="{{ old('SinFecha') }}" placeholder="Ej: 100%">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="DriveSinFecha" class="form-label">URL Drive (opcional)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
+                                            <input type="text" name="DriveSinFecha" id="DriveSinFecha" class="form-control" value="{{ old('DriveSinFecha') }}" placeholder="https://drive.google.com/...">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Archivo Local (opcional)</label>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
+                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
+                                            </button>
+                                            <div id="archivoSinFechaContainer" style="display: {{ isset($carpetasExistentes['SinFecha']) && $carpetasExistentes['SinFecha'] ? 'block' : 'none' }}; flex-grow: 1;">
+                                                <input type="file" name="SinFechaLocal" class="form-control">
+                                            </div>
+                                        </div>
+                                        @if(session('cursos_paso3.SinFechaLocal'))
+                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle"></i> Archivo subido: {{ session('cursos_paso3.SinFechaLocal') }}</small>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
-                            <!-- Pie de página del Modal -->
-                            <div class="modal-footer text-center">
-                                Soporte y servicios técnicos y de ingeniería.
+
+                            <!-- Facebook -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="platform-title"><i class="fab fa-facebook"></i> Facebook</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="Facebook" class="form-label">Porcentaje</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-percentage"></i></span>
+                                            <input type="text" name="Facebook" id="Facebook" class="form-control" value="{{ old('Facebook') }}" placeholder="Ej: 100%">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="DriveFacebook" class="form-label">URL Drive (opcional)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
+                                            <input type="text" name="DriveFacebook" id="DriveFacebook" class="form-control" value="{{ old('DriveFacebook') }}" placeholder="https://drive.google.com/...">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Archivo Local (opcional)</label>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
+                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
+                                            </button>
+                                            <div id="archivoFacebookContainer" style="display: {{ isset($carpetasExistentes['Facebook']) && $carpetasExistentes['Facebook'] ? 'block' : 'none' }}; flex-grow: 1;">
+                                                <input type="file" name="FacebookLocal" class="form-control">
+                                            </div>
+                                        </div>
+                                        @if(session('cursos_paso3.FacebookLocal'))
+                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle"></i> Archivo subido: {{ session('cursos_paso3.FacebookLocal') }}</small>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+
+                            <!-- LinkedIn -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="platform-title"><i class="fab fa-linkedin"></i> LinkedIn</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="Linkedin" class="form-label">Porcentaje</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-percentage"></i></span>
+                                            <input type="text" name="Linkedin" id="Linkedin" class="form-control" value="{{ old('Linkedin') }}" placeholder="Ej: 100%">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="DriveLinkedin" class="form-label">URL Drive (opcional)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
+                                            <input type="text" name="DriveLinkedin" id="DriveLinkedin" class="form-control" value="{{ old('DriveLinkedin') }}" placeholder="https://drive.google.com/...">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Archivo Local (opcional)</label>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
+                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
+                                            </button>
+                                            <div id="archivoLinkedInContainer" style="display: {{ isset($carpetasExistentes['LinkedIn']) && $carpetasExistentes['LinkedIn'] ? 'block' : 'none' }}; flex-grow: 1;">
+                                                <input type="file" name="LinkedInLocal" class="form-control">
+                                            </div>
+                                        </div>
+                                        @if(session('cursos_paso3.LinkedInLocal'))
+                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle"></i> Archivo subido: {{ session('cursos_paso3.LinkedInLocal') }}</small>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Instagram -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="platform-title"><i class="fab fa-instagram"></i> Instagram</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="Instagram" class="form-label">Porcentaje</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-percentage"></i></span>
+                                            <input type="text" name="Instagram" id="Instagram" class="form-control" value="{{ old('Instagram') }}" placeholder="Ej: 100%">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="DriveInstagram" class="form-label">URL Drive (opcional)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
+                                            <input type="text" name="DriveInstagram" id="DriveInstagram" class="form-control" value="{{ old('DriveInstagram') }}" placeholder="https://drive.google.com/...">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Archivo Local (opcional)</label>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
+                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
+                                            </button>
+                                            <div id="archivoInstagramContainer" style="display: {{ isset($carpetasExistentes['Instagram']) && $carpetasExistentes['Instagram'] ? 'block' : 'none' }}; flex-grow: 1;">
+                                                <input type="file" name="InstagramLocal" class="form-control">
+                                            </div>
+                                        </div>
+                                        @if(session('cursos_paso3.InstagramLocal'))
+                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle"></i> Archivo subido: {{ session('cursos_paso3.InstagramLocal') }}</small>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="botones-container">
+                                <button type="submit" class="btn btn-dark btn-custom shadow-sm">
+                                    <i class="fas fa-save me-2"></i> Guardar y Continuar
+                                </button>
+                                <a href="{{ route('curso.paso2') }}" class="btn btn-secondary btn-custom shadow-sm">
+                                    <i class="fas fa-arrow-left me-2"></i> Regresar
+                                </a>
+                                <button type="button" class="btn btn-warning btn-custom shadow-sm" id="finalizarForzadoBtn">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> Finalización Forzada
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        function crearCarpetasLocales() {
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function crearCarpetasLocales() {
         const tipos = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
         tipos.forEach(tipo => {
             fetch('{{ route("crear.carpeta.local") }}', {
@@ -238,68 +272,60 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Actualizar la vista sin recargar la página
                     document.querySelector(`#archivo${tipo}Container`).style.display = 'block';
                 }
             });
         });
     }
-    </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
-            // Mostrar mensaje de confirmación
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, finalizar ahora',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Enviar los datos actuales del formulario mediante AJAX
-                    const formData = new FormData(document.querySelector('form'));
-
-                    fetch('/curso/finalizacion-forzada', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Curso guardado',
-                                text: 'El curso ha sido guardado como incompleto.'
-                            }).then(() => {
-                                window.location.href = "{{ route('cursos.index') }}";
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.message
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
+    document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, finalizar ahora',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const formData = new FormData(document.querySelector('form'));
+                fetch('{{ route("curso.finalizacionForzada") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Curso guardado',
+                            text: 'El curso ha sido guardado como incompleto.'
+                        }).then(() => {
+                            window.location.href = "{{ route('cursos.index') }}";
+                        });
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Ocurrió un error al procesar la solicitud.'
+                            text: data.message
                         });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al procesar la solicitud.'
                     });
-                }
-            });
+                });
+            }
         });
-    </script>
-</body>
-</html>
+    });
+</script>
+@endsection

@@ -216,6 +216,31 @@ class Cursos extends Model
         'fecha_registro_stps'
     ];
 
+    public function getEstatusProgresoAttribute()
+    {
+        $campos = [
+            'nomenclatura', 'nombre', 'descripcion', 'costo', 'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion',
+            'virtual', 'presencial', 'mixto', 'sin_fecha', 'facebook', 'linkedin', 'instagram', 'temario', 'itinerario', 'planeacion',
+            'digital', 'impreso_presentable', 'presentacion', 'evaluacion_diagnostica', 'evaluacion_satisfaccion', 'evaluacion_final', 'dc3',
+            'fecha_registro_stps', 'formato_dc5', 'certificado_comprobacion', 'udemy'
+        ];
+
+        $llenos = 0;
+        foreach ($campos as $campo) {
+            if (!empty($this->attributes[$campo])) $llenos++;
+        }
+
+        $porcentaje = (count($campos) > 0) ? ($llenos / count($campos)) * 100 : 0;
+
+        if ($porcentaje == 100) {
+            return ['texto' => 'Completado', 'color' => 'bg-success'];
+        } elseif ($porcentaje >= 30) {
+            return ['texto' => 'En progreso', 'color' => 'bg-warning'];
+        } else {
+            return ['texto' => 'Pendiente de actualización', 'color' => 'bg-danger'];
+        }
+    }
+
     public function inscripciones()
     {
         return $this->hasMany(Inscripcion::class, 'curso_id');

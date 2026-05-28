@@ -439,13 +439,13 @@ class CursoController extends Controller
     {
         $progreso = [];
         $pasosCampos = [
-            1 => ['nombre', 'nomenclatura', 'costo'],
+            1 => ['nombre', 'nomenclatura', 'costo', 'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion'],
             2 => ['virtual', 'presencial', 'mixto'],
-            3 => ['sin_fecha', 'facebook'],
-            4 => ['temario', 'itinerario'],
-            5 => ['digital'],
-            6 => ['presentacion', 'dc3'],
-            7 => ['formato_dc5', 'udemy'],
+            3 => ['sin_fecha', 'facebook', 'linkedin', 'instagram'],
+            4 => ['temario', 'itinerario', 'planeacion'],
+            5 => ['digital', 'impreso_presentable'],
+            6 => ['presentacion', 'evaluacion_diagnostica', 'evaluacion_satisfaccion', 'evaluacion_final', 'dc3'],
+            7 => ['fecha_registro_stps', 'formato_dc5', 'certificado_comprobacion', 'udemy'],
         ];
 
         foreach ($pasosCampos as $paso => $campos) {
@@ -454,7 +454,15 @@ class CursoController extends Controller
                 if (!empty($curso->getRawOriginal($campo))) $llenos++;
             }
             $porcentaje = (count($campos) > 0) ? ($llenos / count($campos)) * 100 : 0;
-            $progreso[$paso] = ($porcentaje >= 80) ? 'btn-success' : (($porcentaje >= 50) ? 'btn-warning' : 'btn-danger');
+            
+            // Lógica solicitada: 30% no es completo.
+            if ($porcentaje == 100) {
+                $progreso[$paso] = ['class' => 'btn-success', 'texto' => 'Completado'];
+            } elseif ($porcentaje >= 30) {
+                $progreso[$paso] = ['class' => 'btn-warning', 'texto' => 'En progreso'];
+            } else {
+                $progreso[$paso] = ['class' => 'btn-danger', 'texto' => 'Pendiente de actualización'];
+            }
         }
         return $progreso;
     }

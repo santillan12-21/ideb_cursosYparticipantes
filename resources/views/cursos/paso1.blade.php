@@ -1,247 +1,214 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario - Crear Curso</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
+@extends('layouts.app')
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+@section('content')
+<style>
+    .step-container {
+        padding: 50px 0;
+        background-color: #f4f7f6;
+        min-height: calc(100vh - 80px);
+    }
+    .step-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        background: white;
+    }
+    .step-header {
+        background: linear-gradient(135deg, #000000 0%, #333333 100%);
+        padding: 30px;
+        color: white;
+        text-align: center;
+    }
+    .step-header h2 {
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 0;
+    }
+    .form-section-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid #e9ecef;
+    }
+    .form-label {
+        font-weight: 700;
+        color: #495057;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    .input-group-text {
+        background-color: #ffffff;
+        color: #6c757d;
+        border-right: none;
+    }
+    .form-control {
+        border-left: none;
+        padding: 10px 15px;
+    }
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #dee2e6;
+    }
+    .botones-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .btn-custom {
+        border-radius: 30px;
+        padding: 12px 35px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+</style>
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-            color: #333;
-        }
-
-        header {
-            background-color: #000000;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        header img {
-            width: 100px;
-            height: auto;
-        }
-
-        .modal-header {
-            background-color: #000;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 1rem;
-        }
-        .modal-header img {
-            background-color: transparent;
-            max-width: 200px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-        .modal-body {
-            text-align: center;
-            font-size: 16px;
-        }
-        .step-indicator {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .step {
-            font-size: 14px;
-            color: #777;
-            font-weight: bold;
-        }
-        .step.active {
-            color: #007bff;
-        }
-        .support-text {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #555;
-        }
-        .modal-dialog {
-            max-width: 80%;
-            max-height: 90vh;
-        }
-        .modal-content {
-            height: 90%;
-        }
-        .modal-body {
-            height: calc(100% - 120px);
-            overflow-y: auto;
-        }
-        .modal-footer {
-            display: flex;
-            justify-content: center;
-        }
-        .buttons-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .form-container {
-            padding-top: 30px;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <img src="{{ asset('images/logo2.jpeg') }}" alt="Logo" class="logo">
-    </header>
-
-    <div class="container d-flex justify-content-center align-items-center form-container">
-        <div class="w-50">
-            <h3 class="text-center mb-4">Datos del Curso</h3>
-            <form action="{{ route('curso.paso1.guardar') }}" method="POST">
-                @csrf
-                <div class="mb-3">
-                    <label for="Nomenclatura" class="form-label fw-bold small text-uppercase text-muted">Nomenclatura del Curso</label>
-                    <input type="text" name="Nomenclatura" id="Nomenclatura" class="form-control @error('Nomenclatura') is-invalid @enderror"
-                        placeholder="Ingrese la nomenclatura manualmente" value="{{ old('Nomenclatura', session('nomenclatura_generada')) }}" required>
-                    @error('Nomenclatura')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="mb-3">
-                    <input type="text" name="NombredelCurso" class="form-control @error('NombredelCurso') is-invalid @enderror" placeholder="Nombre del Curso"   value="{{ old('NombredelCurso', $curso->NombredelCurso ?? '') }}" required>
-                    @error('NombredelCurso')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="mb-3">
-                <textarea name="DescripciondeCurso" class="form-control" rows="3" placeholder="Descripción del Curso" required>
-                {{ old('DescripciondeCurso', $curso->DescripciondeCurso ?? ($datosPadre->DescripciondeCurso ?? '')) }}
-                </textarea>  
-                </div>
-                <div class="mb-3">
-                <input type="number" step="0.01" name="CostodelCurso" class="form-control"
-                value="{{ old('CostodelCurso', $curso->CostodelCurso ?? ($datosPadre->CostodelCurso ?? '')) }}"
-                placeholder="Costo del Curso ($)" required>               
-                </div>
-                <div class="mb-3">
-                    <input type="text" name="InstructorResponsable" class="form-control" placeholder="Instructor Responsable" required>
-                </div>
-                <div class="mb-3">
-                    <input type="date" name="FechadeInicio" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <input type="date" name="FechadeTermino" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <input type="text" name="Duracioncurso" class="form-control" placeholder="Duración del Curso (ej: 9 horas)" required>
-                </div>
-                <div class="mb-3 d-flex justify-content-between">
-                    <button type="submit" class="btn btn-success">Siguiente</button>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
-                    <button type="button" class="btn btn-warning" id="finalizarForzadoBtn">Finalización Forzada</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <img src="{{ asset('images/logo3.png') }}" alt="Logo">
-                    <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="step-indicator">
-                        <div class="step active">Paso 1 Datos del Curso</div>
-                        <div class="step">Paso 2 Modalidad del Curso</div>
-                        <div class="step">Paso 3 Formato de Flyer / Imagen</div>
-                        <div class="step">Paso 4 Documentos del Curso</div>
-                        <div class="step">Paso 5 Material de Apoyo</div>
-                        <div class="step">Paso 6 Documentos de Evaluación</div>
-                        <div class="step">Paso 7 Documentación STPS y Certificados</div>
+<div class="step-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card step-card">
+                    <div class="step-header">
+                        <h2>Paso 1: Datos del Curso</h2>
+                        <p class="mb-0 mt-2 opacity-75">Información básica y general</p>
                     </div>
 
-                    <p>Al dar click a Confirmar se va a borrar toda la informacion y lo regresara a la venta de inicio.</p>
+                    <div class="card-body p-4 p-md-5">
+                        <form action="{{ route('curso.paso1.guardar') }}" method="POST">
+                            @csrf
+                            <div class="form-section-card shadow-sm">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="Nomenclatura" class="form-label">Nomenclatura del Curso</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+                                            <input type="text" name="Nomenclatura" id="Nomenclatura" 
+                                                class="form-control @error('Nomenclatura') is-invalid @enderror"
+                                                placeholder="Ej: CUR-2024-001" 
+                                                value="{{ old('Nomenclatura', session('nomenclatura_generada')) }}" required>
+                                            @error('Nomenclatura')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
 
-                    <div class="buttons-container">
-                        <a href="{{ route('cursos.index') }}" class="btn btn-primary">Confirmar</a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="support-text">
-                        Soporte y servicios técnicos y de ingeniería.
+                                    <div class="col-md-6">
+                                        <label for="NombredelCurso" class="form-label">Nombre del Curso</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-book"></i></span>
+                                            <input type="text" name="NombredelCurso" id="NombredelCurso"
+                                                class="form-control @error('NombredelCurso') is-invalid @enderror" 
+                                                placeholder="Ingrese el nombre" 
+                                                value="{{ old('NombredelCurso', $curso->NombredelCurso ?? '') }}" required>
+                                            @error('NombredelCurso')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="DescripciondeCurso" class="form-label">Descripción</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-align-left"></i></span>
+                                            <textarea name="DescripciondeCurso" id="DescripciondeCurso" 
+                                                class="form-control @error('DescripciondeCurso') is-invalid @enderror" 
+                                                rows="3" placeholder="Breve descripción del curso" required>{{ old('DescripciondeCurso', $curso->DescripciondeCurso ?? '') }}</textarea>
+                                            @error('DescripciondeCurso')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="CostodelCurso" class="form-label">Costo ($)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                                            <input type="number" step="0.01" name="CostodelCurso" id="CostodelCurso"
+                                                class="form-control @error('CostodelCurso') is-invalid @enderror"
+                                                value="{{ old('CostodelCurso', $curso->CostodelCurso ?? '') }}"
+                                                placeholder="0.00" required>
+                                            @error('CostodelCurso')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <label for="InstructorResponsable" class="form-label">Instructor Responsable</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                                            <input type="text" name="InstructorResponsable" id="InstructorResponsable"
+                                                class="form-control @error('InstructorResponsable') is-invalid @enderror"
+                                                placeholder="Nombre del instructor" 
+                                                value="{{ old('InstructorResponsable', $curso->InstructorResponsable ?? '') }}" required>
+                                            @error('InstructorResponsable')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="FechadeInicio" class="form-label">Fecha de Inicio</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                            <input type="date" name="FechadeInicio" id="FechadeInicio"
+                                                class="form-control @error('FechadeInicio') is-invalid @enderror"
+                                                value="{{ old('FechadeInicio', $curso->FechadeInicio ?? '') }}" required>
+                                            @error('FechadeInicio')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="FechadeTermino" class="form-label">Fecha de Término</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-calendar-check"></i></span>
+                                            <input type="date" name="FechadeTermino" id="FechadeTermino"
+                                                class="form-control @error('FechadeTermino') is-invalid @enderror"
+                                                value="{{ old('FechadeTermino', $curso->FechadeTermino ?? '') }}" required>
+                                            @error('FechadeTermino')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="Duracioncurso" class="form-label">Duración del Curso</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                            <input type="text" name="Duracioncurso" id="Duracioncurso"
+                                                class="form-control @error('Duracioncurso') is-invalid @enderror"
+                                                placeholder="Ej: 20 horas" 
+                                                value="{{ old('Duracioncurso', $curso->Duracioncurso ?? '') }}" required>
+                                            @error('Duracioncurso')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="botones-container">
+                                <button type="submit" class="btn btn-dark btn-custom shadow-sm">
+                                    <i class="fas fa-save me-2"></i> Guardar y Continuar
+                                </button>
+                                <a href="{{ route('cursos.index') }}" class="btn btn-secondary btn-custom shadow-sm">
+                                    <i class="fas fa-arrow-left me-2"></i> Regresar
+                                </a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</body>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
-        // Mostrar mensaje de confirmación
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, finalizar ahora',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Enviar los datos actuales del formulario mediante AJAX
-                const formData = new FormData(document.querySelector('form'));
-
-                fetch('/curso/finalizacion-forzada', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Curso guardado',
-                            text: 'El curso ha sido guardado como incompleto.'
-                        }).then(() => {
-                            window.location.href = "{{ route('cursos.index') }}";
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Ocurrió un error al procesar la solicitud.'
-                    });
-                });
-            }
-        });
-    });
-</script>
-</html>
+</div>
+@endsection
