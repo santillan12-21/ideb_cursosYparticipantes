@@ -49,6 +49,7 @@ Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.de
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/profile', [UserController::class, 'profile'])->name('profile');
 Route::post('/users/{id}/show-password', [UserController::class, 'showPassword'])->name('users.showPassword');
+Route::post('/users/verify-admin', [UserController::class, 'verifyAdminPassword'])->name('users.verifyAdmin');
 
 //Ruta para llenado de formulario de cursos
 Route::get('/cursos/ruta', [CursoController::class, 'rutas'])->name('cursos.ruta');
@@ -249,6 +250,7 @@ Route::get('/course-action-logs', [CourseActionLogController::class, 'index'])->
 Route::post('/curso/finalizacion-forzada', [CursoController::class, 'finalizacionForzada'])->name('curso.finalizacionForzada');
 
 Route::get('/curso/iniciar', [CursoController::class, 'iniciarCurso'])->name('curso.iniciar');
+Route::get('/curso/cancelar', [CursoController::class, 'cancelarCreacion'])->name('curso.cancelar');
 
 Route::post('/crear-carpeta-local', [CursoController::class, 'crearCarpeta'])->name('crear.carpeta.local');
 Route::post('/crear-carpeta-local', [RutaArchivosController::class, 'crearCarpeta'])

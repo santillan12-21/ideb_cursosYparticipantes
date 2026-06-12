@@ -14,10 +14,9 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
   <script src="https://kit.fontawesome.com/e97d2d8812.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <title>I-DEB @yield('title')</title>
       <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
@@ -131,7 +130,7 @@
             display: block;
             text-decoration: none;
             transition: all 0.3s ease;
-            border-radius: 4px;
+            border-radius: 0;
             position: relative;
             overflow: hidden;
             white-space: nowrap;
@@ -309,7 +308,7 @@
             gap: 8px;
             font-size: 1rem;
             transition: all 0.3s ease;
-            border-radius: 4px;
+            border-radius: 0;
         }
 
         .user-menu-trigger:hover {
@@ -329,7 +328,7 @@
             top: 100%;
             right: 0;
             background-color: white;
-            border-radius: 4px;
+            border-radius: 0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             min-width: 200px;
             opacity: 0;
@@ -386,7 +385,7 @@
             background: linear-gradient(135deg, #ff4757, #ff6b81);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 0;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -518,6 +517,72 @@ body .navbar-fijo {
 /* input.form-control {
   max-width: 120px;
 } */
+
+/* Estandarización de colores verdes */
+.btn-success, .bg-success, .alert-success, .text-success {
+    --bs-success-rgb: 40, 167, 69 !important;
+}
+
+.btn-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
+.btn-success:hover, .btn-success:focus, .btn-success:active {
+    background-color: #218838 !important;
+    border-color: #1e7e34 !important;
+    color: white !important;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.alert-success {
+    background-color: #d4edda !important;
+    border-color: #c3e6cb !important;
+    color: #155724 !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+/* Clases personalizadas que se encontraron en el proyecto */
+.btn-success-custom, .btn-success-c, .btn-success-p, .btn-success-modern {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
+.btn-success-custom:hover, .btn-success-c:hover, .btn-success-p:hover, .btn-success-modern:hover {
+    background-color: #218838 !important;
+    border-color: #1e7e34 !important;
+}
+
+/* Global overrides for rectangular buttons and inputs */
+.btn, 
+.btn-custom, 
+.btn-login, 
+.btn-primary, 
+.btn-secondary, 
+.btn-success, 
+.btn-danger, 
+.btn-warning, 
+.btn-info, 
+.btn-link,
+.btn-cerrar-sesion,
+button, 
+select,
+.form-control,
+.input-group,
+.input-group-text,
+.user-menu-trigger,
+.user-dropdown,
+.nav-link {
+    border-radius: 0 !important;
+}
   </style>
 
 </head>
@@ -531,14 +596,16 @@ body .navbar-fijo {
 
    @auth
      <div class="header">
-        <button class="menu-toggle" id="menuToggle">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </button>
-        <a href="/inicio">
-        <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="max-width: 150px;">
-        </a>
+        <div class="d-flex align-items-center">
+            <button class="menu-toggle" id="menuToggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <a href="/inicio" class="ms-3">
+                <img src="{{ $logoPath }}" alt="Logo de la aplicación" style="max-width: 150px;">
+            </a>
+        </div>
         <div class="ml-auto">
             <div class="user-menu">
                 <button class="user-menu-trigger" id="userMenuTrigger">

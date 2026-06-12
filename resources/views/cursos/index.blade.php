@@ -41,7 +41,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: 0;
         padding: 6px 12px;
         font-size: 13px;
         font-weight: 600;
@@ -85,7 +85,7 @@
         color: #333 !important;
         border: none !important;
         background: transparent !important;
-        border-radius: 8px !important;
+        border-radius: 0 !important;
         padding: 8px 16px !important;
         font-weight: 500;
         transition: all 0.3s ease;
@@ -120,7 +120,7 @@
             <div class="col-md-8 text-end">
                 <div class="d-flex justify-content-end gap-2 flex-wrap">
                     <form action="{{ route('cursos.index') }}" method="GET" class="d-flex me-2">
-                        <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <div class="input-group shadow-sm" style="border-radius: 0; overflow: hidden;">
                             <input type="text" name="search" class="form-control border-0" placeholder="Buscar curso..." value="{{ request('search') }}" style="height: 40px;">
                             <button type="submit" class="btn btn-dark" style="border-radius: 0; margin: 0; height: 40px; min-width: 50px;"><i class="fas fa-search"></i></button>
                         </div>
@@ -272,6 +272,7 @@
                                         <th>Nomenclatura</th>
                                         <th>Nombre</th>
                                         <th>Descripción</th>
+                                        <th>Instructor</th>
                                         <th>Duración</th>
                                         <th>Costo</th>
                                         <th>Inicio</th>
@@ -284,13 +285,15 @@
                 
                 if (data.length > 0) {
                     data.forEach(sub => {
-                        const statusBadge = sub.status == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>';
+                        const estatus = sub.estatus_progreso;
+                        const statusBadge = `<span class="badge ${estatus.color}" style="padding: 8px; min-width: 80px;">${estatus.texto}</span>`;
                         const desc = sub.descripcion ? (sub.descripcion.length > 30 ? sub.descripcion.substring(0,30) + '...' : sub.descripcion) : '-';
                         
                         html += `<tr>
                                     <td class="fw-bold text-primary">${sub.nomenclatura || 'N/A'}</td>
                                     <td class="fw-bold">${sub.nombre}</td>
                                     <td title="${sub.descripcion || ''}">${desc}</td>
+                                    <td>${sub.instructor_responsable || '-'}</td>
                                     <td>${sub.duracion || '-'}</td>
                                     <td class="text-success fw-bold">$${sub.costo}</td>
                                     <td class="small">${sub.fecha_inicio || '-'}</td>

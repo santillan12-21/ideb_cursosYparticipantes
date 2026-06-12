@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 <style>
     .step-container {
@@ -60,7 +59,7 @@
         margin-top: 20px;
     }
     .btn-custom {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;

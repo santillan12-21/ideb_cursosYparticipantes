@@ -60,7 +60,7 @@
         margin-top: 20px;
     }
     .btn-custom {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
@@ -200,8 +200,8 @@
                                 <button type="submit" class="btn btn-dark btn-custom shadow-sm">
                                     <i class="fas fa-save me-2"></i> Guardar y Continuar
                                 </button>
-                                <a href="{{ route('cursos.index') }}" class="btn btn-secondary btn-custom shadow-sm">
-                                    <i class="fas fa-arrow-left me-2"></i> Regresar
+                                <a href="{{ route('curso.cancelar') }}" class="btn btn-secondary btn-custom shadow-sm">
+                                    <i class="fas fa-times me-2"></i> Cancelar
                                 </a>
                             </div>
                         </form>

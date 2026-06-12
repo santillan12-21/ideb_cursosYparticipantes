@@ -106,9 +106,9 @@
         margin-top: 20px;
     }
     .btn-action-edit {
-        border-radius: 30px;
-        padding: 12px 35px;
-        font-weight: 700;
+        border-radius: 0 !important;
+        padding: 10px 25px;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px;
         font-size: 0.85rem;
@@ -311,7 +311,7 @@
                                             <label for="Pago" class="form-label">Monto de Pago</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
-                                                <input type="text" class="form-control" id="Pago" name="Pago" value="{{ old('Pago', $participante->Pago ?: '0.00') }}" readonly>
+                                                <input type="number" step="0.01" min="0" class="form-control" id="Pago" name="Pago" value="{{ old('Pago', $participante->Pago ?: '0.00') }}" readonly>
                                                 <span class="input-group-text d-none editing-indicator">Modificado</span>
                                             </div>
                                         </div>

@@ -81,7 +81,7 @@
         gap: 15px;
     }
     .btn-action {
-        border-radius: 30px;
+        border-radius: 30px !important;
         padding: 10px 25px;
         font-weight: 600;
         text-transform: uppercase;

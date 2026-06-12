@@ -32,13 +32,14 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
-        padding: 6px 12px;
+        border-radius: 30px !important;
+        padding: 6px 15px;
         font-size: 13px;
         font-weight: 600;
         transition: all 0.2s ease;
         height: 38px;
-        width: 120px;
+        width: auto;
+        min-width: 100px;
         margin: 2px;
         border: none;
         color: white !important;
@@ -69,6 +70,20 @@
         border: 1px solid #dee2e6;
         color: #495057;
     }
+
+    /* Sticky column for actions */
+    .sticky-col { 
+        position: sticky !important; 
+        right: 0; 
+        background-color: white !important; 
+        z-index: 5; 
+        box-shadow: -5px 0 10px rgba(0,0,0,0.05); 
+    }
+    .table thead th.sticky-col {
+        background-color: #212529 !important;
+        z-index: 6;
+    }
+    tr:hover .sticky-col { background-color: #f8f9fa !important; }
 </style>
 
 <div class="container-fluid users-container">
@@ -101,8 +116,8 @@
                         <th>Correo Electrónico</th>
                         <th>Puesto</th>
                         <th class="text-center">Edad</th>
-                        <th>Teléfono</th>
-                        <th class="text-center">Acciones</th>
+                        <th class="text-center">Teléfono</th>
+                        <th class="text-center sticky-col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -113,19 +128,19 @@
                             <td>{{ $user->email }}</td>
                             <td><span class="puesto-badge">{{ $user->puesto }}</span></td>
                             <td class="text-center">{{ $user->edad }}</td>
-                            <td>{{ $user->telefono }}</td>
-                            <td>
-                                <div class="d-flex justify-content-center flex-wrap">
+                            <td class="text-center">{{ $user->telefono }}</td>
+                            <td class="sticky-col">
+                                <div class="d-flex justify-content-center align-items-center flex-nowrap" style="gap: 2px;">
                                     <button class="btn-action btn-info-modern view-password" data-id="{{ $user->id }}" title="Ver Contraseña">
-                                        <i class="fas fa-key me-1"></i> Contraseña
+                                        <i class="fas fa-key"></i> Contraseña
                                     </button>
                                     <a href="{{ route('users.edit', $user->id) }}" class="btn-action btn-warning-modern" title="Editar">
-                                        <i class="fas fa-edit me-1"></i> Editar
+                                        <i class="fas fa-edit"></i> Editar
                                     </a>
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Enviar usuario a la papelera?')">
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Enviar usuario a la papelera?')" class="m-0 p-0">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="btn-action btn-danger-modern" title="Eliminar">
-                                            <i class="fas fa-trash me-1"></i> Borrar
+                                            <i class="fas fa-trash"></i> Borrar
                                         </button>
                                     </form>
                                 </div>
@@ -162,7 +177,7 @@
                             <input type="password" class="form-control border-0" id="admin_password" name="admin_password" required placeholder="••••••••">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 btn-action" style="height: 45px; border-radius: 8px;">
+                    <button type="submit" class="btn btn-primary w-100 btn-action" style="height: 45px; border-radius: 0;">
                         <i class="fas fa-shield-alt me-2"></i> Verificar y Mostrar
                     </button>
                 </form>
@@ -204,8 +219,9 @@
 
             const formData = new FormData(this);
             const userId = document.getElementById('userId').value;
+            const url = "{{ route('users.showPassword', ':id') }}".replace(':id', userId);
 
-            fetch(`/users/${userId}/show-password`, {
+            fetch(url, {
                 method: 'POST',
                 body: formData,
                 headers: {

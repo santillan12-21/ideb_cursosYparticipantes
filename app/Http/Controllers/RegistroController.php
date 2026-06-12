@@ -43,9 +43,9 @@ class RegistroController extends Controller
         ];
 
     if (in_array($request->EstadoDePago, ['Pagado', 'Anticipo'])) {
-        $rules['Pago'] = ['required', 'regex:/^\d+(\.\d{1,2})?$/'];
+        $rules['Pago'] = ['required', 'numeric', 'min:0'];
     } else {
-        $rules['Pago'] = 'nullable';
+        $rules['Pago'] = 'nullable|numeric|min:0';
     }
 
     $validated = $request->validate($rules, $messages);

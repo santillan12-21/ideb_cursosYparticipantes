@@ -62,8 +62,11 @@ class CursoController extends Controller
                     'costo' => number_format((float)($sub->CostodelCurso ?: $sub->costo), 2),
                     'fecha_inicio' => $sub->FechadeInicio ? \Carbon\Carbon::parse($sub->FechadeInicio)->format('d/m/Y') : '-',
                     'fecha_termino' => $sub->FechadeTermino ? \Carbon\Carbon::parse($sub->FechadeTermino)->format('d/m/Y') : '-',
+                    'instructor_responsable' => $sub->InstructorResponsable ?: $sub->instructor_responsable,
+                    'estatus_progreso' => $sub->estatus_progreso,
                     'status' => $sub->status,
                 ];
+
             });
             return response()->json($subcursos);
         } catch (\Exception $e) {
@@ -181,6 +184,25 @@ class CursoController extends Controller
         }
     }
 
+    /**
+     * Cancelar la creación de un curso y eliminar el borrador.
+     */
+    public function cancelarCreacion()
+    {
+        $cursoId = session('curso_id');
+        if ($cursoId) {
+            $curso = Cursos::find($cursoId);
+            if ($curso) {
+                // Opcional: Solo borrar si tiene nomenclatura TEMP
+                if (str_starts_with($curso->nomenclatura, 'TEMP-')) {
+                    $curso->delete();
+                }
+            }
+            session()->forget(['curso_id', 'cursos_paso1', 'cursos_paso2', 'cursos_paso3', 'cursos_paso4', 'cursos_paso5', 'cursos_paso6']);
+        }
+        return redirect()->route('cursos.index')->with('info', 'Creación de curso cancelada.');
+    }
+
     public function show(Cursos $curso)
     {
         return view('cursos.show', compact('curso'));
@@ -198,6 +220,9 @@ class CursoController extends Controller
     public function iniciarCurso()
     {
         try {
+            // Limpiar posibles borradores previos en sesión antes de iniciar uno nuevo
+            $this->limpiarBorradoresSesion();
+
             $tempId = Str::random(8);
             $curso = Cursos::create([
                 'nomenclatura' => 'TEMP-' . $tempId,
@@ -220,6 +245,9 @@ class CursoController extends Controller
     public function iniciarSubcursos($id)
     {
         try {
+            // Limpiar posibles borradores previos en sesión antes de iniciar uno nuevo
+            $this->limpiarBorradoresSesion();
+
             $parent = Cursos::findOrFail($id);
             $tempId = Str::random(8);
             
@@ -237,6 +265,21 @@ class CursoController extends Controller
             return redirect()->route('curso.paso1')->with('success', 'Formulario de subcurso iniciado.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error al iniciar el subcurso: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Helper para limpiar borradores abandonados en la sesión actual.
+     */
+    private function limpiarBorradoresSesion()
+    {
+        $oldId = session('curso_id');
+        if ($oldId) {
+            $oldCurso = Cursos::find($oldId);
+            if ($oldCurso && str_starts_with($oldCurso->nomenclatura, 'TEMP-')) {
+                $oldCurso->delete();
+            }
+            session()->forget(['curso_id', 'cursos_paso1', 'cursos_paso2', 'cursos_paso3', 'cursos_paso4', 'cursos_paso5', 'cursos_paso6']);
         }
     }
 
@@ -285,7 +328,11 @@ class CursoController extends Controller
     public function guardarPaso2(Request $request) { 
         $v = $request->validate(['Virtual' => 'nullable|string', 'Presencial' => 'nullable|string', 'Mixto' => 'nullable|string']);
         $curso = Cursos::findOrFail(session('curso_id'));
-        $curso->update(['virtual' => $v['Virtual'] ?? 'No', 'presencial' => $v['Presencial'] ?? 'No', 'mixto' => $v['Mixto'] ?? 'No']);
+        $curso->update([
+            'virtual' => ($v['Virtual'] ?? 'No') === 'Si', 
+            'presencial' => ($v['Presencial'] ?? 'No') === 'Si', 
+            'mixto' => ($v['Mixto'] ?? 'No') === 'Si'
+        ]);
         session(['cursos_paso2' => $v]);
         return redirect()->route('curso.paso3');
     }
@@ -326,10 +373,36 @@ class CursoController extends Controller
 
     public function mostrarPaso5() { return view('cursos.paso5', ['curso' => Cursos::find(session('curso_id')), 'archivosLocales' => []]); }
     public function guardarPaso5(Request $request) {
-        $v = $request->validate(['Digital' => 'nullable|string', 'DriveDigital' => 'nullable|string', 'Impreso_Presentable' => 'nullable|string']);
+        $v = $request->validate([
+            'Digital' => 'nullable|string', 
+            'DriveDigital' => 'nullable|string', 
+            'Impreso_Presentable' => 'nullable|string',
+            'DigitalLocal' => 'nullable|file',
+            'ImpresoPresentableLocal' => 'nullable|file'
+        ]);
         $curso = Cursos::findOrFail(session('curso_id'));
-        $curso->update(['digital' => $v['Digital'] ?? '', 'drive_digital' => $v['DriveDigital'] ?? '', 'impreso_presentable' => $v['Impreso_Presentable'] ?? '']);
+        
+        // Convertimos el porcentaje a booleano para la DB
+        $digitalBool = false;
+        if (!empty($v['Digital'])) {
+            $digitalBool = (str_contains($v['Digital'], '%')) ? ($v['Digital'] === '100%') : ($v['Digital'] == 100);
+        }
+
+        $impresoBool = false;
+        if (!empty($v['Impreso_Presentable'])) {
+            $impresoBool = (str_contains($v['Impreso_Presentable'], '%')) ? ($v['Impreso_Presentable'] === '100%') : ($v['Impreso_Presentable'] == 100);
+        }
+
+        $curso->update([
+            'digital' => $digitalBool, 
+            'drive_digital' => $v['DriveDigital'] ?? '', 
+            'impreso_presentable' => $impresoBool
+        ]);
+        
+        // Eliminamos los archivos de los datos de sesión para evitar errores de serialización
+        unset($v['DigitalLocal'], $v['ImpresoPresentableLocal']);
         session(['cursos_paso5' => $v]);
+        
         return redirect()->route('curso.paso6');
     }
 
@@ -361,15 +434,21 @@ class CursoController extends Controller
             'UDEMY' => 'nullable|string',
         ]);
         $curso = Cursos::findOrFail(session('curso_id'));
+
+        // Convertimos campos booleanos
+        $dc5Firma = ($v['Formato_DC5_Tienefirma'] ?? 'No') === 'Si';
+        $cartaFirma = ($v['Cartapoder_tienefirma'] ?? 'No') === 'Si';
+        $udemyBool = ($v['UDEMY'] ?? 'No se ha prellenado') === 'Prellenado';
+
         $curso->update([
             'fecha_registro_stps' => $v['FechadeRegistro_STPS'],
             'formato_dc5' => $v['Formato_DC5'] ?? '',
-            'formato_dc5_tiene_firma' => $v['Formato_DC5_Tienefirma'] ?? '',
+            'formato_dc5_tiene_firma' => $dc5Firma,
             'certificado_comprobacion' => $v['Certificadodecomprobacion'] ?? '',
             'drive_certificado_comprobacion' => $v['DrivedeCertificadodecomprobacion'] ?? '',
-            'carta_poder_tiene_firma' => $v['Cartapoder_tienefirma'] ?? '',
+            'carta_poder_tiene_firma' => $cartaFirma,
             'drive_carta_poder' => $v['DriveCartapoder'] ?? '',
-            'udemy' => $v['UDEMY'] ?? '',
+            'udemy' => $udemyBool,
         ]);
 
         CourseActionLog::create([
@@ -427,7 +506,22 @@ class CursoController extends Controller
 
         $data = [];
         foreach ($request->all() as $key => $value) {
-            if (isset($map[$key])) $data[$map[$key]] = $value;
+            if (isset($map[$key])) {
+                $finalValue = $value;
+                // Manejo de conversiones booleanas para edición
+                if (in_array($map[$key], ['virtual', 'presencial', 'mixto', 'formato_dc5_tiene_firma', 'carta_poder_tiene_firma'])) {
+                    $finalValue = ($value === 'Si');
+                } elseif ($map[$key] === 'udemy') {
+                    $finalValue = ($value === 'Prellenado');
+                } elseif (in_array($map[$key], ['digital', 'impreso_presentable'])) {
+                    if (str_contains($value, '%')) {
+                        $finalValue = ($value === '100%');
+                    } else {
+                        $finalValue = ($value == 100 || !empty($value));
+                    }
+                }
+                $data[$map[$key]] = $finalValue;
+            }
         }
 
         $curso->update($data);
@@ -440,9 +534,9 @@ class CursoController extends Controller
         $progreso = [];
         $pasosCampos = [
             1 => ['nombre', 'nomenclatura', 'costo', 'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion'],
-            2 => ['virtual', 'presencial', 'mixto'],
-            3 => ['sin_fecha', 'facebook', 'linkedin', 'instagram'],
-            4 => ['temario', 'itinerario', 'planeacion'],
+            2 => ['virtual', 'presencial', 'mixto'], // Al menos uno debe ser Sí
+            3 => ['sin_fecha', 'drive_facebook', 'drive_linkedin', 'drive_instagram'], 
+            4 => ['temario', 'drive_temario', 'itinerario', 'drive_itinerario', 'planeacion', 'drive_planeacion'],
             5 => ['digital', 'impreso_presentable'],
             6 => ['presentacion', 'evaluacion_diagnostica', 'evaluacion_satisfaccion', 'evaluacion_final', 'dc3'],
             7 => ['fecha_registro_stps', 'formato_dc5', 'certificado_comprobacion', 'udemy'],
@@ -450,12 +544,40 @@ class CursoController extends Controller
 
         foreach ($pasosCampos as $paso => $campos) {
             $llenos = 0;
-            foreach ($campos as $campo) {
-                if (!empty($curso->getRawOriginal($campo))) $llenos++;
+            $totalCampos = count($campos);
+
+            if ($paso == 2) {
+                // El Paso 2 se considera completo si se ha definido al menos una modalidad como "Sí"
+                // O si el usuario ha guardado el paso (podemos asumir que si no son los valores por defecto, ya está)
+                if ($curso->virtual || $curso->presencial || $curso->mixto) {
+                    $llenos = $totalCampos;
+                }
+            } else {
+                foreach ($campos as $campo) {
+                    $valor = $curso->getRawOriginal($campo);
+                    
+                    if (in_array($campo, ['digital', 'impreso_presentable', 'udemy', 'formato_dc5_tiene_firma', 'carta_poder_tiene_firma'])) {
+                        // Para campos booleanos, contamos como lleno si es verdadero (1)
+                        if ($valor) $llenos++;
+                    } else {
+                        if (!empty($valor)) {
+                            // Si el valor es un porcentaje, solo cuenta si es 100%
+                            if (is_string($valor) && (str_contains($valor, '%') || is_numeric($valor))) {
+                                $numVal = (int) str_replace('%', '', $valor);
+                                if ($numVal === 100) {
+                                    $llenos++;
+                                }
+                            } else {
+                                // Para enlaces de drive u otros textos, cualquier valor no vacío cuenta
+                                $llenos++;
+                            }
+                        }
+                    }
+                }
             }
-            $porcentaje = (count($campos) > 0) ? ($llenos / count($campos)) * 100 : 0;
+
+            $porcentaje = ($totalCampos > 0) ? ($llenos / $totalCampos) * 100 : 0;
             
-            // Lógica solicitada: 30% no es completo.
             if ($porcentaje == 100) {
                 $progreso[$paso] = ['class' => 'btn-success', 'texto' => 'Completado'];
             } elseif ($porcentaje >= 30) {

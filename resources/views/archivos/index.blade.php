@@ -29,10 +29,15 @@
         border-bottom: 2px solid #eee;
         padding-bottom: 10px;
     }
+
+    /* Uniformidad de bordes rectangulares */
+    .btn, .form-control, .card, .card-header, .list-group-item {
+        border-radius: 0 !important;
+    }
 </style>
 
 <div class="container-custom py-4">
-    <h1 class="text-center mb-4">Gestión de Rutas y Archivos</h1>
+    <h1 class="text-center mb-4">Gestión de Archivos</h1>
 
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show">
@@ -48,58 +53,8 @@
         </div>
     @endif
 
-    <!-- SECCIÓN 1: Configuración de Rutas Locales (Físicas) -->
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <i class="fas fa-folder-open me-2"></i> Configuración de Rutas de Carpetas Locales
-        </div>
-        <div class="card-body">
-            <p class="text-muted">Aquí puedes configurar las rutas de tu computadora donde el sistema creará las carpetas de los cursos automáticamente.</p>
-            
-            <form action="{{ route('guardar.ruta.archivos') }}" method="POST" class="row g-3 mb-4">
-                @csrf
-                <div class="col-md-5">
-                    <label class="form-label">Nombre para la Carpeta (ej: Cursos 2024)</label>
-                    <input type="text" name="nombreCarpeta" class="form-control" placeholder="Ej: Cursos I-DEB" required>
-                </div>
-                <div class="col-md-5">
-                    <label class="form-label">Ruta en tu Disco Duro</label>
-                    <input type="text" name="rutaCarpeta" class="form-control" placeholder="Ej: C:/Proyectos/Cursos" required>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Guardar Ruta</button>
-                </div>
-            </form>
 
-            <h5 class="mt-4">Rutas Configuradas Actualmente:</h5>
-            <div class="table-responsive">
-                <table class="table table-sm table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Ruta Completa</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($rutasLocales as $ruta)
-                            <tr>
-                                <td>{{ $ruta->nombre_carpeta }}</td>
-                                <td><code>{{ $ruta->rutacompleta }}</code></td>
-                                <td>{{ $ruta->created_at->format('d/m/Y') }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="text-center text-muted">No hay rutas configuradas todavía.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECCIÓN 2: Gestor de Archivos Virtuales -->
+    <!-- SECCIÓN : Gestor de Archivos Virtuales -->
     <div class="card">
         <div class="card-header bg-dark text-white">
             <i class="fas fa-file-alt me-2"></i> Gestor de Archivos del Servidor
@@ -158,7 +113,7 @@
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
                                     @if($isImage)
-                                        <div class="me-3" style="width: 50px; height: 50px; overflow: hidden; border-radius: 5px; border: 1px solid #ddd;">
+                                        <div class="me-3" style="width: 50px; height: 50px; overflow: hidden; border: 1px solid #ddd;">
                                             <img src="{{ Storage::url($a) }}" alt="Previsualización" style="width: 100%; height: 100%; object-fit: cover;">
                                         </div>
                                     @else

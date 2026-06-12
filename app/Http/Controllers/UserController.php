@@ -141,12 +141,12 @@ class UserController extends Controller
         // Obtener el usuario autenticado
         $admin = Auth::user();
 
-        // Verificar que el usuario autenticado sea un administrador o programador
-        if (!in_array($admin->puesto, ['Administrador', 'Programador'])) {
-            return response()->json(['error' => 'Acceso denegado. Solo los administradores y programadores pueden realizar esta acción.'], 403);
+        // Verificar que el usuario autenticado sea un administrador
+        if ($admin->puesto !== 'Administrador') {
+            return response()->json(['error' => 'Acceso denegado. Solo los administradores pueden realizar esta acción.'], 403);
         }
 
-        // Validar la contraseña del administrador/programador
+        // Validar la contraseña del administrador
         $request->validate([
             'admin_password' => 'required|string',
         ]);
@@ -159,9 +159,25 @@ class UserController extends Controller
         // Obtener el usuario cuya contraseña se quiere ver
         $user = User::findOrFail($id);
 
-        // Devolver la contraseña en texto plano (si existe) o el hash (si no hay plain_password)
-        $plainPassword = $user->plain_password ?? 'No disponible';
-        return response()->json(['password' => $plainPassword]);
+        // Devolver la contraseña en texto plano
+        return response()->json(['password' => $user->plain_password ?? 'No disponible']);
+    }
+
+    public function verifyAdminPassword(Request $request)
+    {
+        $admin = Auth::user();
+
+        if ($admin->puesto !== 'Administrador') {
+            return response()->json(['error' => 'Acceso denegado.'], 403);
+        }
+
+        $request->validate(['admin_password' => 'required|string']);
+
+        if (!Hash::check($request->admin_password, $admin->password)) {
+            return response()->json(['error' => 'Tu contraseña es incorrecta.'], 401);
+        }
+
+        return response()->json(['success' => true]);
     }
 
 }

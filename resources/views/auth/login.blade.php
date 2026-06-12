@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
+    <title>Cursos y Participantes</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons (para los íconos del ojo) -->
@@ -19,17 +19,17 @@
             background-color: #f8f9fa;
         }
         .login-container {
-            max-width: 500px; /* Aumentamos el ancho del contenedor */
+            max-width: 500px;
             width: 100%;
-            padding: 50px; /* Aumentamos el padding para hacerlo más grande */
+            padding: 50px;
             background-color: #ffffff;
-            border-radius: 16px; /* Bordes más redondeados */
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
         .login-container img {
-            width: 200px; /* Aumentamos el tamaño de la imagen */
-            margin-bottom: 30px; /* Más espacio entre la imagen y el formulario */
-            display: block; /* Centrar horizontalmente */
+            width: 200px;
+            margin-bottom: 30px;
+            display: block;
             margin-left: auto;
             margin-right: auto;
         }
@@ -39,8 +39,8 @@
             color: #fff;
             font-weight: bold;
             transition: background-color 0.3s ease;
-            padding: 12px; /* Botón más grande */
-            font-size: 1.1em; /* Texto más grande */
+            padding: 12px;
+            font-size: 1.1em;
         }
         .btn-login:hover {
             background-color: #0b5ed7;
@@ -56,27 +56,32 @@
             background: none;
             border: none;
             color: #6c757d;
-            font-size: 1.4em; /* Ícono más grande */
+            font-size: 1.4em;
             cursor: pointer;
         }
         .password-toggle button:hover {
             color: #0d6efd;
         }
         .form-control {
-            font-size: 1.1em; /* Texto más grande en los campos */
-            padding: 12px; /* Más espacio dentro de los campos */
+            font-size: 1.1em;
+            padding: 12px;
         }
         .forgot-password-link {
-            text-align: center; /* Centrar el enlace */
-            margin-bottom: 20px; /* Espacio entre el enlace y el botón */
+            text-align: center;
+            margin-bottom: 20px;
         }
         .alert-danger {
-            border-radius: 8px;
+            border-radius: 0;
             padding: 12px;
             background-color: #fff2f2;
             color: #d63031;
             margin-bottom: 20px;
             border: 1px solid #ffcccc;
+        }
+        
+        /* Global overrides for rectangular buttons and inputs */
+        .btn, .btn-login, .form-control, button {
+            border-radius: 0 !important;
         }
     </style>
 </head>
@@ -85,16 +90,16 @@
         <!-- Imagen centrada -->
         <img src="{{ asset('images/logo.png') }}" alt="Logo" class="mx-auto d-block">
 
+        <h2 class="text-center mb-4" style="font-weight: 300; color: #333;">Cursos y Participantes</h2>
+
         <!-- Mostrar errores de autenticación -->
+
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul class="mb-0">
-                    @if ($errors->has('email'))
-                        <li>{{ $errors->first('email') }}</li>
-                    @endif
-                    @if ($errors->has('password'))
-                        <li>{{ $errors->first('password') }}</li>
-                    @endif
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
                 </ul>
             </div>
         @endif
@@ -108,20 +113,14 @@
             <!-- Campo de correo electrónico -->
             <div class="mb-4">
                 <input type="email" name="email" class="form-control" placeholder="Correo electrónico" required autofocus autocomplete="off" value="{{ old('email') }}">
-                @if ($errors->has('email'))
-                    <small class="text-danger">{{ $errors->first('email') }}</small>
-                @endif
             </div>
 
             <!-- Campo de contraseña -->
             <div class="mb-4 password-toggle">
                 <input type="password" name="password" id="password" class="form-control" placeholder="Contraseña" required autocomplete="off">
                 <button type="button" onclick="togglePassword()">
-                    <i id="toggleIcon" class="bi bi-eye-slash"></i> <!-- Ícono inicial: ojo cerrado -->
+                    <i id="toggleIcon" class="bi bi-eye-slash"></i>
                 </button>
-                @if ($errors->has('password'))
-                    <small class="text-danger">{{ $errors->first('password') }}</small>
-                @endif
             </div>
 
             <!-- Enlace para recuperar contraseña -->
@@ -135,25 +134,22 @@
     </div>
 
     <script>
-        // Función para alternar la visibilidad de la contraseña
         function togglePassword() {
             const passwordField = document.getElementById('password');
             const toggleIcon = document.getElementById('toggleIcon');
-
-            // Verificar si la contraseña está visible o no
             if (passwordField.type === 'password') {
-                passwordField.type = 'text'; // Mostrar contraseña
-                toggleIcon.classList.remove('bi-eye-slash'); // Remover ojo cerrado
-                toggleIcon.classList.add('bi-eye');         // Agregar ojo abierto
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
             } else {
-                passwordField.type = 'password'; // Ocultar contraseña
-                toggleIcon.classList.remove('bi-eye');       // Remover ojo abierto
-                toggleIcon.classList.add('bi-eye-slash');    // Agregar ojo cerrado
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
             }
         }
     </script>
 
-    <!-- Bootstrap 5 JS (opcional, si necesitas funcionalidades adicionales) -->
+    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

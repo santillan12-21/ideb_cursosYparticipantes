@@ -70,10 +70,10 @@
     .data-item { margin-bottom: 15px; }
     .data-label { font-weight: 700; color: #666; font-size: 0.8rem; display: block; margin-bottom: 3px; }
     .data-value { color: #212529; font-size: 1rem; }
-    .data-value.highlight { color: #198754; font-weight: 700; }
+    .data-value.highlight { color: #28a745; font-weight: 700; }
     
     .btn-download {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 8px 25px;
         font-weight: 600;
         text-transform: uppercase;
@@ -219,7 +219,7 @@
                                             <li class="list-group-item px-0 bg-transparent py-2">
                                                 <div class="fw-bold small text-dark">{{ $curso->NombredelCurso }}</div>
                                                 <div class="text-muted" style="font-size: 0.75rem;">
-                                                    <i class="fas fa-calendar-alt me-1"></i> {{ $curso->pivot->FechadelCurso ?: 'Fecha no especificada' }}
+                                                    <i class="fas fa-calendar-alt me-1"></i> {{ $curso->pivot->FechadeInicio ?: ($curso->pivot->FechadelCurso ?: 'Fecha no especificada') }}
                                                 </div>
                                             </li>
                                         @endforeach

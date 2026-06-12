@@ -70,10 +70,10 @@
     .data-item { margin-bottom: 15px; }
     .data-label { font-weight: 700; color: #666; font-size: 0.8rem; display: block; margin-bottom: 3px; }
     .data-value { color: #212529; font-size: 1rem; }
-    .data-value.highlight { color: #198754; font-weight: 700; }
+    .data-value.highlight { color: #28a745; font-weight: 700; }
     
     .btn-download {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 8px 25px;
         font-weight: 600;
         text-transform: uppercase;

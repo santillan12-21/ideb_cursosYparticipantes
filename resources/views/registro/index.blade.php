@@ -22,9 +22,10 @@
         background: white;
     }
     .registration-header {
-        background: linear-gradient(135deg, #000000 0%, #333333 100%);
+        background: linear-gradient(135deg, #212529 0%, #343a40 100%);
         padding: 40px 30px;
         color: white;
+        border-bottom: 4px solid #28a745;
         text-align: center;
         position: relative;
     }
@@ -64,7 +65,7 @@
     .form-section-title {
         font-size: 0.85rem;
         font-weight: bold;
-        color: #666;
+        color: #0d6efd;
         text-transform: uppercase;
         letter-spacing: 1px;
         margin-bottom: 20px;
@@ -75,7 +76,7 @@
     }
     .form-section-title i {
         margin-right: 10px;
-        color: #333;
+        color: #0d6efd;
     }
     .form-section-card {
         background: #f8f9fa;
@@ -115,7 +116,7 @@
         margin-top: 20px;
     }
     .btn-custom {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
@@ -309,7 +310,7 @@
                                             <label for="Pago" class="form-label">Monto del Pago</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
-                                                <input type="text" class="form-control" id="Pago" name="Pago" placeholder="Ingrese el monto depositado">
+                                                <input type="number" step="0.01" min="0" class="form-control" id="Pago" name="Pago" placeholder="Ingrese el monto depositado">
                                             </div>
                                         </div>
                                     </div>
@@ -319,7 +320,7 @@
 
                         <div class="botones-container pb-3">
                             <button type="submit" class="btn btn-success btn-custom shadow-sm">
-                                <i class="fas fa-paper-plane me-2"></i> Guardar
+                                <i class="fas fa-save me-2"></i> Guardar
                             </button>
                             <a href="javascript:history.back()" class="btn btn-danger btn-custom shadow-sm">
                                 <i class="fas fa-times me-2"></i> Cancelar

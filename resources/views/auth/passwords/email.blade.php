@@ -90,12 +90,17 @@
         }
 
         .alert-danger {
-            border-radius: 6px;
+            border-radius: 0;
             border: none;
             background-color: #fff2f2;
             color: #d63031;
             font-size: 0.9rem;
             padding: 12px 15px;
+        }
+
+        /* Global overrides for rectangular buttons and inputs */
+        .btn, .btn-primary, .form-control, button {
+            border-radius: 0 !important;
         }
 
         .alert-danger ul {

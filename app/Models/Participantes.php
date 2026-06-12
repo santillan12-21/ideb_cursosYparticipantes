@@ -84,25 +84,36 @@ class Participantes extends Model
         'N'
     ];
 
+    /**
+     * Mutator para el estado de pago.
+     * Asegura que el valor esté dentro de los permitidos.
+     */
     public function setEstadoPagoAttribute($value)
     {
-        // Lista de valores permitidos
         $allowedValues = ['Pendiente', 'Pagado', 'Anticipo', 'Cancelado'];
 
-        // Si el valor está en la lista permitida, guárdalo; de lo contrario, usa un valor predeterminado
         if (in_array($value, $allowedValues)) {
             $this->attributes['estado_pago'] = $value;
 
-            // Si el estado de pago es "Cancelado", establecer el campo Pago en 0
+            // Lógica adicional: si es cancelado, el pago es 0
             if ($value === 'Cancelado') {
                 $this->attributes['pago'] = 0;
             }
         } else {
-            $this->attributes['estado_pago'] = 'Pagado'; // Valor predeterminado
+            // Valor por defecto más seguro
+            $this->attributes['estado_pago'] = 'Pendiente';
         }
     }
 
-    // Accessors para mantener compatibilidad con la vista si usa CamelCase
+    /**
+     * Mutator alternativo para soportar CamelCase si es necesario.
+     */
+    public function setEstadoDePagoAttribute($value)
+    {
+        $this->setEstadoPagoAttribute($value);
+    }
+
+    // Accessors para mantener compatibilidad con la vista
     public function getNombredelPostulanteAttribute() { return $this->attributes['nombre'] ?? ''; }
     public function getCorreoAttribute() { return $this->attributes['correo'] ?? ''; }
     public function getTelefonoAttribute() { return $this->attributes['telefono'] ?? ''; }
@@ -115,10 +126,18 @@ class Participantes extends Model
     public function getRFCEmpresaAttribute() { return $this->attributes['rfc_empresa'] ?? ''; }
     public function getPuestoAttribute() { return $this->attributes['puesto'] ?? ''; }
     public function getOcupacionAttribute() { return $this->attributes['ocupacion'] ?? ''; }
-    public function getEstadoDePagoAttribute() { return $this->attributes['estado_pago'] ?? 'Pago Pendiente'; }
+    
+    /**
+     * Accessor para EstadoDePago (usado en vistas).
+     */
+    public function getEstadoDePagoAttribute() 
+    { 
+        return $this->attributes['estado_pago'] ?? 'Pendiente'; 
+    }
+
     public function getFechadelCursoAttribute() { return $this->attributes['fecha_curso'] ?? ''; }
-    public function getNAttribute() { return $this->attributes['id'] ?? ''; }
-    public function getPagoAttribute() { return $this->attributes['pago'] ?? ''; }
+    public function getNAttribute() { return $this->attributes['N'] ?? $this->attributes['id'] ?? ''; }
+    public function getPagoAttribute() { return $this->attributes['pago'] ?? 0; }
 
     // Mutator para convertir CURP a mayúsculas automáticamente
     public function setCurpAttribute($value)

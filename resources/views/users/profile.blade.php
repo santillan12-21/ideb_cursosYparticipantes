@@ -76,7 +76,7 @@
         margin-bottom: 0;
     }
     .btn-edit-profile {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 10px 30px;
         font-weight: 600;
         text-transform: uppercase;

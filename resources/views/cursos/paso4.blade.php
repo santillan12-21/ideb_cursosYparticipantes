@@ -61,7 +61,7 @@
         flex-wrap: wrap;
     }
     .btn-custom {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
@@ -105,7 +105,7 @@
                                         <label for="Temario" class="form-label">Porcentaje</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Temario" id="Temario" class="form-control" 
+                                            <input type="text" name="Temario" id="Temario" class="form-control percent-input" 
                                                 value="{{ old('Temario') ?? ($curso->Temario ?? ($datosPadre->Temario ?? '')) }}" placeholder="Ej: 100%">
                                         </div>
                                     </div>
@@ -149,7 +149,7 @@
                                         <label for="Itinerario" class="form-label">Porcentaje</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Itinerario" id="Itinerario" class="form-control" 
+                                            <input type="text" name="Itinerario" id="Itinerario" class="form-control percent-input" 
                                                 value="{{ old('Itinerario') ?? ($curso->Itinerario ?? ($datosPadre->Itinerario ?? '')) }}" placeholder="Ej: 100%">
                                         </div>
                                     </div>
@@ -193,7 +193,7 @@
                                         <label for="Planeación" class="form-label">Porcentaje</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Planeación" id="Planeación" class="form-control" 
+                                            <input type="text" name="Planeación" id="Planeación" class="form-control percent-input" 
                                                 value="{{ old('Planeación') ?? ($curso->Planeación ?? ($datosPadre->Planeación ?? '')) }}" placeholder="Ej: 100%">
                                         </div>
                                     </div>
@@ -236,6 +236,9 @@
                                 <a href="{{ route('curso.paso3') }}" class="btn btn-secondary btn-custom shadow-sm">
                                     <i class="fas fa-arrow-left me-2"></i> Regresar
                                 </a>
+                                <a href="{{ route('curso.cancelar') }}" class="btn btn-danger btn-custom shadow-sm" onclick="return confirm('¿Estás seguro de que deseas cancelar la creación? Se perderán los datos ingresados.')">
+                                    <i class="fas fa-times me-2"></i> Cancelar
+                                </a>
                                 <button type="button" class="btn btn-warning btn-custom shadow-sm" id="finalizarForzadoBtn">
                                     <i class="fas fa-exclamation-triangle me-2"></i> Finalización Forzada
                                 </button>
@@ -250,6 +253,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    document.querySelectorAll('.percent-input').forEach(input => {
+        input.addEventListener('blur', function() {
+            let val = this.value.trim();
+            if (val && !val.includes('%')) {
+                if (!isNaN(val)) {
+                    this.value = val + '%';
+                }
+            }
+        });
+    });
+
     document.querySelectorAll('.btn-create-folder').forEach(btn => {
         btn.addEventListener('click', function() {
             const tipo = btn.getAttribute('data-tipo');

@@ -23,7 +23,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: 0;
         padding: 8px 20px;
         font-size: 14px;
         font-weight: 600;
@@ -59,20 +59,20 @@
 
     /* Personalización de DataTables para que coincida con el estilo */
     .dataTables_wrapper .dataTables_filter input {
-        border-radius: 8px;
+        border-radius: 0;
         padding: 6px 12px;
         border: 1px solid #ddd;
         margin-left: 10px;
     }
     .dataTables_wrapper .dataTables_length select {
-        border-radius: 8px;
+        border-radius: 0;
         padding: 4px 8px;
         border: 1px solid #ddd;
     }
     .dataTables_wrapper .dataTables_paginate .paginate_button.current {
         background: #000 !important;
         color: white !important;
-        border-radius: 8px;
+        border-radius: 0;
         border: none;
     }
 </style>
@@ -129,16 +129,7 @@
 
                                 @if (($accion === 'eliminado' || $accion === 'finalizado') && $log->curso)
                                     @if ($status === 0)
-                                        <form action="{{ route('cursos.activar', $log->curso->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success">Activar</button>
-                                        </form>
                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDelLog{{ $log->id }}">Borrar Def.</button>
-                                    @elseif ($status === 1)
-                                        <form action="{{ route('cursos.desactivar', $log->curso->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-warning">Desactivar</button>
-                                        </form>
                                     @endif
                                 @endif
                             </div>

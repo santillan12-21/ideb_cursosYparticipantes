@@ -24,7 +24,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: 0;
         padding: 8px 20px;
         font-size: 14px;
         font-weight: 600;
@@ -148,16 +148,7 @@
 
                                 @if (($accion === 'eliminado' || $accion === 'finalizado') && $log->curso)
                                     @if ($status === 0)
-                                        <form action="{{ route('cursos.activar', $log->curso->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success">Activar</button>
-                                        </form>
                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDelCourse{{ $log->id }}">Borrar Def.</button>
-                                    @elseif ($status === 1)
-                                        <form action="{{ route('cursos.desactivar', $log->curso->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-warning">Desactivar</button>
-                                        </form>
                                     @endif
                                 @endif
                             </div>
@@ -252,22 +243,6 @@
                 @endforelse
             </tbody>
         </table>
-    </div>
-
-    <h2>Configuración de Base de Datos</h2>
-    <div class="card p-4 shadow-sm mb-4">
-        <form action="{{ route('configuraciones.guardar') }}" method="POST">
-            @csrf
-            <div class="form-group mb-3">
-                <label for="db_connection" class="fw-bold">Tipo de Conexión</label>
-                <select name="db_connection" id="db_connection" class="form-select">
-                    <option value="mysql" {{ (isset($currentDbConnection) && $currentDbConnection == 'mysql') ? 'selected' : '' }}>MySQL</option>
-                    <option value="pgsql" {{ (isset($currentDbConnection) && $currentDbConnection == 'pgsql') ? 'selected' : '' }}>PostgreSQL</option>
-                    <option value="sqlite" {{ (isset($currentDbConnection) && $currentDbConnection == 'sqlite') ? 'selected' : '' }}>SQLite</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Guardar Cambios de Conexión</button>
-        </form>
     </div>
 
     <div class="row g-4 justify-content-center mb-5">

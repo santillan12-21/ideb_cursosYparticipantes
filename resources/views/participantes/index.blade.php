@@ -12,13 +12,14 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
-        padding: 6px 12px;
+        border-radius: 0 !important;
+        padding: 6px 15px;
         font-size: 13px;
         font-weight: 600;
         transition: all 0.2s ease;
         height: 38px;
-        width: 120px;
+        width: auto;
+        min-width: 100px;
         margin: 2px;
         border: none;
         color: white !important;
@@ -92,6 +93,8 @@
                         <option value="">Todos</option>
                         <option value="Pagado" {{ request('estado_pago') == 'Pagado' ? 'selected' : '' }}>Pagado</option>
                         <option value="Pendiente" {{ request('estado_pago') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                        <option value="Anticipo" {{ request('estado_pago') == 'Anticipo' ? 'selected' : '' }}>Anticipo</option>
+                        <option value="Cancelado" {{ request('estado_pago') == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
                     </select>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
@@ -107,7 +110,7 @@
 
     <form method="GET" action="{{ route('participantes.index') }}" class="mb-4">
         <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
-            <input type="text" name="search" class="form-control border-0" placeholder="Buscar por nombre, correo, teléfono..." value="{{ request('search') }}" style="height: 45px;">
+            <input type="text" name="search" class="form-control border-0" placeholder="Buscar por nombre, correo, empresa..." value="{{ request('search') }}" style="height: 45px;">
             <button class="btn btn-dark" type="submit" style="min-width: 80px; border-radius: 0; margin: 0; height: 45px;"><i class="fas fa-search"></i></button>
         </div>
     </form>
@@ -118,6 +121,7 @@
                     <tr>
                         <th>N°</th>
                         <th>Nombre</th>
+                        <th>Cursos Inscritos</th>
                         <th>Correo</th>
                         <th>Empresa</th>
                         <th>Pago</th>
@@ -130,6 +134,17 @@
                     <tr>
                         <td>{{ $participante->N }}</td>
                         <td class="fw-bold">{{ $participante->NombredelPostulante }}</td>
+                        <td>
+                            @if($participante->cursos->count() > 0)
+                                @foreach($participante->cursos as $curso)
+                                    <span class="badge bg-light text-dark border mb-1" style="font-size: 0.65rem; display: block; white-space: normal; text-align: left; font-weight: 500;">
+                                        <i class="fas fa-book text-muted me-1"></i> {{ $curso->nombre ?: $curso->NombredelCurso }}
+                                    </span>
+                                @endforeach
+                            @else
+                                <span class="text-muted small" style="font-size: 0.65rem;">Sin cursos</span>
+                            @endif
+                        </td>
                         <td>{{ $participante->Correo }}</td>
                         <td>{{ $participante->Empresa }}</td>
                         <td>${{ number_format(floatval($participante->Pago) ?: 0, 2) }}</td>
@@ -137,7 +152,7 @@
                             <span class="badge bg-light text-dark border" style="padding: 8px; min-width: 85px; font-weight: 500;">{{ $participante->EstadoDePago }}</span>
                         </td>
                         <td class="text-center sticky-col">
-                            <div class="d-flex justify-content-center flex-wrap">
+                            <div class="d-flex justify-content-center align-items-center flex-nowrap" style="gap: 5px;">
                                 <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn-action btn-info-p" target="_blank" title="Ver">
                                     <i class="fas fa-eye"></i> Ver
                                 </a>
@@ -145,7 +160,7 @@
                                     <a href="{{ route('participantes.edit', ['id' => $participante->id]) }}" class="btn-action btn-warning-p" title="Editar">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
-                                    <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" onsubmit="return confirm('¿Mover participante a la papelera?')">
+                                    <form action="{{ route('participantes.destroy', ['id' => $participante->id]) }}" method="POST" onsubmit="return confirm('¿Mover participante a la papelera?')" class="m-0 p-0">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="btn-action btn-danger-p" title="Eliminar">
                                             <i class="fas fa-trash"></i> Borrar

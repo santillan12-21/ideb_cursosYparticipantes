@@ -61,7 +61,7 @@
         flex-wrap: wrap;
     }
     .btn-custom {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
@@ -105,7 +105,7 @@
                                         <label for="Digital" class="form-label">Porcentaje</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Digital" id="Digital" class="form-control" 
+                                            <input type="text" name="Digital" id="Digital" class="form-control percent-input" 
                                                 value="{{ old('Digital', $curso->Digital ?? ($datosPadre->Digital ?? '')) }}" placeholder="Ej: 100%">
                                         </div>
                                     </div>
@@ -149,7 +149,7 @@
                                         <label for="Impreso_Presentable" class="form-label">Porcentaje</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Impreso_Presentable" id="Impreso_Presentable" class="form-control" 
+                                            <input type="text" name="Impreso_Presentable" id="Impreso_Presentable" class="form-control percent-input" 
                                                 value="{{ old('Impreso_Presentable', $curso->Impreso_Presentable ?? ($datosPadre->Impreso_Presentable ?? '')) }}" placeholder="Ej: 100%">
                                         </div>
                                     </div>
@@ -178,6 +178,9 @@
                                 <a href="{{ route('curso.paso4') }}" class="btn btn-secondary btn-custom shadow-sm">
                                     <i class="fas fa-arrow-left me-2"></i> Regresar
                                 </a>
+                                <a href="{{ route('curso.cancelar') }}" class="btn btn-danger btn-custom shadow-sm" onclick="return confirm('¿Estás seguro de que deseas cancelar la creación? Se perderán los datos ingresados.')">
+                                    <i class="fas fa-times me-2"></i> Cancelar
+                                </a>
                                 <button type="button" class="btn btn-warning btn-custom shadow-sm" id="finalizarForzadoBtn">
                                     <i class="fas fa-exclamation-triangle me-2"></i> Finalización Forzada
                                 </button>
@@ -192,6 +195,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    document.querySelectorAll('.percent-input').forEach(input => {
+        input.addEventListener('blur', function() {
+            let val = this.value.trim();
+            if (val && !val.includes('%')) {
+                if (!isNaN(val)) {
+                    this.value = val + '%';
+                }
+            }
+        });
+    });
+
     function crearCarpeta(tipo) {
         const nombresCarpetas = {
             'Digital': '2- Material de Apoyo (Digital)',

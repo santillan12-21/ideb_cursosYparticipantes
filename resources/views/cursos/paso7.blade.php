@@ -61,7 +61,7 @@
         flex-wrap: wrap;
     }
     .btn-custom {
-        border-radius: 30px;
+        border-radius: 0;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
@@ -302,6 +302,9 @@
                                 </button>
                                 <a href="{{ route('curso.paso6') }}" class="btn btn-secondary btn-custom shadow-sm">
                                     <i class="fas fa-arrow-left me-2"></i> Regresar
+                                </a>
+                                <a href="{{ route('curso.cancelar') }}" class="btn btn-danger btn-custom shadow-sm" onclick="return confirm('¿Estás seguro de que deseas cancelar la creación? Se perderán los datos ingresados.')">
+                                    <i class="fas fa-times me-2"></i> Cancelar
                                 </a>
                             </div>
                         </form>

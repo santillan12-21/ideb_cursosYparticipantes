@@ -99,7 +99,7 @@
             padding-top: 5px;
         }
         .highlight {
-            color: #198754;
+            color: #28a745;
             font-weight: bold;
         }
     </style>

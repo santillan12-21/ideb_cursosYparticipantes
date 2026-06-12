@@ -110,13 +110,21 @@
         margin-top: 20px;
     }
     .btn-custom {
-        border-radius: 30px;
+        border-radius: 0 !important;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1px;
         font-size: 0.85rem;
         transition: all 0.3s ease;
+    }
+    .btn-success {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+    .btn-success:hover {
+        background-color: #218838 !important;
+        border-color: #1e7e34 !important;
     }
 </style>
 
@@ -304,7 +312,7 @@
                                             <label for="Pago" class="form-label">Monto de Pago</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
-                                                <input type="text" class="form-control" id="Pago" name="Pago" value="{{ old('Pago') }}" required placeholder="0.00">
+                                                <input type="number" step="0.01" min="0" class="form-control" id="Pago" name="Pago" value="{{ old('Pago') }}" required placeholder="0.00">
                                             </div>
                                         </div>
                                         <div class="col-md-4">

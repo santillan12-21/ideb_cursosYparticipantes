@@ -39,6 +39,28 @@
         margin-bottom: 25px;
         border: 1px solid #e9ecef;
     }
+    .btn-custom {
+        border-radius: 30px !important;
+        padding: 12px 35px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    .btn-success {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+    .btn-success:hover {
+        background-color: #218838 !important;
+        border-color: #1e7e34 !important;
+    }
+    .botones-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
 </style>
 
 <div class="container create-container">
@@ -153,7 +175,7 @@
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 <input type="password" name="password" id="password" class="form-control form-control-with-icon" placeholder="Mínimo 8 caracteres" required>
-                                                <button type="button" class="btn btn-outline-secondary" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none;" onclick="togglePassword('password')">
+                                                <button type="button" class="btn btn-outline-secondary view-password-btn" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none;" data-field="password">
                                                     <i class="fas fa-eye" id="eye-password"></i>
                                                 </button>
                                             </div>
@@ -163,7 +185,7 @@
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-check-double"></i></span>
                                                 <input type="password" name="password_confirmation" id="password_confirmation" class="form-control form-control-with-icon" placeholder="Repita la contraseña" required>
-                                                <button type="button" class="btn btn-outline-secondary" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none;" onclick="togglePassword('password_confirmation')">
+                                                <button type="button" class="btn btn-outline-secondary view-password-btn" style="border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none;" data-field="password_confirmation">
                                                     <i class="fas fa-eye" id="eye-password_confirmation"></i>
                                                 </button>
                                             </div>
@@ -188,17 +210,110 @@
     </div>
 </div>
 
+<!-- Modal para ingresar la contraseña del administrador -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title" style="font-weight: 300;">Confirmación de Seguridad</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="passwordForm">
+                    @csrf
+                    <input type="hidden" id="targetField" name="target_field">
+                    <p class="text-muted small mb-4">Para visualizar lo que ha ingresado, por seguridad debe reingresar su contraseña de administrador.</p>
+                    <div class="mb-4">
+                        <label for="admin_password" class="form-label fw-bold small text-muted">Contraseña Admin</label>
+                        <div class="input-group border rounded">
+                            <span class="input-group-text bg-white border-0"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control border-0" id="admin_password" name="admin_password" required placeholder="••••••••">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-custom" style="height: 45px; border-radius: 0;">
+                        <i class="fas fa-shield-alt me-2"></i> Verificar
+                    </button>
+                </form>
+                <div id="passwordResult" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    function togglePassword(fieldId) {
-        const input = document.getElementById(fieldId);
-        const icon = document.getElementById('eye-' + fieldId);
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.replace('fa-eye', 'fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.replace('fa-eye-slash', 'fa-eye');
-        }
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const passwordModalElement = document.getElementById('passwordModal');
+        const passwordForm = document.getElementById('passwordForm');
+        const passwordResult = document.getElementById('passwordResult');
+        let modalInstance = null;
+
+        // Abrir el modal cuando se hace clic en el ojo
+        document.querySelectorAll('.view-password-btn').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                const fieldId = this.getAttribute('data-field');
+                const input = document.getElementById(fieldId);
+                const icon = document.getElementById('eye-' + fieldId);
+
+                // Si ya está visible, lo ocultamos sin preguntar
+                if (input.type === 'text') {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                    return;
+                }
+
+                document.getElementById('targetField').value = fieldId;
+                document.getElementById('admin_password').value = '';
+                passwordResult.innerHTML = '';
+                
+                if (!modalInstance) {
+                    modalInstance = new bootstrap.Modal(passwordModalElement);
+                }
+                modalInstance.show();
+            });
+        });
+
+        // Enviar la solicitud de verificación
+        passwordForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            passwordResult.innerHTML = '<div class="text-center py-2"><i class="fas fa-spinner fa-spin me-2"></i> Verificando...</div>';
+
+            const formData = new FormData(this);
+            const fieldId = document.getElementById('targetField').value;
+
+            fetch("{{ route('users.verifyAdmin') }}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    passwordResult.innerHTML = `<div class="alert alert-danger border-0 shadow-sm small">${data.error}</div>`;
+                } else {
+                    const input = document.getElementById(fieldId);
+                    const icon = document.getElementById('eye-' + fieldId);
+                    
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                    
+                    modalInstance.hide();
+                    
+                    // Ocultar automáticamente después de 5 segundos
+                    setTimeout(() => {
+                        input.type = 'password';
+                        icon.classList.replace('fa-eye-slash', 'fa-eye');
+                    }, 5000);
+                }
+            })
+            .catch(error => {
+                passwordResult.innerHTML = `<div class="alert alert-danger border-0 shadow-sm small">Error de comunicación.</div>`;
+            });
+        });
+    });
 </script>
 @endsection
