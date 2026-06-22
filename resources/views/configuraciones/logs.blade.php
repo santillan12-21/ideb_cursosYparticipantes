@@ -23,7 +23,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 0;
+        border-radius: 6px;
         padding: 8px 20px;
         font-size: 14px;
         font-weight: 600;

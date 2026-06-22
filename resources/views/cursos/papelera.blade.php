@@ -19,7 +19,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 0;
+        border-radius: 6px;
         padding: 6px 12px;
         font-size: 13px;
         font-weight: 600;
@@ -119,7 +119,7 @@
                                                     <p class="text-danger small fw-bold">Esta acción eliminará también sus subcursos asociados de forma permanente.</p>
                                                     <div class="mb-3 mt-4">
                                                         <label class="form-label small fw-bold text-muted">Contraseña de Administrador:</label>
-                                                        <input type="password" name="password" class="form-control" required style="border-radius: 0;">
+                                                        <input type="password" name="password" class="form-control" required style="border-radius: 6px;">
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-0 p-4 pt-0">

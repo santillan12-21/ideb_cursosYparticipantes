@@ -230,7 +230,7 @@
                             <input type="password" class="form-control border-0" id="admin_password" name="admin_password" required placeholder="••••••••">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 btn-custom" style="height: 45px; border-radius: 0;">
+                    <button type="submit" class="btn btn-primary w-100 btn-custom" style="height: 45px; border-radius: 6px;">
                         <i class="fas fa-shield-alt me-2"></i> Verificar
                     </button>
                 </form>

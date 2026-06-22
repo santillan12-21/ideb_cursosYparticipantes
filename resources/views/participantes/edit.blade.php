@@ -1,7 +1,48 @@
 @extends('layouts.app')
 @section('content')
 
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <style>
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #dee2e6;
+        border-radius: 6px !important;
+        padding: 2px 5px;
+        min-height: 40px;
+        background-color: #fff;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #333 !important;
+        border: none !important;
+        color: white !important;
+        border-radius: 4px !important;
+        padding: 4px 10px 4px 25px !important;
+        margin-top: 5px !important;
+        position: relative !important;
+        font-size: 0.85rem;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #fff !important;
+        margin-right: 0 !important;
+        position: absolute !important;
+        left: 5px !important;
+        border: none !important;
+        background: transparent !important;
+        font-weight: bold;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        background: transparent !important;
+        color: #ff4d4d !important;
+    }
+    .select2-container--default .select2-search--inline .select2-search__field {
+        margin-top: 5px !important;
+    }
     .edit-container {
         padding: 50px 0;
     }
@@ -106,7 +147,7 @@
         margin-top: 20px;
     }
     .btn-action-edit {
-        border-radius: 0 !important;
+        border-radius: 6px !important;
         padding: 10px 25px;
         font-weight: 600;
         text-transform: uppercase;
@@ -286,10 +327,11 @@
                                             <label for="cursos" class="form-label">Cursos Inscritos</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-book"></i></span>
-                                                <select class="form-select" id="cursos" name="cursos[]" multiple required disabled style="height: 100px;">
+                                                <select class="form-select select2-multiple" id="cursos" name="cursos[]" multiple required disabled>
                                                     @foreach ($cursos as $curso)
                                                         <option value="{{ $curso->id }}"
                                                                 data-fecha="{{ $curso->FechadeInicio }}"
+                                                                data-costo="{{ $curso->costo }}"
                                                                 {{ in_array($curso->id, $participante->cursos->pluck('id')->toArray()) ? 'selected' : '' }}>
                                                             {{ $curso->NombredelCurso }} ({{ $curso->FechadeInicio }})
                                                         </option>
@@ -297,7 +339,7 @@
                                                 </select>
                                                 <span class="input-group-text d-none editing-indicator">Modificado</span>
                                             </div>
-                                            <small class="text-muted mt-2 d-block">Mantén Ctrl presionado para selección múltiple.</small>
+                                            <small class="text-muted mt-2 d-block">Puedes seleccionar varios cursos de la lista.</small>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="FechadelCurso" class="form-label">Fecha del Curso</label>
@@ -314,6 +356,9 @@
                                                 <input type="number" step="0.01" min="0" class="form-control" id="Pago" name="Pago" value="{{ old('Pago', $participante->Pago ?: '0.00') }}" readonly>
                                                 <span class="input-group-text d-none editing-indicator">Modificado</span>
                                             </div>
+                                            <small id="totalSugerido" class="text-primary fw-bold mt-1 d-block" style="display: none;">
+                                                Total sugerido: $<span id="sumaCostos">0.00</span>
+                                            </small>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="EstadoDePago" class="form-label">Estado de Pago</label>
@@ -360,6 +405,10 @@
         const formInputs = document.querySelectorAll('#editForm .form-control, #editForm .form-select');
         const originalValues = {};
         let isEditing = false;
+        const estadoPagoSelect = document.getElementById('EstadoDePago');
+        const pagoInput = document.getElementById('Pago');
+        const cursosSelect = document.getElementById('cursos');
+        const fechaCursoInput = document.getElementById('FechadelCurso');
 
         // Almacenar valores originales
         formInputs.forEach(input => {
@@ -370,6 +419,15 @@
             }
         });
 
+        // Inicializar Select2
+        const selectCursos = $('#cursos').select2({
+            placeholder: "Seleccione uno o más cursos",
+            width: 'resolve'
+        });
+
+        // Calcular total inicial
+        $(cursosSelect).trigger('change');
+
         // Función para habilitar edición
         toggleEditButton.addEventListener('click', function () {
             if (!isEditing) {
@@ -379,6 +437,10 @@
                     input.addEventListener('input', showEditingIndicator);
                     input.addEventListener('change', showEditingIndicator);
                 });
+                
+                // Habilitar Select2
+                $('#cursos').prop('disabled', false).trigger('change');
+
                 toggleEditButton.style.display = 'none';
                 saveButton.removeAttribute('disabled');
                 cancelButton.removeAttribute('disabled');
@@ -391,9 +453,7 @@
             formInputs.forEach(input => {
                 if (input.tagName === 'SELECT' && input.multiple) {
                     const values = originalValues[input.id];
-                    Array.from(input.options).forEach(option => {
-                        option.selected = values.includes(option.value);
-                    });
+                    $(input).val(values).trigger('change');
                 } else {
                     input.value = originalValues[input.id];
                 }
@@ -401,6 +461,10 @@
                 if (input.tagName === 'SELECT') input.setAttribute('disabled', true);
                 hideEditingIndicator(input);
             });
+
+            // Deshabilitar Select2
+            $('#cursos').prop('disabled', true).trigger('change');
+
             toggleEditButton.style.display = 'inline-block';
             saveButton.setAttribute('disabled', true);
             cancelButton.setAttribute('disabled', true);
@@ -424,11 +488,6 @@
             }
         }
 
-        const estadoPagoSelect = document.getElementById('EstadoDePago');
-        const pagoInput = document.getElementById('Pago');
-        const cursosSelect = document.getElementById('cursos');
-        const fechaCursoInput = document.getElementById('FechadelCurso');
-
         estadoPagoSelect.addEventListener('change', function () {
             if (estadoPagoSelect.value === 'Cancelado') {
                 pagoInput.value = '0.00';
@@ -437,12 +496,27 @@
 
         cursosSelect.addEventListener('change', function () {
             const selectedOptions = Array.from(cursosSelect.selectedOptions);
+            let totalSuma = 0;
+
             if (selectedOptions.length > 0) {
                 const firstSelectedOption = selectedOptions[0];
                 const fecha = firstSelectedOption.dataset.fecha;
                 if (fecha) {
                     fechaCursoInput.value = fecha;
                 }
+
+                selectedOptions.forEach(option => {
+                    totalSuma += option.dataset.costo ? parseFloat(option.dataset.costo) : 0;
+                });
+
+                document.getElementById('sumaCostos').textContent = totalSuma.toFixed(2);
+                document.getElementById('totalSugerido').style.display = 'block';
+                
+                if (isEditing) {
+                    pagoInput.value = totalSuma.toFixed(2);
+                }
+            } else {
+                document.getElementById('totalSugerido').style.display = 'none';
             }
         });
     });

@@ -71,7 +71,7 @@
             margin-bottom: 20px;
         }
         .alert-danger {
-            border-radius: 0;
+            border-radius: 6px;
             padding: 12px;
             background-color: #fff2f2;
             color: #d63031;
@@ -79,9 +79,9 @@
             border: 1px solid #ffcccc;
         }
         
-        /* Global overrides for rectangular buttons and inputs */
+        /* Global overrides for rounded buttons and inputs */
         .btn, .btn-login, .form-control, button {
-            border-radius: 0 !important;
+            border-radius: 6px !important;
         }
     </style>
 </head>

@@ -361,7 +361,7 @@ public function papelera(Request $request)
     public function getCursosDetalles(Request $request)
     {
         $ids = $request->input('ids', []);
-        $cursos = Cursos::whereIn('id', $ids)->get(['id', 'nombre', 'fecha_inicio', 'fecha_termino']);
+        $cursos = Cursos::whereIn('id', $ids)->get(['id', 'nombre', 'fecha_inicio', 'fecha_termino', 'costo']);
         return response()->json($cursos);
     }
 

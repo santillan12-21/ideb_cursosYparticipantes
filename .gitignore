@@ -21,3 +21,13 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Python build artifacts
+/build/
+/dist/
+*.spec
+
+# Database backups and backups in general
+*.sql
+*.zip
+--no-pager

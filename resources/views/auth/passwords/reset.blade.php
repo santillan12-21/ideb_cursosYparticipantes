@@ -120,7 +120,7 @@
         }
 
         .alert-danger {
-            border-radius: 0;
+            border-radius: 6px;
             border: none;
             background-color: #fff2f2;
             color: #d63031;
@@ -129,9 +129,9 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Global overrides for rectangular buttons and inputs */
+        /* Global overrides for rounded buttons and inputs */
         .btn, .btn-primary, .form-control, button {
-            border-radius: 0 !important;
+            border-radius: 6px !important;
         }
 
         .alert-danger ul {

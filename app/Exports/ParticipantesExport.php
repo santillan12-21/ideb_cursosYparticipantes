@@ -35,7 +35,9 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping, 
             'Empresa',
             'RFC Empresa',
             'Puesto',
-            'Pago',
+            'Costo Total Cursos',
+            'Monto Pagado',
+            'Saldo Pendiente',
             'Estado de Pago',
             'Fecha del Curso',
             'Cursos Inscritos',
@@ -45,6 +47,10 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping, 
     // Define cómo se mapean los datos
     public function map($participantes): array
     {
+        $pago = (!empty($participantes->pago) && is_numeric($participantes->pago)) ? floatval($participantes->pago) : 0;
+        $totalCosto = $participantes->total_a_cobrar;
+        $saldo = max(0, $totalCosto - $pago);
+
         return [
             $participantes->N,
             $participantes->NombredelPostulante,
@@ -58,11 +64,14 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping, 
             $participantes->Empresa,
             $participantes->RFCEmpresa,
             $participantes->Puesto,
-            '$' . number_format((!empty($participantes->Pago) && is_numeric($participantes->Pago)) ? floatval($participantes->Pago) : 0, 2),
+            '$' . number_format($totalCosto, 2),
+            '$' . number_format($pago, 2),
+            '$' . number_format($saldo, 2),
             $participantes->EstadoDePago,
             $participantes->FechadelCurso,
-            $participantes->cursos->isEmpty() ? 'No hay cursos inscritos' : $participantes->cursos->map(function ($curso) {
-                return $curso->NombredelCurso . ' (' . $curso->pivot->FechadelCurso . ')';
+            $participantes->cursos->isEmpty() ? 'No hay cursos inscritos' : $participantes->cursos->map(function ($curso) use ($participantes) {
+                $fecha = $curso->FechadeInicio ?: $participantes->FechadelCurso;
+                return $curso->NombredelCurso . ' (' . ($fecha ? \Carbon\Carbon::parse($fecha)->format('d/m/Y') : 'N/A') . ')';
             })->implode(', '),
         ];
     }
@@ -98,7 +107,7 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping, 
         ];
 
         // Aplicar estilo al encabezado
-        $sheet->getStyle('A1:P1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:R1')->applyFromArray($headerStyle);
 
         // Ajustar el ancho de las columnas
         $sheet->getColumnDimension('A')->setWidth(5);  // N
@@ -113,10 +122,12 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping, 
         $sheet->getColumnDimension('J')->setWidth(25); // Empresa
         $sheet->getColumnDimension('K')->setWidth(20); // RFC Empresa
         $sheet->getColumnDimension('L')->setWidth(20); // Puesto
-        $sheet->getColumnDimension('M')->setWidth(15); // Pago
-        $sheet->getColumnDimension('N')->setWidth(15); // Estado de Pago
-        $sheet->getColumnDimension('O')->setWidth(20); // Fecha del Curso
-        $sheet->getColumnDimension('P')->setWidth(40); // Cursos Inscritos
+        $sheet->getColumnDimension('M')->setWidth(15); // Costo Total
+        $sheet->getColumnDimension('N')->setWidth(15); // Monto Pagado
+        $sheet->getColumnDimension('O')->setWidth(15); // Saldo Pendiente
+        $sheet->getColumnDimension('P')->setWidth(15); // Estado de Pago
+        $sheet->getColumnDimension('Q')->setWidth(20); // Fecha del Curso
+        $sheet->getColumnDimension('R')->setWidth(40); // Cursos Inscritos
 
         // Estilo para las filas de datos
         $dataStyle = [
@@ -133,12 +144,12 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping, 
         ];
 
         // Aplicar estilo a las filas de datos
-        $sheet->getStyle("A2:P{$lastRow}")->applyFromArray($dataStyle);
+        $sheet->getStyle("A2:R{$lastRow}")->applyFromArray($dataStyle);
 
         // Alternar colores de fondo para filas de datos
         for ($row = 2; $row <= $lastRow; $row++) {
             if ($row % 2 == 0) {
-                $sheet->getStyle("A{$row}:P{$row}")->getFill()
+                $sheet->getStyle("A{$row}:R{$row}")->getFill()
                     ->setFillType(Fill::FILL_SOLID)
                     ->setStartColor(new Color('F5F5F5')); // Color gris claro
             }

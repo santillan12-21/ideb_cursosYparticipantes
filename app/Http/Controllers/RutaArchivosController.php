@@ -122,7 +122,8 @@ class   RutaArchivosController extends Controller
             }
 
             // Construir el comando para ejecutar el script Python
-            $comando = escapeshellcmd("python \"C:/xampp/htdocs/Proyecto IDB/CursosyParticipantes/storage/app/public/abrir_carpeta.py\" \"$ruta\"");
+            $scriptPath = storage_path('app/public/abrir_carpeta.py');
+            $comando = escapeshellcmd("python \"{$scriptPath}\" \"$ruta\"");
 
             // Ejecutar el comando
             exec($comando, $output, $return_var);

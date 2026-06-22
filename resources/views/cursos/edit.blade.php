@@ -68,7 +68,7 @@
         margin-top: 30px;
         padding: 12px 40px;
         font-size: 1.1rem;
-        border-radius: 0;
+        border-radius: 6px;
     }
 </style>
 

@@ -139,6 +139,14 @@ class Participantes extends Model
     public function getNAttribute() { return $this->attributes['N'] ?? $this->attributes['id'] ?? ''; }
     public function getPagoAttribute() { return $this->attributes['pago'] ?? 0; }
 
+    /**
+     * Calcula el costo total sumando el costo de cada curso en el que está inscrito.
+     */
+    public function getTotalACobrarAttribute()
+    {
+        return $this->cursos->sum('costo');
+    }
+
     // Mutator para convertir CURP a mayúsculas automáticamente
     public function setCurpAttribute($value)
     {

@@ -33,8 +33,8 @@ class ServerApp:
 
             time.sleep(5)  # espera que inicien
 
-            # Directorio del proyecto Laravel
-            cwd = r"C:\xampp\htdocs\Proyecto IDB\CursosyParticipantes"
+            # Directorio del proyecto Laravel (dinámico)
+            cwd = os.path.dirname(os.path.abspath(__file__))
 
             # Ocultar ventana consola con STARTUPINFO (solo Windows)
             startupinfo = subprocess.STARTUPINFO()
@@ -60,8 +60,13 @@ class ServerApp:
 
             time.sleep(5)  # espera que se levanten
 
-            # Ruta personalizada de Chrome
-            chrome_path = r"C:\Users\angam\AppData\Local\Google\Chrome\Application\chrome.exe"
+            # Ruta de Chrome (dinámica usando el perfil de usuario actual y fallbacks comunes)
+            user_profile = os.environ.get("USERPROFILE", "")
+            chrome_path = os.path.join(user_profile, r"AppData\Local\Google\Chrome\Application\chrome.exe")
+            if not os.path.exists(chrome_path):
+                chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+            if not os.path.exists(chrome_path):
+                chrome_path = r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 
             if os.path.exists(chrome_path):
                 subprocess.Popen([chrome_path, "http://127.0.0.3:8003/login"], startupinfo=startupinfo)

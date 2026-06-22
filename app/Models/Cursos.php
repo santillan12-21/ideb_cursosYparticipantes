@@ -5,110 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-/**
- *
- *
- * @property int $id
- * @property string $Nomenclatura
- * @property string $NombredelCurso
- * @property string $DescripciondeCurso
- * @property string $CostodelCurso
- * @property string $InstructorResponsable
- * @property string $FechadeInicio
- * @property string $FechadeTermino
- * @property string $Virtual
- * @property string $Presencial
- * @property string $Mixto
- * @property string $SinFecha
- * @property string $DriveSinFecha
- * @property string $Facebook
- * @property string $DriveFacebook
- * @property string $Linkedin
- * @property string $DriveLinkedin
- * @property string $Instagram
- * @property string $DriveInstagram
- * @property string $Temario
- * @property string $DriveTemario
- * @property string $Itinerario
- * @property string $DriveItinerario
- * @property string $Planeación
- * @property string $DrivePlaneación
- * @property string $Digital
- * @property string $DriveDigital
- * @property string $Impreso_Presentable
- * @property string $Presentación
- * @property string $Evaluación_diagnostica
- * @property string $EvaluaciondeSatisfacción
- * @property string $EvaluacionFinal
- * @property string $DC3
- * @property string|null $FechadeRegistro_STPS
- * @property string $Formato_DC5
- * @property string $Formato_DC5_Tienefirma
- * @property string $Certificadodecomprobacion
- * @property string $DrivedeCertificadodecomprobacion
- * @property string $Cartapoder_tienefirma
- * @property string $DriveCartapoder
- * @property string $UDEMY
- * @property string $EnlaceUDEMY
- * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string $Duracioncurso
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inscripcion> $inscripciones
- * @property-read int|null $inscripciones_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\participantes> $participantes
- * @property-read int|null $participantes_count
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereCartapoderTienefirma($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereCertificadodecomprobacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereCostodelCurso($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDC3($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDescripciondeCurso($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDigital($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDriveCartapoder($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDriveDigital($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDriveFacebook($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDriveInstagram($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDriveItinerario($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDriveLinkedin($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDrivePlaneación($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDriveSinFecha($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDriveTemario($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDrivedeCertificadodecomprobacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereDuracioncurso($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereEnlaceUDEMY($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereEvaluacionFinal($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereEvaluaciondeSatisfacción($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereEvaluaciónDiagnostica($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereFacebook($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereFechadeInicio($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereFechadeRegistroSTPS($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereFechadeTermino($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereFormatoDC5($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereFormatoDC5Tienefirma($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereImpresoPresentable($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereInstagram($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereInstructorResponsable($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereItinerario($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereLinkedin($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereMixto($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereNombredelCurso($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereNomenclatura($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos wherePlaneación($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos wherePresencial($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos wherePresentación($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereSinFecha($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereTemario($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereUDEMY($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|cursos whereVirtual($value)
- * @mixin \Eloquent
- */
+
 class Cursos extends Model
 {
     protected $fillable = [
@@ -124,6 +21,7 @@ class Cursos extends Model
         'presencial',
         'mixto',
         'sin_fecha',
+        'drive_sin_fecha',
         'facebook',
         'drive_facebook',
         'linkedin',
@@ -140,6 +38,7 @@ class Cursos extends Model
         'drive_digital',
         'impreso_presentable',
         'presentacion',
+        'drive_presentacion',
         'evaluacion_diagnostica',
         'evaluacion_satisfaccion',
         'evaluacion_final',
@@ -154,7 +53,29 @@ class Cursos extends Model
         'udemy',
         'enlace_udemy',
         'status',
-        'duracion'
+        'duracion',
+        // RUTAS DE ARCHIVOS - PASO 3
+        'ruta_sin_fecha',
+        'ruta_facebook',
+        'ruta_linkedin',
+        'ruta_instagram',
+        // RUTAS DE ARCHIVOS - PASO 4
+        'ruta_temario',
+        'ruta_itinerario',
+        'ruta_planeacion',
+        // RUTAS DE ARCHIVOS - PASO 5
+        'ruta_digital',
+        'ruta_impreso_presentable',
+        // RUTAS DE ARCHIVOS - PASO 6
+        'ruta_presentacion',
+        'ruta_evaluacion_diagnostica',
+        'ruta_evaluacion_satisfaccion',
+        'ruta_evaluacion_final',
+        // RUTAS DE ARCHIVOS - PASO 7
+        'ruta_formato_dc5',
+        'ruta_certificado_comprobacion',
+        'ruta_carta_poder',
+        'ruta_udemy',
     ];
 
     public function subcursos()
@@ -179,6 +100,7 @@ class Cursos extends Model
     public function getPresencialAttribute() { return $this->attributes['presencial'] ?? ''; }
     public function getMixtoAttribute() { return $this->attributes['mixto'] ?? ''; }
     public function getSinFechaAttribute() { return $this->attributes['sin_fecha'] ?? ''; }
+    public function getDriveSinFechaAttribute() { return $this->attributes['drive_sin_fecha'] ?? ''; }
     public function getFacebookAttribute() { return $this->attributes['facebook'] ?? ''; }
     public function getDriveFacebookAttribute() { return $this->attributes['drive_facebook'] ?? ''; }
     public function getLinkedinAttribute() { return $this->attributes['linkedin'] ?? ''; }
@@ -195,6 +117,7 @@ class Cursos extends Model
     public function getDriveDigitalAttribute() { return $this->attributes['drive_digital'] ?? ''; }
     public function getImpreso_PresentableAttribute() { return $this->attributes['impreso_presentable'] ?? ''; }
     public function getPresentaciónAttribute() { return $this->attributes['presentacion'] ?? ''; }
+    public function getDrivePresentacionAttribute() { return $this->attributes['drive_presentacion'] ?? ''; }
     public function getEvaluación_diagnosticaAttribute() { return $this->attributes['evaluacion_diagnostica'] ?? ''; }
     public function getEvaluaciondeSatisfacciónAttribute() { return $this->attributes['evaluacion_satisfaccion'] ?? ''; }
     public function getEvaluacionFinalAttribute() { return $this->attributes['evaluacion_final'] ?? ''; }
@@ -208,7 +131,23 @@ class Cursos extends Model
     public function getDriveCartapoderAttribute() { return $this->attributes['drive_carta_poder'] ?? ''; }
     public function getUDEMYAttribute() { return $this->attributes['udemy'] ?? ''; }
     public function getDuracioncursoAttribute() { return $this->attributes['duracion'] ?? ''; }
-    public function getDriveSinFechaAttribute() { return $this->attributes['drive_sin_fecha'] ?? ''; }
+    public function getRutaSinFechaAttribute() { return $this->attributes['ruta_sin_fecha'] ?? ''; }
+    public function getRutaFacebookAttribute() { return $this->attributes['ruta_facebook'] ?? ''; }
+    public function getRutaLinkedinAttribute() { return $this->attributes['ruta_linkedin'] ?? ''; }
+    public function getRutaInstagramAttribute() { return $this->attributes['ruta_instagram'] ?? ''; }
+    public function getRutaTemarioAttribute() { return $this->attributes['ruta_temario'] ?? ''; }
+    public function getRutaItinerarioAttribute() { return $this->attributes['ruta_itinerario'] ?? ''; }
+    public function getRutaPlaneacionAttribute() { return $this->attributes['ruta_planeacion'] ?? ''; }
+    public function getRutaDigitalAttribute() { return $this->attributes['ruta_digital'] ?? ''; }
+    public function getRutaImpresoPresentableAttribute() { return $this->attributes['ruta_impreso_presentable'] ?? ''; }
+    public function getRutaPresentacionAttribute() { return $this->attributes['ruta_presentacion'] ?? ''; }
+    public function getRutaEvaluacionDiagnosticaAttribute() { return $this->attributes['ruta_evaluacion_diagnostica'] ?? ''; }
+    public function getRutaEvaluacionSatisfaccionAttribute() { return $this->attributes['ruta_evaluacion_satisfaccion'] ?? ''; }
+    public function getRutaEvaluacionFinalAttribute() { return $this->attributes['ruta_evaluacion_final'] ?? ''; }
+    public function getRutaFormatoDc5Attribute() { return $this->attributes['ruta_formato_dc5'] ?? ''; }
+    public function getRutaCertificadoComprobacionAttribute() { return $this->attributes['ruta_certificado_comprobacion'] ?? ''; }
+    public function getRutaCartaPoderAttribute() { return $this->attributes['ruta_carta_poder'] ?? ''; }
+    public function getRutaUdemyAttribute() { return $this->attributes['ruta_udemy'] ?? ''; }
 
     protected $dates = [
         'fecha_inicio',
@@ -255,10 +194,10 @@ class Cursos extends Model
     public function participantes()
     {
         return $this->belongsToMany(
-            Participantes::class,  // Modelo relacionado
-            'inscripciones',       // Tabla intermedia
-            'curso_id',            // Clave foránea en la tabla intermedia para cursos
-            'participante_id'      // Clave foránea en la tabla intermedia para participantes
+            Participantes::class,
+            'inscripciones',
+            'curso_id',
+            'participante_id'
         );
     }
 }

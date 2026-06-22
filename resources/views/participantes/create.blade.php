@@ -3,10 +3,54 @@
 @section('content')
 <!-- jQuery UI -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <style>
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #dee2e6;
+        border-radius: 6px !important;
+        padding: 2px 5px;
+        min-height: 45px;
+        background-color: #fff;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #dee2e6;
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.05);
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #333 !important;
+        border: none !important;
+        color: white !important;
+        border-radius: 4px !important;
+        padding: 4px 10px 4px 25px !important;
+        margin-top: 6px !important;
+        position: relative !important;
+        font-size: 0.85rem;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #fff !important;
+        margin-right: 0 !important;
+        position: absolute !important;
+        left: 5px !important;
+        border: none !important;
+        background: transparent !important;
+        font-weight: bold;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        background: transparent !important;
+        color: #ff4d4d !important;
+    }
+    .select2-container--default .select2-search--inline .select2-search__field {
+        margin-top: 7px !important;
+    }
     .create-container {
         padding: 50px 0;
     }
@@ -110,7 +154,7 @@
         margin-top: 20px;
     }
     .btn-custom {
-        border-radius: 0 !important;
+        border-radius: 6px !important;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
@@ -287,13 +331,13 @@
                                             <label for="cursos" class="form-label">Cursos a inscribir</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-book"></i></span>
-                                                <select class="form-select" id="cursos" name="cursos[]" multiple required style="height: 120px;">
+                                                <select class="form-select" id="cursos" name="cursos[]" multiple required>
                                                     @foreach ($cursos as $curso)
                                                         <option value="{{ $curso->id }}">{{ $curso->NombredelCurso }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <small class="text-muted mt-2 d-block"><i class="fas fa-info-circle me-1"></i> Mantén Ctrl presionado para selección múltiple.</small>
+                                            <small class="text-muted mt-2 d-block"><i class="fas fa-info-circle me-1"></i> Puedes seleccionar varios cursos de la lista.</small>
                                         </div>
                                         <div id="detallesCursos" class="col-md-12 mb-3" style="display: none;">
                                             <div class="alert alert-dark border-0 shadow-sm" style="background-color: #f1f3f5;">
@@ -314,6 +358,9 @@
                                                 <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
                                                 <input type="number" step="0.01" min="0" class="form-control" id="Pago" name="Pago" value="{{ old('Pago') }}" required placeholder="0.00">
                                             </div>
+                                            <small id="totalSugerido" class="text-primary fw-bold mt-1 d-block" style="display: none !important;">
+                                                Total sugerido: $<span id="sumaCostos">0.00</span>
+                                            </small>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="EstadoDePago" class="form-label">Estado de Pago</label>
@@ -350,6 +397,13 @@
 
 <script>
 $(document).ready(function() {
+    // Inicializar Select2
+    $('#cursos').select2({
+        placeholder: "Seleccione uno o más cursos",
+        allowClear: true,
+        width: 'resolve'
+    });
+
     const puestos = [
         "01 Cultivo, crianza y aprovechamiento", "01.1 Agricultura y silvicultura", "01.2 Ganadería",
         "01.3 Pesca y acuacultura", "02 Extracción y suministro", "02.1 Exploración",
@@ -401,15 +455,17 @@ $(document).ready(function() {
                 data: { ids: selectedIds },
                 success: function(data) {
                     listaDetalles.empty();
+                    var totalSuma = 0;
                     data.forEach(function(curso) {
                         var fechaI = curso.fecha_inicio ? curso.fecha_inicio : 'No definida';
-                        var fechaT = curso.fecha_termino ? curso.fecha_termino : 'No definida';
+                        var costo = curso.costo ? parseFloat(curso.costo) : 0;
+                        totalSuma += costo;
                         
                         listaDetalles.append(
                             '<div class="list-group-item bg-transparent border-0 px-0 py-1">' +
                                 '<i class="fas fa-check-circle text-dark me-2"></i>' +
                                 '<strong>' + curso.nombre + '</strong> ' +
-                                '<span class="text-muted small ms-2">(Inicio: ' + fechaI + ')</span>' +
+                                '<span class="text-muted small ms-2">(Inicio: ' + fechaI + ' - Costo: $' + costo.toFixed(2) + ')</span>' +
                             '</div>'
                         );
 
@@ -417,6 +473,10 @@ $(document).ready(function() {
                              $('#FechadelCurso').val(curso.fecha_inicio);
                         }
                     });
+                    
+                    $('#sumaCostos').text(totalSuma.toFixed(2));
+                    $('#Pago').val(totalSuma.toFixed(2));
+                    $('#totalSugerido').attr('style', 'display: block !important;');
                     detallesContainer.fadeIn();
                 }
             });

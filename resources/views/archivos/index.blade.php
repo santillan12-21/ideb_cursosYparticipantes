@@ -30,9 +30,9 @@
         padding-bottom: 10px;
     }
 
-    /* Uniformidad de bordes rectangulares */
+    /* Uniformidad de bordes redondeados sutiles */
     .btn, .form-control, .card, .card-header, .list-group-item {
-        border-radius: 0 !important;
+        border-radius: 6px !important;
     }
 </style>
 

@@ -38,6 +38,9 @@
         font-size: 0.75rem;
         text-transform: uppercase;
         margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     .input-group-text {
         background-color: #ffffff;
@@ -47,19 +50,83 @@
     .form-select, .form-control {
         border-left: none;
         padding: 10px 15px;
+        transition: all 0.3s ease;
     }
     .form-select:focus, .form-control:focus {
         box-shadow: none;
         border-color: #dee2e6;
     }
+    
+    .form-select.validado-completo {
+        border-color: #28a745 !important;
+        background-color: #f0fff4 !important;
+        border-left: 4px solid #28a745 !important;
+        box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.1);
+    }
+    .form-select.validado-vacio {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        border-left: 4px solid #dc3545 !important;
+        box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.1);
+        animation: pulse-red 2s ease-in-out infinite;
+    }
+    
+    .estado-indicador {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        transition: all 0.4s ease;
+        flex-shrink: 0;
+        border: 2px solid #e9ecef;
+    }
+    .estado-indicador.estado-verde {
+        background-color: #28a745;
+        border-color: #28a745;
+        box-shadow: 0 0 12px rgba(40, 167, 69, 0.4);
+    }
+    .estado-indicador.estado-rojo {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        box-shadow: 0 0 12px rgba(220, 53, 69, 0.4);
+        animation: pulse-red 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+        50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
+        100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+    }
+    
+    #estadoBadge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.5s ease;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+    }
+    #estadoBadge .estado-indicador {
+        width: 16px;
+        height: 16px;
+        border: none;
+    }
+    
     .botones-container {
         display: flex;
         justify-content: center;
         gap: 15px;
         margin-top: 20px;
+        flex-wrap: wrap;
     }
     .btn-custom {
-        border-radius: 0;
+        border-radius: 6px;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
@@ -67,6 +134,36 @@
         font-size: 0.85rem;
         transition: all 0.3s ease;
     }
+    .btn-guardar-verde {
+        background-color: #28a745 !important;
+        border: 2px solid #28a745 !important;
+        color: #ffffff !important;
+    }
+    .btn-guardar-verde:hover {
+        background-color: #218838 !important;
+        border-color: #1e7e34 !important;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3) !important;
+    }
+    .btn-guardar-verde i {
+        color: #ffffff !important;
+    }
+    
+    .contador-campos {
+        text-align: center;
+        margin-top: 15px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    .contador-campos span {
+        font-weight: 700;
+    }
+    .contador-campos .completos { color: #28a745; }
+    .contador-campos .vacios { color: #dc3545; }
 </style>
 
 <div class="step-container">
@@ -77,21 +174,34 @@
                     <div class="step-header">
                         <h2>Editar Paso 2: Modalidad del Curso</h2>
                         <p class="mb-0 mt-2 opacity-75">Actualiza cómo se impartirá el curso</p>
+                        
+                        <div id="estadoGeneral" class="mt-3">
+                            <span id="estadoBadge">
+                                <span class="estado-indicador" id="indicadorGeneral"></span>
+                                <span id="textoEstado">Verificando campos...</span>
+                            </span>
+                        </div>
                     </div>
 
                     <div class="card-body p-4 p-md-5">
-                        <form action="{{ route('cursos.update.paso', [$curso->id, 2]) }}" method="POST">
+                        <form action="{{ route('cursos.update.paso', [$curso->id, 2]) }}" method="POST" id="formularioCurso">
                             @csrf
                             @method('PUT')
                             <div class="form-section-card shadow-sm">
                                 <div class="row g-4">
                                     <div class="col-md-12">
-                                        <label for="Virtual" class="form-label">¿El curso es Virtual?</label>
+                                        <label for="Virtual" class="form-label">
+                                            ¿El curso es Virtual?
+                                            <span class="estado-indicador" id="estado-Virtual"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-laptop"></i></span>
-                                            <select name="Virtual" id="Virtual" class="form-select @error('Virtual') is-invalid @enderror" required>
-                                                <option value="1" {{ old('Virtual', $curso->virtual) ? 'selected' : '' }}>Sí</option>
-                                                <option value="0" {{ !old('Virtual', $curso->virtual) ? 'selected' : '' }}>No</option>
+                                            <select name="Virtual" id="Virtual" 
+                                                class="form-select @error('Virtual') is-invalid @enderror" 
+                                                onchange="validarSelect(this)">
+                                                <option value="">Seleccione una opción</option>
+                                                <option value="1" {{ old('Virtual', $curso->virtual) == '1' ? 'selected' : '' }}>Sí</option>
+                                                <option value="0" {{ old('Virtual', $curso->virtual) == '0' ? 'selected' : '' }}>No</option>
                                             </select>
                                             @error('Virtual')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -100,12 +210,18 @@
                                     </div>
 
                                     <div class="col-md-12">
-                                        <label for="Presencial" class="form-label">¿El curso es Presencial?</label>
+                                        <label for="Presencial" class="form-label">
+                                            ¿El curso es Presencial?
+                                            <span class="estado-indicador" id="estado-Presencial"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-users"></i></span>
-                                            <select name="Presencial" id="Presencial" class="form-select @error('Presencial') is-invalid @enderror" required>
-                                                <option value="1" {{ old('Presencial', $curso->presencial) ? 'selected' : '' }}>Sí</option>
-                                                <option value="0" {{ !old('Presencial', $curso->presencial) ? 'selected' : '' }}>No</option>
+                                            <select name="Presencial" id="Presencial" 
+                                                class="form-select @error('Presencial') is-invalid @enderror" 
+                                                onchange="validarSelect(this)">
+                                                <option value="">Seleccione una opción</option>
+                                                <option value="1" {{ old('Presencial', $curso->presencial) == '1' ? 'selected' : '' }}>Sí</option>
+                                                <option value="0" {{ old('Presencial', $curso->presencial) == '0' ? 'selected' : '' }}>No</option>
                                             </select>
                                             @error('Presencial')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -114,12 +230,18 @@
                                     </div>
 
                                     <div class="col-md-12">
-                                        <label for="Mixto" class="form-label">¿El curso es Mixto?</label>
+                                        <label for="Mixto" class="form-label">
+                                            ¿El curso es Mixto?
+                                            <span class="estado-indicador" id="estado-Mixto"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-blender"></i></span>
-                                            <select name="Mixto" id="Mixto" class="form-select @error('Mixto') is-invalid @enderror" required>
-                                                <option value="1" {{ old('Mixto', $curso->mixto) ? 'selected' : '' }}>Sí</option>
-                                                <option value="0" {{ !old('Mixto', $curso->mixto) ? 'selected' : '' }}>No</option>
+                                            <select name="Mixto" id="Mixto" 
+                                                class="form-select @error('Mixto') is-invalid @enderror" 
+                                                onchange="validarSelect(this)">
+                                                <option value="">Seleccione una opción</option>
+                                                <option value="1" {{ old('Mixto', $curso->mixto) == '1' ? 'selected' : '' }}>Sí</option>
+                                                <option value="0" {{ old('Mixto', $curso->mixto) == '0' ? 'selected' : '' }}>No</option>
                                             </select>
                                             @error('Mixto')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -129,8 +251,13 @@
                                 </div>
                             </div>
 
+                            <div class="contador-campos">
+                                <span class="completos" id="totalCompletos">0</span> completos | 
+                                <span class="vacios" id="totalVacios">0</span> vacíos
+                            </div>
+
                             <div class="botones-container">
-                                <button type="submit" class="btn btn-dark btn-custom shadow-sm">
+                                <button type="submit" class="btn btn-guardar-verde btn-custom shadow-sm">
                                     <i class="fas fa-save me-2"></i> Guardar Cambios
                                 </button>
                                 <a href="{{ route('cursos.edit', $curso->id) }}" class="btn btn-secondary btn-custom shadow-sm">
@@ -144,4 +271,86 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selects = document.querySelectorAll('#formularioCurso .form-select');
+    selects.forEach(select => {
+        validarSelect(select);
+    });
+    actualizarEstadoGeneral();
+});
+
+function validarSelect(select) {
+    const valor = select.value;
+    const idCampo = select.id;
+    const indicador = document.getElementById('estado-' + idCampo);
+    
+    select.classList.remove('validado-completo', 'validado-vacio');
+    if (indicador) {
+        indicador.classList.remove('estado-verde', 'estado-rojo');
+    }
+    
+    if (valor === '' || valor === null || valor === undefined) {
+        select.classList.add('validado-vacio');
+        if (indicador) {
+            indicador.classList.add('estado-rojo');
+            indicador.title = 'Campo sin seleccionar';
+        }
+    } else {
+        select.classList.add('validado-completo');
+        if (indicador) {
+            indicador.classList.add('estado-verde');
+            indicador.title = 'Campo completado';
+        }
+    }
+    
+    actualizarContadores();
+    actualizarEstadoGeneral();
+}
+
+function actualizarContadores() {
+    const selects = document.querySelectorAll('#formularioCurso .form-select');
+    let completos = 0, vacios = 0;
+    
+    selects.forEach(select => {
+        if (select.classList.contains('validado-completo')) {
+            completos++;
+        } else if (select.classList.contains('validado-vacio')) {
+            vacios++;
+        }
+    });
+    
+    document.getElementById('totalCompletos').textContent = completos;
+    document.getElementById('totalVacios').textContent = vacios;
+}
+
+function actualizarEstadoGeneral() {
+    const selects = document.querySelectorAll('#formularioCurso .form-select');
+    let completos = 0, vacios = 0;
+    const total = selects.length;
+    
+    selects.forEach(select => {
+        if (select.classList.contains('validado-completo')) {
+            completos++;
+        } else if (select.classList.contains('validado-vacio')) {
+            vacios++;
+        }
+    });
+    
+    const indicadorGeneral = document.getElementById('indicadorGeneral');
+    const textoEstado = document.getElementById('textoEstado');
+    
+    if (vacios > 0) {
+        indicadorGeneral.className = 'estado-indicador estado-rojo';
+        textoEstado.textContent = `⚠️ ${vacios} campo(s) sin seleccionar - Requiere atención`;
+    } else if (completos === total) {
+        indicadorGeneral.className = 'estado-indicador estado-verde';
+        textoEstado.textContent = '✅ Todos los campos completos - Listo para guardar';
+    } else {
+        indicadorGeneral.className = 'estado-indicador';
+        textoEstado.textContent = 'Verificando campos...';
+    }
+}
+</script>
 @endsection

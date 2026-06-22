@@ -116,7 +116,7 @@
         margin-top: 20px;
     }
     .btn-custom {
-        border-radius: 0;
+        border-radius: 6px;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;

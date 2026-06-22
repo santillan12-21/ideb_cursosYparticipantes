@@ -91,12 +91,16 @@
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h1 class="h3 mb-0" style="font-weight: 300;">Gestión de Usuarios</h1>
             <div class="d-flex gap-2">
-                <a href="{{ route('users.create') }}" class="btn-action btn-success-modern shadow-sm" style="min-width: 180px; height: 40px;">
-                    <i class="fas fa-plus me-2"></i> Nuevo Usuario
-                </a>
-                <a href="{{ route('users.papelera') }}" class="btn-action btn-secondary-modern shadow-sm" style="min-width: 150px; height: 40px;">
-                    <i class="fas fa-trash-alt me-2"></i> Papelera
-                </a>
+                <button>
+                    <a href="{{ route('users.create') }}" class="btn-action btn-success-modern shadow-sm" style="min-width: 180px; height: 40px;">
+                        <i class="fas fa-plus me-2"></i> Nuevo Usuario
+                    </a>
+                </button>
+                <button>
+                    <a href="{{ route('users.papelera') }}" class="btn-action btn-secondary-modern shadow-sm" style="min-width: 150px; height: 40px;">
+                        <i class="fas fa-trash-alt me-2"></i> Papelera
+                    </a>
+                </button>
             </div>
         </div>
 
@@ -134,9 +138,9 @@
                                     <button class="btn-action btn-info-modern view-password" data-id="{{ $user->id }}" title="Ver Contraseña">
                                         <i class="fas fa-key"></i> Contraseña
                                     </button>
-                                    <a href="{{ route('users.edit', $user->id) }}" class="btn-action btn-warning-modern" title="Editar">
+                                    <button><a href="{{ route('users.edit', $user->id) }}" class="btn-action btn-warning-modern" title="Editar">
                                         <i class="fas fa-edit"></i> Editar
-                                    </a>
+                                    </a></button>
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Enviar usuario a la papelera?')" class="m-0 p-0">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="btn-action btn-danger-modern" title="Eliminar">
@@ -177,7 +181,7 @@
                             <input type="password" class="form-control border-0" id="admin_password" name="admin_password" required placeholder="••••••••">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 btn-action" style="height: 45px; border-radius: 0;">
+                    <button type="submit" class="btn btn-primary w-100 btn-action" style="height: 45px; border-radius: 6px;">
                         <i class="fas fa-shield-alt me-2"></i> Verificar y Mostrar
                     </button>
                 </form>

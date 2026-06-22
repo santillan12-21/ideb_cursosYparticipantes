@@ -12,7 +12,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 0 !important;
+        border-radius: 6px !important;
         padding: 6px 15px;
         font-size: 13px;
         font-weight: 600;
@@ -111,7 +111,7 @@
     <form method="GET" action="{{ route('participantes.index') }}" class="mb-4">
         <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
             <input type="text" name="search" class="form-control border-0" placeholder="Buscar por nombre, correo, empresa..." value="{{ request('search') }}" style="height: 45px;">
-            <button class="btn btn-dark" type="submit" style="min-width: 80px; border-radius: 0; margin: 0; height: 45px;"><i class="fas fa-search"></i></button>
+            <button class="btn btn-dark" type="submit" style="min-width: 80px; border-radius: 6px; margin: 0; height: 45px;"><i class="fas fa-search"></i></button>
         </div>
     </form>
 
@@ -153,7 +153,7 @@
                         </td>
                         <td class="text-center sticky-col">
                             <div class="d-flex justify-content-center align-items-center flex-nowrap" style="gap: 5px;">
-                                <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn-action btn-info-p" target="_blank" title="Ver">
+                                <a href="{{ route('participantes.detalles', ['id' => $participante->id]) }}" class="btn-action btn-info-p" title="Ver">
                                     <i class="fas fa-eye"></i> Ver
                                 </a>
                                 @if(auth()->user()?->puesto != 'Operacion')

@@ -171,13 +171,25 @@
         </tr>
     </table>
 
-    <div class="section-title">Estado de Pago</div>
+    <div class="section-title">Resumen de Cuenta</div>
     <table class="info-table">
         <tr>
-            <td class="label">Monto Total:</td>
+            <td class="label">Costo Total de Cursos:</td>
+            <td class="value">
+                ${{ number_format($participante->total_a_cobrar, 2) }} MXN
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Monto Pagado:</td>
             <td class="value highlight">
-                @php $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0; @endphp
+                @php $pago = !empty($participante->pago) && is_numeric($participante->pago) ? floatval($participante->pago) : 0; @endphp
                 ${{ number_format($pago, 2) }} MXN
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Saldo Pendiente:</td>
+            <td class="value" style="color: {{ ($participante->total_a_cobrar - $pago) > 0 ? '#dc3545' : '#28a745' }}; font-weight: bold;">
+                ${{ number_format(max(0, $participante->total_a_cobrar - $pago), 2) }} MXN
             </td>
         </tr>
         <tr>
@@ -203,7 +215,12 @@
                     <tr>
                         <td>{{ $curso->NombredelCurso }}</td>
                         <td>{{ $curso->Nomenclatura }}</td>
-                        <td>{{ \Carbon\Carbon::parse($curso->pivot->FechadelCurso)->format('d/m/Y') }}</td>
+                        <td>
+                            @php
+                                $fecha = $curso->FechadeInicio ?: $participante->FechadelCurso;
+                            @endphp
+                            {{ $fecha ? \Carbon\Carbon::parse($fecha)->format('d/m/Y') : 'N/A' }}
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

@@ -73,7 +73,7 @@
     .data-value.highlight { color: #28a745; font-weight: 700; }
     
     .btn-download {
-        border-radius: 0;
+        border-radius: 6px;
         padding: 8px 25px;
         font-weight: 600;
         text-transform: uppercase;

@@ -32,13 +32,38 @@
         padding: 25px;
         margin-bottom: 30px;
         border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
     }
+    .form-section-card.completo {
+        border-left: 4px solid #28a745;
+        background: #f0fff4;
+    }
+    .form-section-card.incompleto {
+        border-left: 4px solid #ffc107;
+        background: #fffef0;
+    }
+    .form-section-card.vacio {
+        border-left: 4px solid #dc3545;
+        background: #fff5f5;
+        animation: pulse-section 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-section {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.1); }
+        50% { box-shadow: 0 0 20px 5px rgba(220, 53, 69, 0.1); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.1); }
+    }
+    
     .form-label {
         font-weight: 700;
         color: #495057;
         font-size: 0.75rem;
         text-transform: uppercase;
         margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     .input-group-text {
         background-color: #ffffff;
@@ -48,11 +73,95 @@
     .form-control {
         border-left: none;
         padding: 10px 15px;
+        transition: all 0.3s ease;
     }
     .form-control:focus {
         box-shadow: none;
         border-color: #dee2e6;
     }
+    
+    /* ============================================
+       ESTILOS PARA VALIDACIÓN DE CAMPOS
+       ============================================ */
+    
+    .form-control.validado-completo {
+        border-color: #28a745 !important;
+        background-color: #f0fff4 !important;
+        border-left: 4px solid #28a745 !important;
+        box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.1);
+    }
+    
+    .form-control.validado-incompleto {
+        border-color: #ffc107 !important;
+        background-color: #fffef0 !important;
+        border-left: 4px solid #ffc107 !important;
+        box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.1);
+    }
+    
+    .form-control.validado-vacio {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        border-left: 4px solid #dc3545 !important;
+        box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.1);
+        animation: pulse-red 2s ease-in-out infinite;
+    }
+    
+    .estado-indicador {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        transition: all 0.4s ease;
+        flex-shrink: 0;
+        border: 2px solid #e9ecef;
+    }
+    
+    .estado-indicador.estado-verde {
+        background-color: #28a745;
+        border-color: #28a745;
+        box-shadow: 0 0 12px rgba(40, 167, 69, 0.4);
+    }
+    
+    .estado-indicador.estado-amarillo {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        box-shadow: 0 0 12px rgba(255, 193, 7, 0.4);
+    }
+    
+    .estado-indicador.estado-rojo {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        box-shadow: 0 0 12px rgba(220, 53, 69, 0.4);
+        animation: pulse-red 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+        50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
+        100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+    }
+    
+    #estadoBadge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.5s ease;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+    }
+    
+    #estadoBadge .estado-indicador {
+        width: 16px;
+        height: 16px;
+        border: none;
+    }
+    
     .botones-container {
         display: flex;
         justify-content: center;
@@ -60,8 +169,9 @@
         margin-top: 20px;
         flex-wrap: wrap;
     }
+    
     .btn-custom {
-        border-radius: 0;
+        border-radius: 6px;
         padding: 12px 35px;
         font-weight: 700;
         text-transform: uppercase;
@@ -69,6 +179,39 @@
         font-size: 0.85rem;
         transition: all 0.3s ease;
     }
+    
+    .btn-guardar-verde {
+        background-color: #28a745 !important;
+        border: 2px solid #28a745 !important;
+        color: #ffffff !important;
+    }
+    .btn-guardar-verde:hover {
+        background-color: #218838 !important;
+        border-color: #1e7e34 !important;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3) !important;
+    }
+    .btn-guardar-verde i {
+        color: #ffffff !important;
+    }
+    
+    .contador-campos {
+        text-align: center;
+        margin-top: 15px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    .contador-campos span {
+        font-weight: 700;
+    }
+    .contador-campos .completos { color: #28a745; }
+    .contador-campos .incompletos { color: #ffc107; }
+    .contador-campos .vacios { color: #dc3545; }
+    
     .platform-title {
         font-weight: 700;
         text-transform: uppercase;
@@ -91,28 +234,51 @@
                     <div class="step-header">
                         <h2>Paso 3: Formato de Flyer / Imagen</h2>
                         <p class="mb-0 mt-2 opacity-75">Material gráfico y redes sociales</p>
+                        
+                        <div id="estadoGeneral" class="mt-3">
+                            <span id="estadoBadge">
+                                <span class="estado-indicador" id="indicadorGeneral"></span>
+                                <span id="textoEstado">Verificando campos...</span>
+                            </span>
+                        </div>
                     </div>
 
                     <div class="card-body p-4 p-md-5">
-                        <form action="{{ route('curso.paso3.guardar') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('curso.paso3.guardar') }}" method="POST" enctype="multipart/form-data" id="formularioCurso">
                             @csrf
                             
                             <!-- Sin Fecha -->
-                            <div class="form-section-card shadow-sm">
+                            <div class="form-section-card shadow-sm" id="seccion-SinFecha">
                                 <div class="platform-title"><i class="fas fa-calendar-times"></i> Sin Fecha</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="SinFecha" class="form-label">Porcentaje</label>
+                                        <label for="SinFecha" class="form-label">
+                                            Porcentaje
+                                            <span class="estado-indicador" id="estado-SinFecha"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="SinFecha" id="SinFecha" class="form-control" value="{{ old('SinFecha') }}" placeholder="Ej: 100%">
+                                            <input type="text" name="SinFecha" id="SinFecha" 
+                                                class="form-control" 
+                                                value="{{ old('SinFecha') }}" 
+                                                placeholder="Ej: 100%"
+                                                oninput="validarPorcentaje(this)"
+                                                onchange="validarPorcentaje(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="DriveSinFecha" class="form-label">URL Drive (opcional)</label>
+                                        <label for="DriveSinFecha" class="form-label">
+                                            URL Drive (opcional)
+                                            <span class="estado-indicador" id="estado-DriveSinFecha"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
-                                            <input type="text" name="DriveSinFecha" id="DriveSinFecha" class="form-control" value="{{ old('DriveSinFecha') }}" placeholder="https://drive.google.com/...">
+                                            <input type="text" name="DriveSinFecha" id="DriveSinFecha" 
+                                                class="form-control" 
+                                                value="{{ old('DriveSinFecha') }}" 
+                                                placeholder="https://drive.google.com/..."
+                                                oninput="validarCampo(this)"
+                                                onchange="validarCampo(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -121,33 +287,46 @@
                                             <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
                                                 <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
                                             </button>
-                                            <div id="archivoSinFechaContainer" style="display: {{ isset($carpetasExistentes['SinFecha']) && $carpetasExistentes['SinFecha'] ? 'block' : 'none' }}; flex-grow: 1;">
-                                                <input type="file" name="SinFechaLocal" class="form-control">
+                                            <div id="archivoSinFechaContainer" style="display: none; flex-grow: 1;">
+                                                <input type="file" name="archivoSinFecha" class="form-control" onchange="validarArchivo(this, 'SinFecha')">
                                             </div>
                                         </div>
-                                        @if(session('cursos_paso3.SinFechaLocal'))
-                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle"></i> Archivo subido: {{ session('cursos_paso3.SinFechaLocal') }}</small>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Facebook -->
-                            <div class="form-section-card shadow-sm">
+                            <div class="form-section-card shadow-sm" id="seccion-Facebook">
                                 <div class="platform-title"><i class="fab fa-facebook"></i> Facebook</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="Facebook" class="form-label">Porcentaje</label>
+                                        <label for="Facebook" class="form-label">
+                                            Porcentaje
+                                            <span class="estado-indicador" id="estado-Facebook"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Facebook" id="Facebook" class="form-control" value="{{ old('Facebook') }}" placeholder="Ej: 100%">
+                                            <input type="text" name="Facebook" id="Facebook" 
+                                                class="form-control" 
+                                                value="{{ old('Facebook') }}" 
+                                                placeholder="Ej: 100%"
+                                                oninput="validarPorcentaje(this)"
+                                                onchange="validarPorcentaje(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="DriveFacebook" class="form-label">URL Drive (opcional)</label>
+                                        <label for="DriveFacebook" class="form-label">
+                                            URL Drive (opcional)
+                                            <span class="estado-indicador" id="estado-DriveFacebook"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
-                                            <input type="text" name="DriveFacebook" id="DriveFacebook" class="form-control" value="{{ old('DriveFacebook') }}" placeholder="https://drive.google.com/...">
+                                            <input type="text" name="DriveFacebook" id="DriveFacebook" 
+                                                class="form-control" 
+                                                value="{{ old('DriveFacebook') }}" 
+                                                placeholder="https://drive.google.com/..."
+                                                oninput="validarCampo(this)"
+                                                onchange="validarCampo(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -156,33 +335,46 @@
                                             <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
                                                 <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
                                             </button>
-                                            <div id="archivoFacebookContainer" style="display: {{ isset($carpetasExistentes['Facebook']) && $carpetasExistentes['Facebook'] ? 'block' : 'none' }}; flex-grow: 1;">
-                                                <input type="file" name="FacebookLocal" class="form-control">
+                                            <div id="archivoFacebookContainer" style="display: none; flex-grow: 1;">
+                                                <input type="file" name="archivoFacebook" class="form-control" onchange="validarArchivo(this, 'Facebook')">
                                             </div>
                                         </div>
-                                        @if(session('cursos_paso3.FacebookLocal'))
-                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle"></i> Archivo subido: {{ session('cursos_paso3.FacebookLocal') }}</small>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
 
                             <!-- LinkedIn -->
-                            <div class="form-section-card shadow-sm">
+                            <div class="form-section-card shadow-sm" id="seccion-LinkedIn">
                                 <div class="platform-title"><i class="fab fa-linkedin"></i> LinkedIn</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="Linkedin" class="form-label">Porcentaje</label>
+                                        <label for="Linkedin" class="form-label">
+                                            Porcentaje
+                                            <span class="estado-indicador" id="estado-Linkedin"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Linkedin" id="Linkedin" class="form-control" value="{{ old('Linkedin') }}" placeholder="Ej: 100%">
+                                            <input type="text" name="Linkedin" id="Linkedin" 
+                                                class="form-control" 
+                                                value="{{ old('Linkedin') }}" 
+                                                placeholder="Ej: 100%"
+                                                oninput="validarPorcentaje(this)"
+                                                onchange="validarPorcentaje(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="DriveLinkedin" class="form-label">URL Drive (opcional)</label>
+                                        <label for="DriveLinkedin" class="form-label">
+                                            URL Drive (opcional)
+                                            <span class="estado-indicador" id="estado-DriveLinkedin"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
-                                            <input type="text" name="DriveLinkedin" id="DriveLinkedin" class="form-control" value="{{ old('DriveLinkedin') }}" placeholder="https://drive.google.com/...">
+                                            <input type="text" name="DriveLinkedin" id="DriveLinkedin" 
+                                                class="form-control" 
+                                                value="{{ old('DriveLinkedin') }}" 
+                                                placeholder="https://drive.google.com/..."
+                                                oninput="validarCampo(this)"
+                                                onchange="validarCampo(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -191,33 +383,46 @@
                                             <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
                                                 <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
                                             </button>
-                                            <div id="archivoLinkedInContainer" style="display: {{ isset($carpetasExistentes['LinkedIn']) && $carpetasExistentes['LinkedIn'] ? 'block' : 'none' }}; flex-grow: 1;">
-                                                <input type="file" name="LinkedInLocal" class="form-control">
+                                            <div id="archivoLinkedInContainer" style="display: none; flex-grow: 1;">
+                                                <input type="file" name="archivoLinkedIn" class="form-control" onchange="validarArchivo(this, 'LinkedIn')">
                                             </div>
                                         </div>
-                                        @if(session('cursos_paso3.LinkedInLocal'))
-                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle"></i> Archivo subido: {{ session('cursos_paso3.LinkedInLocal') }}</small>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Instagram -->
-                            <div class="form-section-card shadow-sm">
+                            <div class="form-section-card shadow-sm" id="seccion-Instagram">
                                 <div class="platform-title"><i class="fab fa-instagram"></i> Instagram</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="Instagram" class="form-label">Porcentaje</label>
+                                        <label for="Instagram" class="form-label">
+                                            Porcentaje
+                                            <span class="estado-indicador" id="estado-Instagram"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Instagram" id="Instagram" class="form-control" value="{{ old('Instagram') }}" placeholder="Ej: 100%">
+                                            <input type="text" name="Instagram" id="Instagram" 
+                                                class="form-control" 
+                                                value="{{ old('Instagram') }}" 
+                                                placeholder="Ej: 100%"
+                                                oninput="validarPorcentaje(this)"
+                                                onchange="validarPorcentaje(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="DriveInstagram" class="form-label">URL Drive (opcional)</label>
+                                        <label for="DriveInstagram" class="form-label">
+                                            URL Drive (opcional)
+                                            <span class="estado-indicador" id="estado-DriveInstagram"></span>
+                                        </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
-                                            <input type="text" name="DriveInstagram" id="DriveInstagram" class="form-control" value="{{ old('DriveInstagram') }}" placeholder="https://drive.google.com/...">
+                                            <input type="text" name="DriveInstagram" id="DriveInstagram" 
+                                                class="form-control" 
+                                                value="{{ old('DriveInstagram') }}" 
+                                                placeholder="https://drive.google.com/..."
+                                                oninput="validarCampo(this)"
+                                                onchange="validarCampo(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -226,19 +431,22 @@
                                             <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
                                                 <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
                                             </button>
-                                            <div id="archivoInstagramContainer" style="display: {{ isset($carpetasExistentes['Instagram']) && $carpetasExistentes['Instagram'] ? 'block' : 'none' }}; flex-grow: 1;">
-                                                <input type="file" name="InstagramLocal" class="form-control">
+                                            <div id="archivoInstagramContainer" style="display: none; flex-grow: 1;">
+                                                <input type="file" name="archivoInstagram" class="form-control" onchange="validarArchivo(this, 'Instagram')">
                                             </div>
                                         </div>
-                                        @if(session('cursos_paso3.InstagramLocal'))
-                                            <small class="text-success mt-1 d-block"><i class="fas fa-check-circle"></i> Archivo subido: {{ session('cursos_paso3.InstagramLocal') }}</small>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
 
+                            <div class="contador-campos">
+                                <span class="completos" id="totalCompletos">0</span> completos | 
+                                <span class="incompletos" id="totalIncompletos">0</span> incompletos | 
+                                <span class="vacios" id="totalVacios">0</span> vacíos
+                            </div>
+
                             <div class="botones-container">
-                                <button type="submit" class="btn btn-dark btn-custom shadow-sm">
+                                <button type="submit" class="btn btn-guardar-verde btn-custom shadow-sm">
                                     <i class="fas fa-save me-2"></i> Guardar y Continuar
                                 </button>
                                 <a href="{{ route('curso.paso2') }}" class="btn btn-secondary btn-custom shadow-sm">
@@ -261,74 +469,210 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function crearCarpetasLocales() {
-        const tipos = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
-        tipos.forEach(tipo => {
-            fetch('{{ route("crear.carpeta.local") }}', {
+document.addEventListener('DOMContentLoaded', function() {
+    const campos = document.querySelectorAll('#formularioCurso .form-control');
+    
+    campos.forEach(campo => {
+        if (campo.id.includes('SinFecha') || campo.id.includes('Facebook') || 
+            campo.id.includes('Linkedin') || campo.id.includes('Instagram')) {
+            validarPorcentaje(campo);
+        } else {
+            validarCampo(campo);
+        }
+    });
+    
+    actualizarContadores();
+    actualizarEstadoGeneral();
+});
+
+function validarPorcentaje(campo) {
+    const valor = campo.value.trim();
+    const indicador = document.getElementById('estado-' + campo.id);
+    
+    campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
+    if (indicador) {
+        indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
+    }
+    
+    if (valor === '') {
+        campo.classList.add('validado-vacio');
+        if (indicador) {
+            indicador.classList.add('estado-rojo');
+            indicador.title = 'Campo vacío - Requiere 100%';
+        }
+    } else if (valor === '100%' || valor === '100 %' || valor === '100') {
+        campo.classList.add('validado-completo');
+        if (indicador) {
+            indicador.classList.add('estado-verde');
+            indicador.title = '✅ 100% completo';
+        }
+    } else {
+        campo.classList.add('validado-incompleto');
+        if (indicador) {
+            indicador.classList.add('estado-amarillo');
+            indicador.title = '⚠️ Debe ser 100%';
+        }
+    }
+    
+    actualizarSeccion(campo);
+    actualizarContadores();
+    actualizarEstadoGeneral();
+}
+
+function validarCampo(campo) {
+    const valor = campo.value.trim();
+    const indicador = document.getElementById('estado-' + campo.id);
+    
+    campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
+    if (indicador) {
+        indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
+    }
+    
+    if (valor === '') {
+        campo.classList.add('validado-vacio');
+        if (indicador) indicador.classList.add('estado-rojo');
+    } else if (valor.length < 3) {
+        campo.classList.add('validado-incompleto');
+        if (indicador) indicador.classList.add('estado-amarillo');
+    } else {
+        campo.classList.add('validado-completo');
+        if (indicador) indicador.classList.add('estado-verde');
+    }
+    
+    actualizarSeccion(campo);
+    actualizarContadores();
+    actualizarEstadoGeneral();
+}
+
+function validarArchivo(input, seccion) {
+    // Solo para mostrar feedback visual en creación
+    const seccionCard = document.getElementById('seccion-' + seccion);
+    if (input.files && input.files.length > 0) {
+        seccionCard.style.borderLeftColor = '#28a745';
+    } else {
+        seccionCard.style.borderLeftColor = '';
+    }
+    actualizarSeccion(null);
+    actualizarContadores();
+    actualizarEstadoGeneral();
+}
+
+function actualizarSeccion(campo) {
+    const secciones = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
+    
+    secciones.forEach(seccion => {
+        const seccionCard = document.getElementById('seccion-' + seccion);
+        if (!seccionCard) return;
+        
+        const camposSeccion = seccionCard.querySelectorAll('.form-control');
+        let completos = 0, incompletos = 0, vacios = 0;
+        
+        camposSeccion.forEach(campo => {
+            if (campo.classList.contains('validado-completo')) completos++;
+            else if (campo.classList.contains('validado-incompleto')) incompletos++;
+            else if (campo.classList.contains('validado-vacio')) vacios++;
+        });
+        
+        seccionCard.classList.remove('completo', 'incompleto', 'vacio');
+        
+        if (vacios > 0 && completos === 0 && incompletos === 0) {
+            seccionCard.classList.add('vacio');
+        } else if (incompletos > 0) {
+            seccionCard.classList.add('incompleto');
+        } else if (completos > 0 && vacios === 0 && incompletos === 0) {
+            seccionCard.classList.add('completo');
+        } else if (completos > 0 && vacios > 0) {
+            seccionCard.classList.add('incompleto');
+        }
+    });
+}
+
+function actualizarContadores() {
+    const campos = document.querySelectorAll('#formularioCurso .form-control');
+    let completos = 0, incompletos = 0, vacios = 0;
+    
+    campos.forEach(campo => {
+        if (campo.classList.contains('validado-completo')) completos++;
+        else if (campo.classList.contains('validado-incompleto')) incompletos++;
+        else if (campo.classList.contains('validado-vacio')) vacios++;
+    });
+    
+    document.getElementById('totalCompletos').textContent = completos;
+    document.getElementById('totalIncompletos').textContent = incompletos;
+    document.getElementById('totalVacios').textContent = vacios;
+}
+
+function actualizarEstadoGeneral() {
+    const campos = document.querySelectorAll('#formularioCurso .form-control');
+    let completos = 0, incompletos = 0, vacios = 0;
+    const total = campos.length;
+    
+    campos.forEach(campo => {
+        if (campo.classList.contains('validado-completo')) completos++;
+        else if (campo.classList.contains('validado-incompleto')) incompletos++;
+        else if (campo.classList.contains('validado-vacio')) vacios++;
+    });
+    
+    const indicadorGeneral = document.getElementById('indicadorGeneral');
+    const textoEstado = document.getElementById('textoEstado');
+    
+    if (vacios > 0) {
+        indicadorGeneral.className = 'estado-indicador estado-rojo';
+        textoEstado.textContent = `⚠️ ${vacios} campo(s) vacío(s) - Requiere atención`;
+    } else if (incompletos > 0) {
+        indicadorGeneral.className = 'estado-indicador estado-amarillo';
+        textoEstado.textContent = `🟡 ${incompletos} campo(s) incompleto(s) - Deben ser 100%`;
+    } else if (completos === total) {
+        indicadorGeneral.className = 'estado-indicador estado-verde';
+        textoEstado.textContent = '✅ Todos los campos completos - Listo para guardar';
+    } else {
+        indicadorGeneral.className = 'estado-indicador';
+        textoEstado.textContent = 'Verificando campos...';
+    }
+}
+
+function crearCarpetasLocales() {
+    const tipos = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
+    tipos.forEach(tipo => {
+        const container = document.getElementById('archivo' + tipo + 'Container');
+        if (container) {
+            container.style.display = 'block';
+        }
+    });
+}
+
+document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, finalizar ahora',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData(document.querySelector('form'));
+            fetch('{{ route("curso.finalizacionForzada") }}', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ tipo })
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.querySelector(`#archivo${tipo}Container`).style.display = 'block';
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Curso guardado',
+                        text: 'El curso ha sido guardado como incompleto.'
+                    }).then(() => { window.location.href = "{{ route('cursos.index') }}"; });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message });
                 }
             });
-        });
-    }
-
-    document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, finalizar ahora',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const formData = new FormData(document.querySelector('form'));
-                fetch('{{ route("curso.finalizacionForzada") }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Curso guardado',
-                            text: 'El curso ha sido guardado como incompleto.'
-                        }).then(() => {
-                            window.location.href = "{{ route('cursos.index') }}";
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Ocurrió un error al procesar la solicitud.'
-                    });
-                });
-            }
-        });
+        }
     });
+});
 </script>
 @endsection

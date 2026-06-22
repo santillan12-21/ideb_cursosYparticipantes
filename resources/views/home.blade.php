@@ -385,7 +385,7 @@
             background: linear-gradient(135deg, #ff4757, #ff6b81);
             color: white;
             border: none;
-            border-radius: 0;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -561,10 +561,15 @@ body .navbar-fijo {
     border-color: #1e7e34 !important;
 }
 
-/* Global overrides for rectangular buttons and inputs */
+/* Global overrides for rounded buttons and inputs */
 .btn, 
+.btn-action,
+.btn-action-c,
+.btn-action-p,
+.btn-action-edit,
 .btn-custom, 
 .btn-login, 
+.btn-download,
 .btn-primary, 
 .btn-secondary, 
 .btn-success, 
@@ -573,15 +578,14 @@ body .navbar-fijo {
 .btn-info, 
 .btn-link,
 .btn-cerrar-sesion,
-button, 
+button:not(.menu-toggle):not(#toggleFixedMenu), 
 select,
 .form-control,
 .input-group,
 .input-group-text,
-.user-menu-trigger,
-.user-dropdown,
-.nav-link {
-    border-radius: 0 !important;
+.pagination .page-link,
+.page-link {
+    border-radius: 6px !important;
 }
   </style>
 

@@ -73,7 +73,7 @@
     .data-value.highlight { color: #28a745; font-weight: 700; }
     
     .btn-download {
-        border-radius: 0;
+        border-radius: 6px;
         padding: 8px 25px;
         font-weight: 600;
         text-transform: uppercase;
@@ -186,16 +186,38 @@
                         <!-- Columna Secundaria -->
                         <div class="col-lg-5">
                             <div class="section-card">
-                                <h5 class="section-title"><i class="fas fa-credit-card me-2"></i> Estado de Pago</h5>
-                                <div class="data-item">
+                                <h5 class="section-title"><i class="fas fa-credit-card me-2"></i> Resumen de Cuenta</h5>
+                                
+                                <div class="data-item border-bottom pb-2 mb-3">
+                                    <span class="data-label">Costo Total de Cursos</span>
+                                    <div class="data-value fw-bold text-dark" style="font-size: 1.2rem;">
+                                        ${{ number_format($participante->total_a_cobrar, 2) }}
+                                    </div>
+                                </div>
+
+                                <div class="data-item border-bottom pb-2 mb-3">
                                     <span class="data-label">Monto Pagado</span>
                                     @php
-                                        $pago = !empty($participante->Pago) && is_numeric($participante->Pago) ? floatval($participante->Pago) : 0;
+                                        $pago = !empty($participante->pago) && is_numeric($participante->pago) ? floatval($participante->pago) : 0;
                                     @endphp
-                                    <div class="data-value highlight" style="font-size: 1.5rem;">${{ number_format($pago, 2) }}</div>
+                                    <div class="data-value highlight" style="font-size: 1.2rem;">
+                                        ${{ number_format($pago, 2) }}
+                                    </div>
                                 </div>
+
+                                <div class="data-item mb-3">
+                                    <span class="data-label">Saldo Pendiente</span>
+                                    @php
+                                        $saldo = $participante->total_a_cobrar - $pago;
+                                        $saldoColor = $saldo > 0 ? 'text-danger' : 'text-success';
+                                    @endphp
+                                    <div class="data-value fw-bold {{ $saldoColor }}" style="font-size: 1.5rem;">
+                                        ${{ number_format(max(0, $saldo), 2) }}
+                                    </div>
+                                </div>
+
                                 <div class="data-item">
-                                    <span class="data-label">Estatus</span>
+                                    <span class="data-label">Estatus de Pago</span>
                                     @php
                                         $badgeClass = match($participante->EstadoDePago) {
                                             'Pagado' => 'bg-success',
@@ -219,7 +241,7 @@
                                             <li class="list-group-item px-0 bg-transparent py-2">
                                                 <div class="fw-bold small text-dark">{{ $curso->NombredelCurso }}</div>
                                                 <div class="text-muted" style="font-size: 0.75rem;">
-                                                    <i class="fas fa-calendar-alt me-1"></i> {{ $curso->pivot->FechadeInicio ?: ($curso->pivot->FechadelCurso ?: 'Fecha no especificada') }}
+                                                    <i class="fas fa-calendar-alt me-1"></i> {{ $curso->FechadeInicio ?: ($participante->FechadelCurso ?: 'Fecha no especificada') }}
                                                 </div>
                                             </li>
                                         @endforeach
