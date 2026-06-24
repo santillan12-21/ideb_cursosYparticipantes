@@ -32,29 +32,7 @@
         padding: 25px;
         margin-bottom: 30px;
         border: 1px solid #e9ecef;
-        transition: all 0.3s ease;
-        position: relative;
     }
-    .form-section-card.completo {
-        border-left: 4px solid #28a745;
-        background: #f0fff4;
-    }
-    .form-section-card.incompleto {
-        border-left: 4px solid #ffc107;
-        background: #fffef0;
-    }
-    .form-section-card.vacio {
-        border-left: 4px solid #dc3545;
-        background: #fff5f5;
-        animation: pulse-section 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse-section {
-        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.1); }
-        50% { box-shadow: 0 0 20px 5px rgba(220, 53, 69, 0.1); }
-        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.1); }
-    }
-    
     .form-label {
         font-weight: 700;
         color: #495057;
@@ -79,37 +57,42 @@
         box-shadow: none;
         border-color: #dee2e6;
     }
-    
-    /* ============================================
-       ESTILOS PARA VALIDACIÓN DE CAMPOS
-       ============================================ */
-    
-    /* Campo COMPLETO (verde) - solo cuando es 100% */
-    .form-control.validado-completo {
+
+    .form-control.porcentaje-completo {
         border-color: #28a745 !important;
         background-color: #f0fff4 !important;
         border-left: 4px solid #28a745 !important;
-        box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.1);
     }
-    
-    /* Campo INCOMPLETO (amarillo) - cuando tiene algo pero no es 100% */
-    .form-control.validado-incompleto {
+    .form-control.porcentaje-incompleto {
         border-color: #ffc107 !important;
         background-color: #fffef0 !important;
         border-left: 4px solid #ffc107 !important;
-        box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.1);
     }
-    
-    /* Campo VACÍO (rojo) */
-    .form-control.validado-vacio {
+    .form-control.porcentaje-vacio {
         border-color: #dc3545 !important;
         background-color: #fff5f5 !important;
         border-left: 4px solid #dc3545 !important;
-        box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.1);
         animation: pulse-red 2s ease-in-out infinite;
     }
-    
-    /* Indicadores de estado (círculos junto al label) */
+
+    .form-control.drive-completo {
+        border-color: #28a745 !important;
+        background-color: #f0fff4 !important;
+        border-left: 4px solid #28a745 !important;
+    }
+    .form-control.drive-vacio {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        border-left: 4px solid #dc3545 !important;
+        animation: pulse-red 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+        50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
+        100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+    }
+
     .estado-indicador {
         display: inline-block;
         width: 14px;
@@ -119,59 +102,61 @@
         flex-shrink: 0;
         border: 2px solid #e9ecef;
     }
-    
     .estado-indicador.estado-verde {
         background-color: #28a745;
         border-color: #28a745;
         box-shadow: 0 0 12px rgba(40, 167, 69, 0.4);
     }
-    
     .estado-indicador.estado-amarillo {
         background-color: #ffc107;
         border-color: #ffc107;
         box-shadow: 0 0 12px rgba(255, 193, 7, 0.4);
     }
-    
     .estado-indicador.estado-rojo {
         background-color: #dc3545;
         border-color: #dc3545;
         box-shadow: 0 0 12px rgba(220, 53, 69, 0.4);
         animation: pulse-red 2s ease-in-out infinite;
     }
-    
-    /* Animación de pulso para estado rojo */
-    @keyframes pulse-red {
-        0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
-        50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
-        100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
-    }
-    
-    /* Badge de estado general */
-    #estadoBadge {
-        display: inline-flex;
+
+    .documento-preview {
+        display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 20px;
-        border-radius: 50px;
+        gap: 12px;
+        padding: 8px 15px;
+        background: #e9ecef;
+        border-radius: 6px;
+        margin-top: 8px;
+        font-size: 0.9rem;
+    }
+    .documento-preview i {
+        font-size: 1.3rem;
+        color: #0d6efd;
+    }
+    .documento-preview .doc-nombre {
+        flex: 1;
+        font-weight: 500;
+        color: #212529;
+        word-break: break-all;
+    }
+    .documento-preview .doc-acciones {
+        display: flex;
+        gap: 8px;
+    }
+    .documento-preview .doc-acciones a {
+        text-decoration: none;
         font-size: 0.85rem;
-        font-weight: 600;
-        transition: all 0.5s ease;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
+        padding: 4px 12px;
+        border-radius: 4px;
     }
-    
-    #estadoBadge .estado-indicador {
-        width: 16px;
-        height: 16px;
-        border: none;
+    .btn-ver-doc {
+        background: #0d6efd;
+        color: white !important;
     }
-    
-    /* ============================================
-       ESTILOS PARA BOTONES
-       ============================================ */
-    
+    .btn-ver-doc:hover {
+        background: #0b5ed7;
+    }
+
     .botones-container {
         display: flex;
         justify-content: center;
@@ -179,7 +164,6 @@
         margin-top: 20px;
         flex-wrap: wrap;
     }
-    
     .btn-custom {
         border-radius: 6px;
         padding: 12px 35px;
@@ -189,8 +173,6 @@
         font-size: 0.85rem;
         transition: all 0.3s ease;
     }
-    
-    /* Botón Guardar en VERDE */
     .btn-guardar-verde {
         background-color: #28a745 !important;
         border: 2px solid #28a745 !important;
@@ -206,8 +188,20 @@
     .btn-guardar-verde i {
         color: #ffffff !important;
     }
-    
-    /* Contador de campos */
+
+    .doc-title {
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #333;
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
     .contador-campos {
         text-align: center;
         margin-top: 15px;
@@ -223,36 +217,25 @@
     .contador-campos .completos { color: #28a745; }
     .contador-campos .incompletos { color: #ffc107; }
     .contador-campos .vacios { color: #dc3545; }
-    
-    .doc-title {
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #333;
-        border-bottom: 2px solid #333;
-        padding-bottom: 5px;
-        margin-bottom: 20px;
-        font-size: 0.9rem;
-        display: flex;
+
+    #estadoBadge {
+        display: inline-flex;
         align-items: center;
         gap: 10px;
-    }
-
-    /* Estilo para archivos con estado */
-    .estado-archivo {
-        display: inline-block;
-        padding: 2px 10px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        margin-left: 10px;
-    }
-    .estado-archivo.subido {
-        background: #28a745;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.5s ease;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.2);
         color: white;
     }
-    .estado-archivo.no-subido {
-        background: #dc3545;
-        color: white;
+    #estadoBadge .estado-indicador {
+        width: 16px;
+        height: 16px;
+        border: none;
     }
 </style>
 
@@ -264,8 +247,7 @@
                     <div class="step-header">
                         <h2>Editar Paso 4: Documentos del Curso</h2>
                         <p class="mb-0 mt-2 opacity-75">Actualiza Temario, Itinerario y Planeación</p>
-                        
-                        <!-- Indicador de estado general -->
+
                         <div id="estadoGeneral" class="mt-3">
                             <span id="estadoBadge">
                                 <span class="estado-indicador" id="indicadorGeneral"></span>
@@ -278,15 +260,12 @@
                         <form action="{{ route('cursos.update.paso', [$curso->id, 4]) }}" method="POST" enctype="multipart/form-data" id="formularioCurso">
                             @csrf
                             @method('PUT')
-                            
-                            <!-- Temario -->
-                            <div class="form-section-card shadow-sm" id="seccion-Temario">
-                                <div class="doc-title">
-                                    <i class="fas fa-list-ul"></i> Temario
-                                    <span class="estado-archivo {{ $rutaLocal && $rutaLocal->rutaTemario ? 'subido' : 'no-subido' }}" id="estadoArchivo-Temario">
-                                        {{ $rutaLocal && $rutaLocal->rutaTemario ? '✓ Archivo subido' : '✗ Sin archivo' }}
-                                    </span>
-                                </div>
+
+                            <!-- ==========================================
+                            TEMARIO
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="doc-title"><i class="fas fa-list-ul"></i> Temario</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="Temario" class="form-label">
@@ -297,55 +276,50 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Temario" id="Temario" 
                                                 class="form-control" 
-                                                value="{{ old('Temario', $curso->Temario) }}" 
-                                                required
+                                                value="{{ old('Temario', $recursos['temario']->url ?? '') }}" 
+                                                placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="DriveTemario" class="form-label">
-                                            Drive Temario
+                                            URL Drive
                                             <span class="estado-indicador" id="estado-DriveTemario"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveTemario" id="DriveTemario" 
                                                 class="form-control" 
-                                                value="{{ old('DriveTemario', $curso->DriveTemario) }}" 
-                                                required
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                value="{{ old('DriveTemario', $recursos['temario']->drive_url ?? '') }}" 
+                                                placeholder="https://drive.google.com/..."
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="TemarioLocal" class="form-label">
-                                            Editar Archivo Local
-                                            <span class="estado-indicador" id="estado-archivoTemario"></span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-file-upload"></i></span>
-                                            <input type="file" name="TemarioLocal" id="TemarioLocal" 
-                                                class="form-control"
-                                                onchange="validarArchivo(this, 'Temario')">
-                                        </div>
-                                        @if ($rutaLocal && $rutaLocal->rutaTemario)
-                                            <div class="mt-2 alert alert-success py-2 px-3 mb-0" style="font-size: 0.85rem;">
-                                                <i class="fas fa-check-circle me-1 text-success"></i> Ruta actual: {{ $rutaLocal->rutaTemario }}
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoTemario" class="form-control">
+                                        @if(isset($recursos['temario_archivo']) && $recursos['temario_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-pdf"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['temario_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset('storage/' . $recursos['temario_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Itinerario -->
-                            <div class="form-section-card shadow-sm" id="seccion-Itinerario">
-                                <div class="doc-title">
-                                    <i class="fas fa-route"></i> Itinerario
-                                    <span class="estado-archivo {{ $rutaLocal && $rutaLocal->rutaItinerario ? 'subido' : 'no-subido' }}" id="estadoArchivo-Itinerario">
-                                        {{ $rutaLocal && $rutaLocal->rutaItinerario ? '✓ Archivo subido' : '✗ Sin archivo' }}
-                                    </span>
-                                </div>
+                            <!-- ==========================================
+                            ITINERARIO
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="doc-title"><i class="fas fa-route"></i> Itinerario</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="Itinerario" class="form-label">
@@ -356,107 +330,99 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Itinerario" id="Itinerario" 
                                                 class="form-control" 
-                                                value="{{ old('Itinerario', $curso->Itinerario) }}" 
-                                                required
+                                                value="{{ old('Itinerario', $recursos['itinerario']->url ?? '') }}" 
+                                                placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="DriveItinerario" class="form-label">
-                                            Drive Itinerario
+                                            URL Drive
                                             <span class="estado-indicador" id="estado-DriveItinerario"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveItinerario" id="DriveItinerario" 
                                                 class="form-control" 
-                                                value="{{ old('DriveItinerario', $curso->DriveItinerario) }}" 
-                                                required
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                value="{{ old('DriveItinerario', $recursos['itinerario']->drive_url ?? '') }}" 
+                                                placeholder="https://drive.google.com/..."
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="ItinerarioLocal" class="form-label">
-                                            Editar Archivo Local
-                                            <span class="estado-indicador" id="estado-archivoItinerario"></span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-file-upload"></i></span>
-                                            <input type="file" name="ItinerarioLocal" id="ItinerarioLocal" 
-                                                class="form-control"
-                                                onchange="validarArchivo(this, 'Itinerario')">
-                                        </div>
-                                        @if ($rutaLocal && $rutaLocal->rutaItinerario)
-                                            <div class="mt-2 alert alert-success py-2 px-3 mb-0" style="font-size: 0.85rem;">
-                                                <i class="fas fa-check-circle me-1 text-success"></i> Ruta actual: {{ $rutaLocal->rutaItinerario }}
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoItinerario" class="form-control">
+                                        @if(isset($recursos['itinerario_archivo']) && $recursos['itinerario_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-pdf"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['itinerario_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset('storage/' . $recursos['itinerario_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Planeación -->
-                            <div class="form-section-card shadow-sm" id="seccion-Planeacion">
-                                <div class="doc-title">
-                                    <i class="fas fa-tasks"></i> Planeación
-                                    <span class="estado-archivo {{ $rutaLocal && $rutaLocal->rutaPlaneacion ? 'subido' : 'no-subido' }}" id="estadoArchivo-Planeacion">
-                                        {{ $rutaLocal && $rutaLocal->rutaPlaneacion ? '✓ Archivo subido' : '✗ Sin archivo' }}
-                                    </span>
-                                </div>
+                            <!-- ==========================================
+                            PLANEACIÓN
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="doc-title"><i class="fas fa-tasks"></i> Planeación</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="Planeación" class="form-label">
+                                        <label for="Planeacion" class="form-label">
                                             Porcentaje
-                                            <span class="estado-indicador" id="estado-Planeación"></span>
+                                            <span class="estado-indicador" id="estado-Planeacion"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                            <input type="text" name="Planeación" id="Planeación" 
+                                            <input type="text" name="Planeacion" id="Planeacion" 
                                                 class="form-control" 
-                                                value="{{ old('Planeación', $curso->Planeación) }}" 
-                                                required
+                                                value="{{ old('Planeacion', $recursos['planeacion']->url ?? '') }}" 
+                                                placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="DrivePlaneación" class="form-label">
-                                            Drive Planeación
-                                            <span class="estado-indicador" id="estado-DrivePlaneación"></span>
+                                        <label for="DrivePlaneacion" class="form-label">
+                                            URL Drive
+                                            <span class="estado-indicador" id="estado-DrivePlaneacion"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
-                                            <input type="text" name="DrivePlaneación" id="DrivePlaneación" 
+                                            <input type="text" name="DrivePlaneacion" id="DrivePlaneacion" 
                                                 class="form-control" 
-                                                value="{{ old('DrivePlaneación', $curso->DrivePlaneación) }}" 
-                                                required
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                value="{{ old('DrivePlaneacion', $recursos['planeacion']->drive_url ?? '') }}" 
+                                                placeholder="https://drive.google.com/..."
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="PlaneaciónLocal" class="form-label">
-                                            Editar Archivo Local
-                                            <span class="estado-indicador" id="estado-archivoPlaneacion"></span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-file-upload"></i></span>
-                                            <input type="file" name="PlaneaciónLocal" id="PlaneaciónLocal" 
-                                                class="form-control"
-                                                onchange="validarArchivo(this, 'Planeacion')">
-                                        </div>
-                                        @if ($rutaLocal && $rutaLocal->rutaPlaneacion)
-                                            <div class="mt-2 alert alert-success py-2 px-3 mb-0" style="font-size: 0.85rem;">
-                                                <i class="fas fa-check-circle me-1 text-success"></i> Ruta actual: {{ $rutaLocal->rutaPlaneacion }}
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoPlaneacion" class="form-control">
+                                        @if(isset($recursos['planeacion_archivo']) && $recursos['planeacion_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-pdf"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['planeacion_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset('storage/' . $recursos['planeacion_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Contador de campos -->
                             <div class="contador-campos">
                                 <span class="completos" id="totalCompletos">0</span> completos | 
                                 <span class="incompletos" id="totalIncompletos">0</span> incompletos | 
@@ -481,227 +447,71 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Obtener todos los campos del formulario
-    const campos = document.querySelectorAll('#formularioCurso .form-control');
-    
-    // Validar todos los campos al cargar la página
-    campos.forEach(campo => {
-        // Detectar si es un campo de porcentaje (por el ID)
-        if (campo.id.includes('Temario') && !campo.id.includes('Drive') && !campo.id.includes('Local') ||
-            campo.id.includes('Itinerario') && !campo.id.includes('Drive') && !campo.id.includes('Local') ||
-            campo.id.includes('Planeación')) {
-            validarPorcentaje(campo);
-        } else {
-            validarCampo(campo);
-        }
+    document.querySelectorAll('#Temario, #Itinerario, #Planeacion').forEach(campo => {
+        validarPorcentaje(campo);
     });
-    
-    // Validar archivos existentes
-    const secciones = ['Temario', 'Itinerario', 'Planeacion'];
-    secciones.forEach(seccion => {
-        const rutaActual = document.querySelector('#seccion-' + seccion + ' .alert-success');
-        const indicador = document.getElementById('estado-archivo' + seccion);
-        if (rutaActual) {
-            if (indicador) {
-                indicador.className = 'estado-indicador estado-verde';
-            }
-        } else {
-            if (indicador) {
-                indicador.className = 'estado-indicador estado-rojo';
-            }
-        }
+    document.querySelectorAll('#DriveTemario, #DriveItinerario, #DrivePlaneacion').forEach(campo => {
+        validarDrive(campo);
     });
-    
-    // Actualizar estado general
+    actualizarContadores();
     actualizarEstadoGeneral();
 });
 
-/**
- * Función específica para validar campos de porcentaje
- * SOLO se considera COMPLETO cuando el valor es exactamente "100%"
- */
 function validarPorcentaje(campo) {
     const valor = campo.value.trim();
-    const idCampo = campo.id;
-    const indicador = document.getElementById('estado-' + idCampo);
+    const indicador = document.getElementById('estado-' + campo.id);
     
-    // Remover clases anteriores
-    campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
+    campo.classList.remove('porcentaje-completo', 'porcentaje-incompleto', 'porcentaje-vacio');
     if (indicador) {
         indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
     }
     
-    // Determinar el estado del campo de porcentaje
     if (valor === '') {
-        // CAMPO VACÍO - ROJO
-        campo.classList.add('validado-vacio');
-        if (indicador) {
-            indicador.classList.add('estado-rojo');
-            indicador.title = 'Campo vacío - Requiere 100%';
-        }
+        campo.classList.add('porcentaje-vacio');
+        if (indicador) indicador.classList.add('estado-rojo');
     } else if (valor === '100%' || valor === '100 %' || valor === '100') {
-        // CAMPO COMPLETO - VERDE (solo cuando es 100%)
-        campo.classList.add('validado-completo');
-        if (indicador) {
-            indicador.classList.add('estado-verde');
-            indicador.title = '✅ 100% completo';
-        }
+        campo.classList.add('porcentaje-completo');
+        if (indicador) indicador.classList.add('estado-verde');
     } else {
-        // CAMPO INCOMPLETO - AMARILLO (tiene algo pero no es 100%)
-        campo.classList.add('validado-incompleto');
-        if (indicador) {
-            indicador.classList.add('estado-amarillo');
-            indicador.title = '⚠️ Debe ser 100% para completar';
-        }
+        campo.classList.add('porcentaje-incompleto');
+        if (indicador) indicador.classList.add('estado-amarillo');
     }
     
-    // Actualizar la sección a la que pertenece
-    actualizarSeccion(campo);
-    
-    // Actualizar contadores y estado general
     actualizarContadores();
     actualizarEstadoGeneral();
 }
 
-/**
- * Función para validar campos normales (Drive, archivos, etc)
- */
-function validarCampo(campo) {
+function validarDrive(campo) {
     const valor = campo.value.trim();
-    const idCampo = campo.id;
-    const indicador = document.getElementById('estado-' + idCampo);
+    const indicador = document.getElementById('estado-' + campo.id);
     
-    // Remover clases anteriores
-    campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
+    campo.classList.remove('drive-completo', 'drive-vacio');
     if (indicador) {
-        indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
+        indicador.classList.remove('estado-verde', 'estado-rojo');
     }
     
-    // Determinar el estado del campo
     if (valor === '') {
-        // CAMPO VACÍO - ROJO
-        campo.classList.add('validado-vacio');
-        if (indicador) {
-            indicador.classList.add('estado-rojo');
-            indicador.title = 'Campo vacío';
-        }
-    } else if (valor.length > 0 && valor.length < 3) {
-        // CAMPO INCOMPLETO - AMARILLO
-        campo.classList.add('validado-incompleto');
-        if (indicador) {
-            indicador.classList.add('estado-amarillo');
-            indicador.title = 'Campo incompleto';
-        }
+        campo.classList.add('drive-vacio');
+        if (indicador) indicador.classList.add('estado-rojo');
     } else {
-        // CAMPO COMPLETO - VERDE
-        campo.classList.add('validado-completo');
-        if (indicador) {
-            indicador.classList.add('estado-verde');
-            indicador.title = 'Campo completo';
-        }
+        campo.classList.add('drive-completo');
+        if (indicador) indicador.classList.add('estado-verde');
     }
     
-    // Actualizar la sección a la que pertenece
-    actualizarSeccion(campo);
-    
-    // Actualizar contadores y estado general
     actualizarContadores();
     actualizarEstadoGeneral();
 }
 
-/**
- * Validar archivo subido
- */
-function validarArchivo(input, seccion) {
-    const indicador = document.getElementById('estado-archivo' + seccion);
-    const estadoArchivo = document.getElementById('estadoArchivo-' + seccion);
-    
-    if (input.files && input.files.length > 0) {
-        // Archivo seleccionado - VERDE
-        if (indicador) {
-            indicador.className = 'estado-indicador estado-verde';
-        }
-        if (estadoArchivo) {
-            estadoArchivo.className = 'estado-archivo subido';
-            estadoArchivo.textContent = '✓ Nuevo archivo seleccionado';
-        }
-    } else {
-        // Sin archivo - verificar si hay ruta existente
-        const rutaActual = document.querySelector('#seccion-' + seccion + ' .alert-success');
-        if (rutaActual) {
-            if (indicador) {
-                indicador.className = 'estado-indicador estado-verde';
-            }
-            if (estadoArchivo) {
-                estadoArchivo.className = 'estado-archivo subido';
-                estadoArchivo.textContent = '✓ Archivo subido';
-            }
-        } else {
-            if (indicador) {
-                indicador.className = 'estado-indicador estado-rojo';
-            }
-            if (estadoArchivo) {
-                estadoArchivo.className = 'estado-archivo no-subido';
-                estadoArchivo.textContent = '✗ Sin archivo';
-            }
-        }
-    }
-    
-    actualizarSeccion(null);
-    actualizarContadores();
-    actualizarEstadoGeneral();
-}
-
-/**
- * Actualizar el estado de una sección completa
- */
-function actualizarSeccion(campo) {
-    const secciones = ['Temario', 'Itinerario', 'Planeacion'];
-    
-    secciones.forEach(seccion => {
-        const seccionCard = document.getElementById('seccion-' + seccion);
-        const camposSeccion = seccionCard.querySelectorAll('.form-control');
-        let completos = 0, incompletos = 0, vacios = 0;
-        
-        camposSeccion.forEach(campo => {
-            if (campo.classList.contains('validado-completo')) {
-                completos++;
-            } else if (campo.classList.contains('validado-incompleto')) {
-                incompletos++;
-            } else if (campo.classList.contains('validado-vacio')) {
-                vacios++;
-            }
-        });
-        
-        // Limpiar clases de sección
-        seccionCard.classList.remove('completo', 'incompleto', 'vacio');
-        
-        // Asignar estado a la sección
-        if (vacios > 0 && completos === 0 && incompletos === 0) {
-            seccionCard.classList.add('vacio');
-        } else if (incompletos > 0) {
-            seccionCard.classList.add('incompleto');
-        } else if (completos > 0 && vacios === 0 && incompletos === 0) {
-            seccionCard.classList.add('completo');
-        } else if (completos > 0 && vacios > 0) {
-            seccionCard.classList.add('incompleto');
-        }
-    });
-}
-
-/**
- * Actualizar los contadores de campos
- */
 function actualizarContadores() {
     const campos = document.querySelectorAll('#formularioCurso .form-control');
     let completos = 0, incompletos = 0, vacios = 0;
     
     campos.forEach(campo => {
-        if (campo.classList.contains('validado-completo')) {
+        if (campo.classList.contains('porcentaje-completo') || campo.classList.contains('drive-completo')) {
             completos++;
-        } else if (campo.classList.contains('validado-incompleto')) {
+        } else if (campo.classList.contains('porcentaje-incompleto')) {
             incompletos++;
-        } else if (campo.classList.contains('validado-vacio')) {
+        } else if (campo.classList.contains('porcentaje-vacio') || campo.classList.contains('drive-vacio')) {
             vacios++;
         }
     });
@@ -711,20 +521,17 @@ function actualizarContadores() {
     document.getElementById('totalVacios').textContent = vacios;
 }
 
-/**
- * Actualizar el estado general del formulario
- */
 function actualizarEstadoGeneral() {
     const campos = document.querySelectorAll('#formularioCurso .form-control');
     let completos = 0, incompletos = 0, vacios = 0;
     const total = campos.length;
     
     campos.forEach(campo => {
-        if (campo.classList.contains('validado-completo')) {
+        if (campo.classList.contains('porcentaje-completo') || campo.classList.contains('drive-completo')) {
             completos++;
-        } else if (campo.classList.contains('validado-incompleto')) {
+        } else if (campo.classList.contains('porcentaje-incompleto')) {
             incompletos++;
-        } else if (campo.classList.contains('validado-vacio')) {
+        } else if (campo.classList.contains('porcentaje-vacio') || campo.classList.contains('drive-vacio')) {
             vacios++;
         }
     });
@@ -732,7 +539,6 @@ function actualizarEstadoGeneral() {
     const indicadorGeneral = document.getElementById('indicadorGeneral');
     const textoEstado = document.getElementById('textoEstado');
     
-    // Determinar el estado general
     if (vacios > 0) {
         indicadorGeneral.className = 'estado-indicador estado-rojo';
         textoEstado.textContent = `⚠️ ${vacios} campo(s) vacío(s) - Requiere atención`;

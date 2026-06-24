@@ -18,6 +18,7 @@ use App\Http\Controllers\RutaCursosController;
 use App\Http\Controllers\RutaArchivosController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CourseActionLogController;
+use Illuminate\Http\Request;
 
 
 //Rutas de inicio de sesion:
@@ -64,9 +65,12 @@ Route::post('/curso/paso4', [CursoController::class, 'guardarPaso4'])->name('cur
 Route::get('/curso/paso5', [CursoController::class, 'mostrarPaso5'])->name('curso.paso5');
 Route::post('/curso/paso5', [CursoController::class, 'guardarPaso5'])->name('curso.paso5.guardar');
 Route::get('/curso/paso6', [CursoController::class, 'mostrarPaso6'])->name('curso.paso6');
-Route::post('/curso/paso6', [CursoController::class, 'guardarPaso6'])->name('curso.paso6.guardar');
+//Route::post('/curso/paso6', [CursoController::class, 'guardarPaso6'])->name('curso.paso6.guardar');
 Route::get('/curso/paso7', [CursoController::class, 'mostrarPaso7'])->name('curso.paso7');
 Route::post('/curso/paso7', [CursoController::class, 'guardarPaso7'])->name('curso.guardar-paso7');
+Route::post('/curso/paso6-test', function(Request $request) {
+    dd('¡FUNCIONA!', $request->all());
+});
 
 //Vista, modificacion, "eliminacion" y consulta de los cursos
 Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');

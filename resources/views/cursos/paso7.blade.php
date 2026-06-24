@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
     .step-container {
         padding: 50px 0;
@@ -32,29 +34,7 @@
         padding: 25px;
         margin-bottom: 30px;
         border: 1px solid #e9ecef;
-        transition: all 0.3s ease;
-        position: relative;
     }
-    .form-section-card.completo {
-        border-left: 4px solid #28a745;
-        background: #f0fff4;
-    }
-    .form-section-card.incompleto {
-        border-left: 4px solid #ffc107;
-        background: #fffef0;
-    }
-    .form-section-card.vacio {
-        border-left: 4px solid #dc3545;
-        background: #fff5f5;
-        animation: pulse-section 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse-section {
-        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.1); }
-        50% { box-shadow: 0 0 20px 5px rgba(220, 53, 69, 0.1); }
-        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.1); }
-    }
-    
     .form-label {
         font-weight: 700;
         color: #495057;
@@ -79,46 +59,37 @@
         box-shadow: none;
         border-color: #dee2e6;
     }
-    
-    /* ============================================
-       ESTILOS PARA VALIDACIÓN DE CAMPOS
-       ============================================ */
-    
-    .form-control.validado-completo {
-        border-color: #28a745 !important;
-        background-color: #f0fff4 !important;
-        border-left: 4px solid #28a745 !important;
-        box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.1);
-    }
-    
-    .form-control.validado-incompleto {
-        border-color: #ffc107 !important;
-        background-color: #fffef0 !important;
-        border-left: 4px solid #ffc107 !important;
-        box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.1);
-    }
-    
-    .form-control.validado-vacio {
-        border-color: #dc3545 !important;
-        background-color: #fff5f5 !important;
-        border-left: 4px solid #dc3545 !important;
-        box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.1);
-        animation: pulse-red 2s ease-in-out infinite;
-    }
-    
-    .form-select.validado-completo {
+
+    .form-control.drive-completo {
         border-color: #28a745 !important;
         background-color: #f0fff4 !important;
         border-left: 4px solid #28a745 !important;
     }
-    
-    .form-select.validado-vacio {
+    .form-control.drive-vacio {
         border-color: #dc3545 !important;
         background-color: #fff5f5 !important;
         border-left: 4px solid #dc3545 !important;
         animation: pulse-red 2s ease-in-out infinite;
     }
-    
+
+    .form-select.select-completo {
+        border-color: #28a745 !important;
+        background-color: #f0fff4 !important;
+        border-left: 4px solid #28a745 !important;
+    }
+    .form-select.select-vacio {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        border-left: 4px solid #dc3545 !important;
+        animation: pulse-red 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+        50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
+        100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+    }
+
     .estado-indicador {
         display: inline-block;
         width: 14px;
@@ -128,53 +99,61 @@
         flex-shrink: 0;
         border: 2px solid #e9ecef;
     }
-    
     .estado-indicador.estado-verde {
         background-color: #28a745;
         border-color: #28a745;
         box-shadow: 0 0 12px rgba(40, 167, 69, 0.4);
     }
-    
     .estado-indicador.estado-amarillo {
         background-color: #ffc107;
         border-color: #ffc107;
         box-shadow: 0 0 12px rgba(255, 193, 7, 0.4);
     }
-    
     .estado-indicador.estado-rojo {
         background-color: #dc3545;
         border-color: #dc3545;
         box-shadow: 0 0 12px rgba(220, 53, 69, 0.4);
         animation: pulse-red 2s ease-in-out infinite;
     }
-    
-    @keyframes pulse-red {
-        0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
-        50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
-        100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
-    }
-    
-    #estadoBadge {
-        display: inline-flex;
+
+    .documento-preview {
+        display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 20px;
-        border-radius: 50px;
+        gap: 12px;
+        padding: 8px 15px;
+        background: #e9ecef;
+        border-radius: 6px;
+        margin-top: 8px;
+        font-size: 0.9rem;
+    }
+    .documento-preview i {
+        font-size: 1.3rem;
+        color: #0d6efd;
+    }
+    .documento-preview .doc-nombre {
+        flex: 1;
+        font-weight: 500;
+        color: #212529;
+        word-break: break-all;
+    }
+    .documento-preview .doc-acciones {
+        display: flex;
+        gap: 8px;
+    }
+    .documento-preview .doc-acciones a {
+        text-decoration: none;
         font-size: 0.85rem;
-        font-weight: 600;
-        transition: all 0.5s ease;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
+        padding: 4px 12px;
+        border-radius: 4px;
     }
-    
-    #estadoBadge .estado-indicador {
-        width: 16px;
-        height: 16px;
-        border: none;
+    .btn-ver-doc {
+        background: #0d6efd;
+        color: white !important;
     }
-    
+    .btn-ver-doc:hover {
+        background: #0b5ed7;
+    }
+
     .botones-container {
         display: flex;
         justify-content: center;
@@ -182,7 +161,6 @@
         margin-top: 20px;
         flex-wrap: wrap;
     }
-    
     .btn-custom {
         border-radius: 6px;
         padding: 12px 35px;
@@ -192,7 +170,6 @@
         font-size: 0.85rem;
         transition: all 0.3s ease;
     }
-    
     .btn-finalizar-verde {
         background-color: #28a745 !important;
         border: 2px solid #28a745 !important;
@@ -208,7 +185,20 @@
     .btn-finalizar-verde i {
         color: #ffffff !important;
     }
-    
+
+    .stps-title {
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #333;
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
     .contador-campos {
         text-align: center;
         margin-top: 15px;
@@ -224,35 +214,25 @@
     .contador-campos .completos { color: #28a745; }
     .contador-campos .incompletos { color: #ffc107; }
     .contador-campos .vacios { color: #dc3545; }
-    
-    .stps-title {
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #333;
-        border-bottom: 2px solid #333;
-        padding-bottom: 5px;
-        margin-bottom: 20px;
-        font-size: 0.9rem;
-        display: flex;
+
+    #estadoBadge {
+        display: inline-flex;
         align-items: center;
         gap: 10px;
-    }
-
-    .estado-archivo {
-        display: inline-block;
-        padding: 2px 10px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        margin-left: 10px;
-    }
-    .estado-archivo.subido {
-        background: #28a745;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.5s ease;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.2);
         color: white;
     }
-    .estado-archivo.no-subido {
-        background: #dc3545;
-        color: white;
+    #estadoBadge .estado-indicador {
+        width: 16px;
+        height: 16px;
+        border: none;
     }
 </style>
 
@@ -264,7 +244,7 @@
                     <div class="step-header">
                         <h2>Paso 7: Documentación STPS y Certificados</h2>
                         <p class="mb-0 mt-2 opacity-75">Finalización y trámites oficiales</p>
-                        
+
                         <div id="estadoGeneral" class="mt-3">
                             <span id="estadoBadge">
                                 <span class="estado-indicador" id="indicadorGeneral"></span>
@@ -274,248 +254,203 @@
                     </div>
 
                     <div class="card-body p-4 p-md-5">
-                        <div class="alert alert-info text-center shadow-sm mb-4">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Atención:</strong> Si ya completaste este paso al crear el curso original, haz clic en <strong>"Finalizar"</strong> sin volver a subir los archivos.
-                        </div>
-
                         <form action="{{ route('curso.guardar-paso7') }}" method="POST" enctype="multipart/form-data" id="formularioCurso">
                             @csrf
-                            
-                            <!-- Fecha Registro STPS -->
-                            <div class="form-section-card shadow-sm" id="seccion-FechaSTPS">
+
+                            <!-- ==========================================
+                            FECHA REGISTRO STPS
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
                                 <div class="stps-title"><i class="fas fa-calendar-alt"></i> Fecha de Registro STPS</div>
                                 <div class="row g-3">
                                     <div class="col-md-12">
-                                        <label for="FechadeRegistro_STPS" class="form-label">
+                                        <label for="FechaRegistroSTPS" class="form-label">
                                             Fecha de Registro STPS
-                                            <span class="estado-indicador" id="estado-FechadeRegistro_STPS"></span>
+                                            <span class="estado-indicador" id="estado-FechaRegistroSTPS"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                            <input type="date" name="FechadeRegistro_STPS" id="FechadeRegistro_STPS" 
+                                            <input type="date" name="FechaRegistroSTPS" id="FechaRegistroSTPS" 
                                                 class="form-control" 
-                                                value="{{ old('FechadeRegistro_STPS', $datosPadre->FechadeRegistro_STPS ?? '') }}"
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                value="{{ old('FechaRegistroSTPS', isset($fechaRegistro) ? $fechaRegistro->fecha_registro : '') }}"
+                                                oninput="validarFecha(this)"
+                                                onchange="validarFecha(this)">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Formato DC5 -->
-                            <div class="form-section-card shadow-sm" id="seccion-FormatoDC5">
-                                <div class="stps-title">
-                                    <i class="fas fa-file-contract"></i> Formato DC5
-                                    <span class="estado-archivo no-subido" id="estadoArchivo-FormatoDC5">
-                                        ✗ Sin archivo
-                                    </span>
-                                </div>
+                            <!-- ==========================================
+                            FORMATO DC5
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="stps-title"><i class="fas fa-file-contract"></i> Formato DC5</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="Formato_DC5" class="form-label">
-                                            URL Drive (opcional)
-                                            <span class="estado-indicador" id="estado-Formato_DC5"></span>
+                                        <label for="FormatoDC5" class="form-label">
+                                            Nombre / Referencia
+                                            <span class="estado-indicador" id="estado-FormatoDC5"></span>
                                         </label>
                                         <div class="input-group">
-                                            <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
-                                            <input type="text" name="Formato_DC5" id="Formato_DC5" 
+                                            <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                            <input type="text" name="FormatoDC5" id="FormatoDC5" 
                                                 class="form-control" 
-                                                value="{{ old('Formato_DC5', $datosPadre->Formato_DC5 ?? '') }}" 
-                                                placeholder="https://drive.google.com/..."
+                                                value="{{ old('FormatoDC5', isset($certificaciones['dc5']) ? $certificaciones['dc5']->nombre : '') }}" 
+                                                placeholder="Ej: DC5_2024.pdf"
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="Formato_DC5_Tienefirma" class="form-label">
+                                        <label for="FormatoDC5TieneFirma" class="form-label">
                                             ¿Tiene firma?
-                                            <span class="estado-indicador" id="estado-Formato_DC5_Tienefirma"></span>
+                                            <span class="estado-indicador" id="estado-FormatoDC5TieneFirma"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-signature"></i></span>
-                                            <select name="Formato_DC5_Tienefirma" id="Formato_DC5_Tienefirma" 
+                                            <select name="FormatoDC5TieneFirma" id="FormatoDC5TieneFirma" 
                                                 class="form-select" 
-                                                required
                                                 onchange="validarSelect(this)">
-                                                <option value="" disabled selected>Seleccione una opción</option>
-                                                <option value="Si" {{ old('Formato_DC5_Tienefirma', $datosPadre->Formato_DC5_Tienefirma ?? '') == 'Si' ? 'selected' : '' }}>Sí</option>
-                                                <option value="No" {{ old('Formato_DC5_Tienefirma', $datosPadre->Formato_DC5_Tienefirma ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                                                <option value="" disabled {{ old('FormatoDC5TieneFirma', isset($certificaciones['dc5']) ? $certificaciones['dc5']->tiene_firma : '') === '' ? 'selected' : '' }}>Seleccione</option>
+                                                <option value="Si" {{ old('FormatoDC5TieneFirma', isset($certificaciones['dc5']) ? $certificaciones['dc5']->tiene_firma : '') == 'Si' ? 'selected' : '' }}>Sí</option>
+                                                <option value="No" {{ old('FormatoDC5TieneFirma', isset($certificaciones['dc5']) ? $certificaciones['dc5']->tiene_firma : '') == 'No' ? 'selected' : '' }}>No</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="archivoFormatoDC5" class="form-label">
-                                            Archivo Local (opcional)
-                                            <span class="estado-indicador" id="estado-archivoFormatoDC5"></span>
-                                        </label>
-                                        @if ($archivosLocales['DC5'] === 'actual')
-                                            <div class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.85rem;">
-                                                <i class="fas fa-check-circle me-1"></i> Este archivo ya fue subido en el curso original
-                                            </div>
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('FormatoDC5')">
-                                                <i class="fas fa-sync-alt me-1"></i> Actualizar archivo local
-                                            </button>
-                                            <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
-                                                <input type="file" name="FormatoDC5Local" class="form-control" onchange="validarArchivo(this, 'FormatoDC5')">
-                                            </div>
-                                        @else
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('FormatoDC5')">
-                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
-                                            </button>
-                                            <div id="archivoFormatoDC5Container" style="display: none;" class="mt-2">
-                                                <input type="file" name="FormatoDC5Local" class="form-control" onchange="validarArchivo(this, 'FormatoDC5')">
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoDC5" class="form-control">
+                                        @if(isset($recursos['dc5_archivo']) && $recursos['dc5_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-pdf"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['dc5_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset($recursos['dc5_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Certificado de Comprobación -->
-                            <div class="form-section-card shadow-sm" id="seccion-CertificadoComprobacion">
-                                <div class="stps-title">
-                                    <i class="fas fa-stamp"></i> Certificado de Comprobación
-                                    <span class="estado-archivo no-subido" id="estadoArchivo-CertificadoComprobacion">
-                                        ✗ Sin archivo
-                                    </span>
-                                </div>
+                            <!-- ==========================================
+                            CERTIFICADO DE COMPROBACIÓN
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="stps-title"><i class="fas fa-stamp"></i> Certificado de Comprobación</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="Certificadodecomprobacion" class="form-label">
+                                        <label for="CertificadoComprobacion" class="form-label">
                                             Estado
-                                            <span class="estado-indicador" id="estado-Certificadodecomprobacion"></span>
+                                            <span class="estado-indicador" id="estado-CertificadoComprobacion"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
-                                            <select name="Certificadodecomprobacion" id="Certificadodecomprobacion" 
+                                            <select name="CertificadoComprobacion" id="CertificadoComprobacion" 
                                                 class="form-select" 
-                                                required
                                                 onchange="validarSelect(this)">
-                                                <option value="" disabled selected>Seleccione una opción</option>
-                                                <option value="Ya obtenida" {{ old('Certificadodecomprobacion', $datosPadre->Certificadodecomprobacion ?? '') == 'Ya obtenida' ? 'selected' : '' }}>Ya obtenida</option>
-                                                <option value="En proceso" {{ old('Certificadodecomprobacion', $datosPadre->Certificadodecomprobacion ?? '') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
-                                                <option value="No obtenida" {{ old('Certificadodecomprobacion', $datosPadre->Certificadodecomprobacion ?? '') == 'No obtenida' ? 'selected' : '' }}>No obtenida</option>
+                                                <option value="" disabled {{ old('CertificadoComprobacion', isset($certificaciones['certificado_comprobacion']) ? $certificaciones['certificado_comprobacion']->nombre : '') === '' ? 'selected' : '' }}>Seleccione</option>
+                                                <option value="Ya obtenida" {{ old('CertificadoComprobacion', isset($certificaciones['certificado_comprobacion']) ? $certificaciones['certificado_comprobacion']->nombre : '') == 'Ya obtenida' ? 'selected' : '' }}>Ya obtenida</option>
+                                                <option value="En proceso" {{ old('CertificadoComprobacion', isset($certificaciones['certificado_comprobacion']) ? $certificaciones['certificado_comprobacion']->nombre : '') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
+                                                <option value="No obtenida" {{ old('CertificadoComprobacion', isset($certificaciones['certificado_comprobacion']) ? $certificaciones['certificado_comprobacion']->nombre : '') == 'No obtenida' ? 'selected' : '' }}>No obtenida</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="DrivedeCertificadodecomprobacion" class="form-label">
-                                            URL Drive (opcional)
-                                            <span class="estado-indicador" id="estado-DrivedeCertificadodecomprobacion"></span>
+                                        <label for="DriveCertificadoComprobacion" class="form-label">
+                                            URL Drive
+                                            <span class="estado-indicador" id="estado-DriveCertificadoComprobacion"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
-                                            <input type="text" name="DrivedeCertificadodecomprobacion" id="DrivedeCertificadodecomprobacion" 
+                                            <input type="text" name="DriveCertificadoComprobacion" id="DriveCertificadoComprobacion" 
                                                 class="form-control" 
-                                                value="{{ old('DrivedeCertificadodecomprobacion', $datosPadre->DrivedeCertificadodecomprobacion ?? '') }}" 
+                                                value="{{ old('DriveCertificadoComprobacion', isset($certificaciones['certificado_comprobacion']) ? $certificaciones['certificado_comprobacion']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="archivoCertificadoComprobacion" class="form-label">
-                                            Archivo Local (opcional)
-                                            <span class="estado-indicador" id="estado-archivoCertificadoComprobacion"></span>
-                                        </label>
-                                        @if ($archivosLocales['CertificadoComprobacion'] === 'actual')
-                                            <div class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.85rem;">
-                                                <i class="fas fa-check-circle me-1"></i> Este archivo ya fue subido en el curso original
-                                            </div>
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('CertificadoComprobacion')">
-                                                <i class="fas fa-sync-alt me-1"></i> Actualizar archivo local
-                                            </button>
-                                            <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
-                                                <input type="file" name="CertificadoComprobacionLocal" class="form-control" onchange="validarArchivo(this, 'CertificadoComprobacion')">
-                                            </div>
-                                        @else
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('CertificadoComprobacion')">
-                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
-                                            </button>
-                                            <div id="archivoCertificadoComprobacionContainer" style="display: none;" class="mt-2">
-                                                <input type="file" name="CertificadoComprobacionLocal" class="form-control" onchange="validarArchivo(this, 'CertificadoComprobacion')">
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoCertificado" class="form-control">
+                                        @if(isset($recursos['certificado_archivo']) && $recursos['certificado_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-pdf"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['certificado_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset($recursos['certificado_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Carta Poder -->
-                            <div class="form-section-card shadow-sm" id="seccion-CartaPoder">
-                                <div class="stps-title">
-                                    <i class="fas fa-file-signature"></i> Carta Poder
-                                    <span class="estado-archivo no-subido" id="estadoArchivo-CartaPoder">
-                                        ✗ Sin archivo
-                                    </span>
-                                </div>
+                            <!-- ==========================================
+                            CARTA PODER
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="stps-title"><i class="fas fa-file-signature"></i> Carta Poder</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="Cartapoder_tienefirma" class="form-label">
+                                        <label for="CartaPoderTieneFirma" class="form-label">
                                             ¿Tiene firma?
-                                            <span class="estado-indicador" id="estado-Cartapoder_tienefirma"></span>
+                                            <span class="estado-indicador" id="estado-CartaPoderTieneFirma"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-signature"></i></span>
-                                            <select name="Cartapoder_tienefirma" id="Cartapoder_tienefirma" 
+                                            <select name="CartaPoderTieneFirma" id="CartaPoderTieneFirma" 
                                                 class="form-select" 
-                                                required
                                                 onchange="validarSelect(this)">
-                                                <option value="" disabled selected>Seleccione una opción</option>
-                                                <option value="Si" {{ old('Cartapoder_tienefirma', $datosPadre->Cartapoder_tienefirma ?? '') == 'Si' ? 'selected' : '' }}>Sí</option>
-                                                <option value="No" {{ old('Cartapoder_tienefirma', $datosPadre->Cartapoder_tienefirma ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                                                <option value="" disabled {{ old('CartaPoderTieneFirma', isset($certificaciones['carta_poder']) ? $certificaciones['carta_poder']->tiene_firma : '') === '' ? 'selected' : '' }}>Seleccione</option>
+                                                <option value="Si" {{ old('CartaPoderTieneFirma', isset($certificaciones['carta_poder']) ? $certificaciones['carta_poder']->tiene_firma : '') == 'Si' ? 'selected' : '' }}>Sí</option>
+                                                <option value="No" {{ old('CartaPoderTieneFirma', isset($certificaciones['carta_poder']) ? $certificaciones['carta_poder']->tiene_firma : '') == 'No' ? 'selected' : '' }}>No</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="DriveCartapoder" class="form-label">
-                                            URL Drive (opcional)
-                                            <span class="estado-indicador" id="estado-DriveCartapoder"></span>
+                                        <label for="DriveCartaPoder" class="form-label">
+                                            URL Drive
+                                            <span class="estado-indicador" id="estado-DriveCartaPoder"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
-                                            <input type="text" name="DriveCartapoder" id="DriveCartapoder" 
+                                            <input type="text" name="DriveCartaPoder" id="DriveCartaPoder" 
                                                 class="form-control" 
-                                                value="{{ old('DriveCartapoder', $datosPadre->DriveCartapoder ?? '') }}" 
+                                                value="{{ old('DriveCartaPoder', isset($certificaciones['carta_poder']) ? $certificaciones['carta_poder']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="archivoCartaPoder" class="form-label">
-                                            Archivo Local (opcional)
-                                            <span class="estado-indicador" id="estado-archivoCartaPoder"></span>
-                                        </label>
-                                        @if ($archivosLocales['cartapoder'] === 'actual')
-                                            <div class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.85rem;">
-                                                <i class="fas fa-check-circle me-1"></i> Este archivo ya fue subido en el curso original
-                                            </div>
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('CartaPoder')">
-                                                <i class="fas fa-sync-alt me-1"></i> Actualizar archivo local
-                                            </button>
-                                            <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
-                                                <input type="file" name="CartaPoderLocal" class="form-control" onchange="validarArchivo(this, 'CartaPoder')">
-                                            </div>
-                                        @else
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('CartaPoder')">
-                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
-                                            </button>
-                                            <div id="archivoCartaPoderContainer" style="display: none;" class="mt-2">
-                                                <input type="file" name="CartaPoderLocal" class="form-control" onchange="validarArchivo(this, 'CartaPoder')">
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoCartaPoder" class="form-control">
+                                        @if(isset($recursos['carta_poder_archivo']) && $recursos['carta_poder_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-pdf"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['carta_poder_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset($recursos['carta_poder_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- UDEMY -->
-                            <div class="form-section-card shadow-sm" id="seccion-Udemy">
-                                <div class="stps-title">
-                                    <i class="fas fa-graduation-cap"></i> UDEMY
-                                    <span class="estado-archivo no-subido" id="estadoArchivo-Udemy">
-                                        ✗ Sin archivo
-                                    </span>
-                                </div>
+                            <!-- ==========================================
+                            UDEMY
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
+                                <div class="stps-title"><i class="fas fa-graduation-cap"></i> UDEMY</div>
                                 <div class="row g-3">
                                     <div class="col-md-12">
                                         <label for="UDEMY" class="form-label">
@@ -526,37 +461,12 @@
                                             <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
                                             <select name="UDEMY" id="UDEMY" 
                                                 class="form-select" 
-                                                required
                                                 onchange="validarSelect(this)">
-                                                <option value="" disabled selected>Seleccione una opción</option>
-                                                <option value="Prellenado" {{ old('UDEMY', $datosPadre->UDEMY ?? '') == 'Prellenado' ? 'selected' : '' }}>Prellenado</option>
-                                                <option value="No se ha prellenado" {{ old('UDEMY', $datosPadre->UDEMY ?? '') == 'No se ha prellenado' ? 'selected' : '' }}>No se ha prellenado</option>
+                                                <option value="" disabled {{ old('UDEMY', isset($recursos['udemy']) ? $recursos['udemy']->url : '') === '' ? 'selected' : '' }}>Seleccione</option>
+                                                <option value="Prellenado" {{ old('UDEMY', isset($recursos['udemy']) ? $recursos['udemy']->url : '') == 'Prellenado' ? 'selected' : '' }}>Prellenado</option>
+                                                <option value="No se ha prellenado" {{ old('UDEMY', isset($recursos['udemy']) ? $recursos['udemy']->url : '') == 'No se ha prellenado' ? 'selected' : '' }}>No se ha prellenado</option>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="archivoUdemy" class="form-label">
-                                            Archivo Local (opcional)
-                                            <span class="estado-indicador" id="estado-archivoUdemy"></span>
-                                        </label>
-                                        @if ($archivosLocales['Udemy'] === 'actual')
-                                            <div class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.85rem;">
-                                                <i class="fas fa-check-circle me-1"></i> Este archivo ya fue subido en el curso original
-                                            </div>
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('Udemy')">
-                                                <i class="fas fa-sync-alt me-1"></i> Actualizar archivo local
-                                            </button>
-                                            <div id="archivoUdemyContainer" style="display: none;" class="mt-2">
-                                                <input type="file" name="UdemyLocal" class="form-control" onchange="validarArchivo(this, 'Udemy')">
-                                            </div>
-                                        @else
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpeta('Udemy')">
-                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
-                                            </button>
-                                            <div id="archivoUdemyContainer" style="display: none;" class="mt-2">
-                                                <input type="file" name="UdemyLocal" class="form-control" onchange="validarArchivo(this, 'Udemy')">
-                                            </div>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -588,62 +498,81 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const campos = document.querySelectorAll('#formularioCurso .form-control, #formularioCurso .form-select');
-    
-    campos.forEach(campo => {
-        if (campo.tagName === 'SELECT') {
-            validarSelect(campo);
-        } else {
-            validarCampo(campo);
-        }
+    document.querySelectorAll('#FechaRegistroSTPS').forEach(campo => {
+        validarFecha(campo);
     });
-    
-    // Validar archivos existentes
-    const secciones = ['FormatoDC5', 'CertificadoComprobacion', 'CartaPoder', 'Udemy'];
-    secciones.forEach(seccion => {
-        const alertExistente = document.querySelector('#seccion-' + seccion + ' .alert-success');
-        const indicador = document.getElementById('estado-archivo' + seccion);
-        const estadoArchivo = document.getElementById('estadoArchivo-' + seccion);
-        
-        if (alertExistente) {
-            if (indicador) indicador.className = 'estado-indicador estado-verde';
-            if (estadoArchivo) {
-                estadoArchivo.className = 'estado-archivo subido';
-                estadoArchivo.textContent = '✓ Archivo subido';
-            }
-        } else {
-            if (indicador) indicador.className = 'estado-indicador estado-rojo';
-            if (estadoArchivo) {
-                estadoArchivo.className = 'estado-archivo no-subido';
-                estadoArchivo.textContent = '✗ Sin archivo';
-            }
-        }
+    document.querySelectorAll('#FormatoDC5, #CertificadoComprobacion, #CartaPoderTieneFirma, #UDEMY').forEach(campo => {
+        validarSelect(campo);
     });
-    
+    document.querySelectorAll('#DriveCertificadoComprobacion, #DriveCartaPoder').forEach(campo => {
+        validarDrive(campo);
+    });
+    document.querySelectorAll('#FormatoDC5').forEach(campo => {
+        validarCampo(campo);
+    });
+    actualizarContadores();
     actualizarEstadoGeneral();
 });
+
+function validarFecha(campo) {
+    const valor = campo.value.trim();
+    const indicador = document.getElementById('estado-' + campo.id);
+    
+    campo.classList.remove('drive-completo', 'drive-vacio');
+    if (indicador) {
+        indicador.classList.remove('estado-verde', 'estado-rojo');
+    }
+    
+    if (valor === '') {
+        campo.classList.add('drive-vacio');
+        if (indicador) indicador.classList.add('estado-rojo');
+    } else {
+        campo.classList.add('drive-completo');
+        if (indicador) indicador.classList.add('estado-verde');
+    }
+    
+    actualizarContadores();
+    actualizarEstadoGeneral();
+}
 
 function validarCampo(campo) {
     const valor = campo.value.trim();
     const indicador = document.getElementById('estado-' + campo.id);
     
-    campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
+    campo.classList.remove('drive-completo', 'drive-vacio');
     if (indicador) {
-        indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
+        indicador.classList.remove('estado-verde', 'estado-rojo');
     }
     
     if (valor === '') {
-        campo.classList.add('validado-vacio');
+        campo.classList.add('drive-vacio');
         if (indicador) indicador.classList.add('estado-rojo');
-    } else if (valor.length < 3) {
-        campo.classList.add('validado-incompleto');
-        if (indicador) indicador.classList.add('estado-amarillo');
     } else {
-        campo.classList.add('validado-completo');
+        campo.classList.add('drive-completo');
         if (indicador) indicador.classList.add('estado-verde');
     }
     
-    actualizarSeccion(campo);
+    actualizarContadores();
+    actualizarEstadoGeneral();
+}
+
+function validarDrive(campo) {
+    const valor = campo.value.trim();
+    const indicador = document.getElementById('estado-' + campo.id);
+    
+    campo.classList.remove('drive-completo', 'drive-vacio');
+    if (indicador) {
+        indicador.classList.remove('estado-verde', 'estado-rojo');
+    }
+    
+    if (valor === '') {
+        campo.classList.add('drive-vacio');
+        if (indicador) indicador.classList.add('estado-rojo');
+    } else {
+        campo.classList.add('drive-completo');
+        if (indicador) indicador.classList.add('estado-verde');
+    }
+    
     actualizarContadores();
     actualizarEstadoGeneral();
 }
@@ -652,84 +581,21 @@ function validarSelect(select) {
     const valor = select.value;
     const indicador = document.getElementById('estado-' + select.id);
     
-    select.classList.remove('validado-completo', 'validado-vacio');
+    select.classList.remove('select-completo', 'select-vacio');
     if (indicador) {
         indicador.classList.remove('estado-verde', 'estado-rojo');
     }
     
     if (valor === '' || valor === null) {
-        select.classList.add('validado-vacio');
+        select.classList.add('select-vacio');
         if (indicador) indicador.classList.add('estado-rojo');
     } else {
-        select.classList.add('validado-completo');
+        select.classList.add('select-completo');
         if (indicador) indicador.classList.add('estado-verde');
     }
     
-    actualizarSeccion(select);
     actualizarContadores();
     actualizarEstadoGeneral();
-}
-
-function validarArchivo(input, seccion) {
-    const indicador = document.getElementById('estado-archivo' + seccion);
-    const estadoArchivo = document.getElementById('estadoArchivo-' + seccion);
-    
-    if (input.files && input.files.length > 0) {
-        if (indicador) indicador.className = 'estado-indicador estado-verde';
-        if (estadoArchivo) {
-            estadoArchivo.className = 'estado-archivo subido';
-            estadoArchivo.textContent = '✓ Nuevo archivo seleccionado';
-        }
-    } else {
-        const alertExistente = document.querySelector('#seccion-' + seccion + ' .alert-success');
-        if (alertExistente) {
-            if (indicador) indicador.className = 'estado-indicador estado-verde';
-            if (estadoArchivo) {
-                estadoArchivo.className = 'estado-archivo subido';
-                estadoArchivo.textContent = '✓ Archivo subido';
-            }
-        } else {
-            if (indicador) indicador.className = 'estado-indicador estado-rojo';
-            if (estadoArchivo) {
-                estadoArchivo.className = 'estado-archivo no-subido';
-                estadoArchivo.textContent = '✗ Sin archivo';
-            }
-        }
-    }
-    
-    actualizarSeccion(null);
-    actualizarContadores();
-    actualizarEstadoGeneral();
-}
-
-function actualizarSeccion(campo) {
-    const secciones = ['FechaSTPS', 'FormatoDC5', 'CertificadoComprobacion', 'CartaPoder', 'Udemy'];
-    
-    secciones.forEach(seccion => {
-        const seccionCard = document.getElementById('seccion-' + seccion);
-        if (!seccionCard) return;
-        
-        const camposSeccion = seccionCard.querySelectorAll('.form-control, .form-select');
-        let completos = 0, incompletos = 0, vacios = 0;
-        
-        camposSeccion.forEach(campo => {
-            if (campo.classList.contains('validado-completo')) completos++;
-            else if (campo.classList.contains('validado-incompleto')) incompletos++;
-            else if (campo.classList.contains('validado-vacio')) vacios++;
-        });
-        
-        seccionCard.classList.remove('completo', 'incompleto', 'vacio');
-        
-        if (vacios > 0 && completos === 0 && incompletos === 0) {
-            seccionCard.classList.add('vacio');
-        } else if (incompletos > 0) {
-            seccionCard.classList.add('incompleto');
-        } else if (completos > 0 && vacios === 0 && incompletos === 0) {
-            seccionCard.classList.add('completo');
-        } else if (completos > 0 && vacios > 0) {
-            seccionCard.classList.add('incompleto');
-        }
-    });
 }
 
 function actualizarContadores() {
@@ -737,9 +603,11 @@ function actualizarContadores() {
     let completos = 0, incompletos = 0, vacios = 0;
     
     campos.forEach(campo => {
-        if (campo.classList.contains('validado-completo')) completos++;
-        else if (campo.classList.contains('validado-incompleto')) incompletos++;
-        else if (campo.classList.contains('validado-vacio')) vacios++;
+        if (campo.classList.contains('drive-completo') || campo.classList.contains('select-completo')) {
+            completos++;
+        } else if (campo.classList.contains('drive-vacio') || campo.classList.contains('select-vacio')) {
+            vacios++;
+        }
     });
     
     document.getElementById('totalCompletos').textContent = completos;
@@ -753,9 +621,11 @@ function actualizarEstadoGeneral() {
     const total = campos.length;
     
     campos.forEach(campo => {
-        if (campo.classList.contains('validado-completo')) completos++;
-        else if (campo.classList.contains('validado-incompleto')) incompletos++;
-        else if (campo.classList.contains('validado-vacio')) vacios++;
+        if (campo.classList.contains('drive-completo') || campo.classList.contains('select-completo')) {
+            completos++;
+        } else if (campo.classList.contains('drive-vacio') || campo.classList.contains('select-vacio')) {
+            vacios++;
+        }
     });
     
     const indicadorGeneral = document.getElementById('indicadorGeneral');
@@ -774,26 +644,6 @@ function actualizarEstadoGeneral() {
         indicadorGeneral.className = 'estado-indicador';
         textoEstado.textContent = 'Verificando campos...';
     }
-}
-
-function crearCarpeta(tipo) {
-    fetch('{{ route("crear.carpeta") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ tipo: tipo, nombreCarpeta: tipo })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const contenedor = document.getElementById(`archivo${tipo}Container`);
-            if (contenedor) contenedor.style.display = 'block';
-        } else {
-            alert('Error: ' + data.message);
-        }
-    });
 }
 </script>
 @endsection

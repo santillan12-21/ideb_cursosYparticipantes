@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Cursos;
+use App\Models\CursoModalidad;
+use App\Models\CursoRecurso;
+use App\Models\CursoEvaluacion;
+use App\Models\CursoCertificacion;
+use App\Models\CursoPaso;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CursosExport;
@@ -158,6 +163,13 @@ class CursoController extends Controller
 
             $curso = Cursos::findOrFail($id);
             $nombre = $curso->nombre;
+            
+            $curso->modalidades()->delete();
+            $curso->recursos()->delete();
+            $curso->evaluaciones()->delete();
+            $curso->certificaciones()->delete();
+            $curso->pasos()->delete();
+            
             $curso->delete();
 
             return redirect()->route('cursos.index')->with('success', "El curso '$nombre' ha sido eliminado permanentemente.");
@@ -249,8 +261,39 @@ class CursoController extends Controller
         }
     }
 
-    // --- MÉTODOS DE PASOS ---
+    // ============================================
+    // FUNCIÓN AUXILIAR PARA GUARDAR ARCHIVOS
+    // ============================================
+    private function guardarArchivosCurso($curso, $request, $archivosMap)
+    {
+        $cursoPath = storage_path('app/public/cursos/' . $curso->id);
+        if (!file_exists($cursoPath)) {
+            mkdir($cursoPath, 0777, true);
+        }
 
+        foreach ($archivosMap as $inputName => $tipoRecurso) {
+            if ($request->hasFile($inputName) && $request->file($inputName)->isValid()) {
+                $file = $request->file($inputName);
+                
+                $extension = $file->getClientOriginalExtension();
+                $nombreBase = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $nombreLimpio = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nombreBase);
+                $fileName = time() . '_' . $nombreLimpio . '.' . $extension;
+                
+                $file->move($cursoPath, $fileName);
+                $rutaPublica = 'storage/cursos/' . $curso->id . '/' . $fileName;
+                
+                CursoRecurso::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_recurso' => $tipoRecurso],
+                    ['url' => $rutaPublica]
+                );
+            }
+        }
+    }
+
+    // ============================================
+    // PASO 1
+    // ============================================
     public function crearPaso1()
     {
         $cursoId = session('curso_id');
@@ -290,168 +333,407 @@ class CursoController extends Controller
         return redirect()->route('curso.paso2');
     }
 
-    public function mostrarPaso2() { return view('cursos.paso2', ['curso' => Cursos::find(session('curso_id'))]); }
+    // ============================================
+    // PASO 2
+    // ============================================
+    public function mostrarPaso2() 
+    { 
+        return view('cursos.paso2', ['curso' => Cursos::find(session('curso_id'))]); 
+    }
     
     public function guardarPaso2(Request $request)
     {
         $v = $request->validate([
-            'Virtual' => 'nullable|string|in:Si,No',
-            'Presencial' => 'nullable|string|in:Si,No',
-            'Mixto' => 'nullable|string|in:Si,No'
+            'modalidad' => 'required|in:virtual,presencial,mixto',
+            'sin_fecha' => 'nullable|boolean'
         ]);
         
         $curso = Cursos::findOrFail(session('curso_id'));
         
         $curso->update([
-            'virtual' => ($v['Virtual'] ?? 'No') === 'Si' ? 1 : 0,
-            'presencial' => ($v['Presencial'] ?? 'No') === 'Si' ? 1 : 0,
-            'mixto' => ($v['Mixto'] ?? 'No') === 'Si' ? 1 : 0,
+            'modalidad' => $v['modalidad'],
+            'sin_fecha' => $v['sin_fecha'] ?? false,
         ]);
+
+        if (($v['sin_fecha'] ?? false)) {
+            $curso->update([
+                'fecha_inicio' => null,
+                'fecha_termino' => null,
+            ]);
+        }
+        
+        CursoModalidad::updateOrCreate(
+            ['curso_id' => $curso->id, 'modalidad' => $v['modalidad']],
+            ['curso_id' => $curso->id, 'modalidad' => $v['modalidad']]
+        );
         
         session(['cursos_paso2' => $v]);
         
         return redirect()->route('curso.paso3');
     }
 
-    public function mostrarPaso3() { return view('cursos.paso3', ['curso' => Cursos::find(session('curso_id'))]); }
+    // ============================================
+    // PASO 3
+    // ============================================
+    public function mostrarPaso3() 
+    { 
+        $curso = Cursos::find(session('curso_id'));
+        $recursos = [];
+        
+        if ($curso) {
+            $recursosDb = $curso->recursos()->get()->keyBy('tipo_recurso');
+            
+            $recursos['sin_fecha'] = $recursosDb->get('sin_fecha');
+            $recursos['facebook'] = $recursosDb->get('facebook');
+            $recursos['linkedin'] = $recursosDb->get('linkedin');
+            $recursos['instagram'] = $recursosDb->get('instagram');
+            
+            $recursos['sin_fecha_archivo'] = $recursosDb->get('sin_fecha_archivo');
+            $recursos['facebook_archivo'] = $recursosDb->get('facebook_archivo');
+            $recursos['linkedin_archivo'] = $recursosDb->get('linkedin_archivo');
+            $recursos['instagram_archivo'] = $recursosDb->get('instagram_archivo');
+        }
+        
+        return view('cursos.paso3', compact('curso', 'recursos')); 
+    }
     
-    public function guardarPaso3(Request $request) {
+    public function guardarPaso3(Request $request) 
+    {
         $v = $request->validate([
-            'SinFecha' => 'nullable|string', 
-            'DriveSinFecha' => 'nullable|string', 
-            'Facebook' => 'nullable|string', 
-            'DriveFacebook' => 'nullable|string', 
-            'Linkedin' => 'nullable|string', 
-            'DriveLinkedin' => 'nullable|string', 
-            'Instagram' => 'nullable|string', 
-            'DriveInstagram' => 'nullable|string'
+            'SinFecha' => 'nullable|string',
+            'DriveSinFecha' => 'nullable|string',
+            'Facebook' => 'nullable|string',
+            'DriveFacebook' => 'nullable|string',
+            'Linkedin' => 'nullable|string',
+            'DriveLinkedin' => 'nullable|string',
+            'Instagram' => 'nullable|string',
+            'DriveInstagram' => 'nullable|string',
         ]);
+        
         $curso = Cursos::findOrFail(session('curso_id'));
-        $curso->update([
-            'sin_fecha' => $v['SinFecha'] ?? '',
-            'drive_sin_fecha' => $v['DriveSinFecha'] ?? '',
-            'facebook' => $v['Facebook'] ?? '',
-            'drive_facebook' => $v['DriveFacebook'] ?? '',
-            'linkedin' => $v['Linkedin'] ?? '',
-            'drive_linkedin' => $v['DriveLinkedin'] ?? '',
-            'instagram' => $v['Instagram'] ?? '',
-            'drive_instagram' => $v['DriveInstagram'] ?? '',
+
+        $recursosMap = [
+            'sin_fecha' => ['url' => $v['SinFecha'] ?? null, 'drive_url' => $v['DriveSinFecha'] ?? null],
+            'facebook' => ['url' => $v['Facebook'] ?? null, 'drive_url' => $v['DriveFacebook'] ?? null],
+            'linkedin' => ['url' => $v['Linkedin'] ?? null, 'drive_url' => $v['DriveLinkedin'] ?? null],
+            'instagram' => ['url' => $v['Instagram'] ?? null, 'drive_url' => $v['DriveInstagram'] ?? null],
+        ];
+
+        foreach ($recursosMap as $tipo => $data) {
+            if (!empty($data['url']) || !empty($data['drive_url'])) {
+                CursoRecurso::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_recurso' => $tipo],
+                    $data
+                );
+            }
+        }
+
+        $this->guardarArchivosCurso($curso, $request, [
+            'archivoSinFecha' => 'sin_fecha_archivo',
+            'archivoFacebook' => 'facebook_archivo',
+            'archivoLinkedIn' => 'linkedin_archivo',
+            'archivoInstagram' => 'instagram_archivo',
         ]);
+        
         session(['cursos_paso3' => $v]);
         return redirect()->route('curso.paso4');
     }
 
-    public function mostrarPaso4() { return view('cursos.paso4', ['curso' => Cursos::find(session('curso_id')), 'archivosLocales' => []]); }
+    // ============================================
+    // PASO 4
+    // ============================================
+    public function mostrarPaso4() 
+    { 
+        $curso = Cursos::find(session('curso_id'));
+        $recursos = [];
+        
+        if ($curso) {
+            $recursosDb = $curso->recursos()->get()->keyBy('tipo_recurso');
+            
+            $recursos['temario'] = $recursosDb->get('temario');
+            $recursos['itinerario'] = $recursosDb->get('itinerario');
+            $recursos['planeacion'] = $recursosDb->get('planeacion');
+            
+            $recursos['temario_archivo'] = $recursosDb->get('temario_archivo');
+            $recursos['itinerario_archivo'] = $recursosDb->get('itinerario_archivo');
+            $recursos['planeacion_archivo'] = $recursosDb->get('planeacion_archivo');
+        }
+        
+        return view('cursos.paso4', compact('curso', 'recursos')); 
+    }
     
-    public function guardarPaso4(Request $request) {
+    public function guardarPaso4(Request $request) 
+    {
         $v = $request->validate([
-            'Temario' => 'nullable|string', 
-            'DriveTemario' => 'nullable|string', 
-            'Itinerario' => 'nullable|string', 
-            'DriveItinerario' => 'nullable|string', 
-            'Planeación' => 'nullable|string', 
-            'DrivePlaneación' => 'nullable|string'
+            'Temario' => 'nullable|string',
+            'DriveTemario' => 'nullable|string',
+            'Itinerario' => 'nullable|string',
+            'DriveItinerario' => 'nullable|string',
+            'Planeacion' => 'nullable|string',
+            'DrivePlaneacion' => 'nullable|string',
         ]);
+        
         $curso = Cursos::findOrFail(session('curso_id'));
-        $curso->update([
-            'temario' => $v['Temario'] ?? '',
-            'drive_temario' => $v['DriveTemario'] ?? '',
-            'itinerario' => $v['Itinerario'] ?? '',
-            'drive_itinerario' => $v['DriveItinerario'] ?? '',
-            'planeacion' => $v['Planeación'] ?? '',
-            'drive_planeacion' => $v['DrivePlaneación'] ?? '',
+
+        $recursosMap = [
+            'temario' => ['url' => $v['Temario'] ?? null, 'drive_url' => $v['DriveTemario'] ?? null],
+            'itinerario' => ['url' => $v['Itinerario'] ?? null, 'drive_url' => $v['DriveItinerario'] ?? null],
+            'planeacion' => ['url' => $v['Planeacion'] ?? null, 'drive_url' => $v['DrivePlaneacion'] ?? null],
+        ];
+
+        foreach ($recursosMap as $tipo => $data) {
+            if (!empty($data['url']) || !empty($data['drive_url'])) {
+                CursoRecurso::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_recurso' => $tipo],
+                    $data
+                );
+            }
+        }
+
+        $this->guardarArchivosCurso($curso, $request, [
+            'archivoTemario' => 'temario_archivo',
+            'archivoItinerario' => 'itinerario_archivo',
+            'archivoPlaneacion' => 'planeacion_archivo',
         ]);
+        
         session(['cursos_paso4' => $v]);
         return redirect()->route('curso.paso5');
     }
 
-    public function mostrarPaso5() { return view('cursos.paso5', ['curso' => Cursos::find(session('curso_id')), 'archivosLocales' => []]); }
+    // ============================================
+    // PASO 5
+    // ============================================
+    public function mostrarPaso5() 
+    { 
+        $curso = Cursos::find(session('curso_id'));
+        $recursos = [];
+        
+        if ($curso) {
+            $recursosDb = $curso->recursos()->get()->keyBy('tipo_recurso');
+            
+            $recursos['digital'] = $recursosDb->get('digital');
+            $recursos['presentacion'] = $recursosDb->get('presentacion');
+            $recursos['impreso'] = $recursosDb->get('impreso');
+            
+            $recursos['digital_archivo'] = $recursosDb->get('digital_archivo');
+            $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
+            $recursos['impreso_archivo'] = $recursosDb->get('impreso_archivo');
+        }
+        
+        return view('cursos.paso5', compact('curso', 'recursos')); 
+    }
     
-    public function guardarPaso5(Request $request) {
+    public function guardarPaso5(Request $request) 
+    {
         $v = $request->validate([
-            'Digital' => 'nullable|string', 
-            'DriveDigital' => 'nullable|string', 
+            'Digital' => 'nullable|string',
+            'DriveDigital' => 'nullable|string',
+            'Presentacion' => 'nullable|string',
+            'DrivePresentacion' => 'nullable|string',
             'Impreso_Presentable' => 'nullable|string',
-            'DigitalLocal' => 'nullable|file',
-            'ImpresoPresentableLocal' => 'nullable|file'
+            'DriveImpreso' => 'nullable|string',
         ]);
+        
         $curso = Cursos::findOrFail(session('curso_id'));
-        
-        $digitalBool = false;
-        if (!empty($v['Digital'])) {
-            $digitalBool = (str_contains($v['Digital'], '%')) ? ($v['Digital'] === '100%') : ($v['Digital'] == 100);
+
+        $recursosMap = [
+            'digital' => ['url' => $v['Digital'] ?? null, 'drive_url' => $v['DriveDigital'] ?? null],
+            'presentacion' => ['url' => $v['Presentacion'] ?? null, 'drive_url' => $v['DrivePresentacion'] ?? null],
+            'impreso' => ['url' => $v['Impreso_Presentable'] ?? null, 'drive_url' => $v['DriveImpreso'] ?? null],
+        ];
+
+        foreach ($recursosMap as $tipo => $data) {
+            if (!empty($data['url']) || !empty($data['drive_url'])) {
+                CursoRecurso::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_recurso' => $tipo],
+                    $data
+                );
+            } else {
+                $curso->recursos()->where('tipo_recurso', $tipo)->delete();
+            }
         }
 
-        $impresoBool = false;
-        if (!empty($v['Impreso_Presentable'])) {
-            $impresoBool = (str_contains($v['Impreso_Presentable'], '%')) ? ($v['Impreso_Presentable'] === '100%') : ($v['Impreso_Presentable'] == 100);
-        }
-
-        $curso->update([
-            'digital' => $digitalBool, 
-            'drive_digital' => $v['DriveDigital'] ?? '', 
-            'impreso_presentable' => $impresoBool
+        $this->guardarArchivosCurso($curso, $request, [
+            'archivoDigital' => 'digital_archivo',
+            'archivoPresentacion' => 'presentacion_archivo',
+            'archivoImpreso' => 'impreso_archivo',
         ]);
         
-        unset($v['DigitalLocal'], $v['ImpresoPresentableLocal']);
         session(['cursos_paso5' => $v]);
-        
         return redirect()->route('curso.paso6');
     }
 
-    public function mostrarPaso6() { return view('cursos.paso6', ['curso' => Cursos::find(session('curso_id')), 'archivosLocales' => []]); }
+        // ============================================
+    // PASO 6
+    // ============================================
+    public function mostrarPaso6() 
+    { 
+        $curso = Cursos::find(session('curso_id'));
+        $recursos = [];
+        $evaluaciones = [];
+        
+        if ($curso) {
+            $recursosDb = $curso->recursos()->get()->keyBy('tipo_recurso');
+            $evaluacionesDb = $curso->evaluaciones()->get()->keyBy('tipo_evaluacion');
+            $certificacionesDb = $curso->certificaciones()->get()->keyBy('tipo_certificacion');
+            
+            $recursos['presentacion'] = $recursosDb->get('presentacion');
+            $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
+            
+            $evaluaciones['diagnostica'] = $evaluacionesDb->get('diagnostica');
+            $evaluaciones['satisfaccion'] = $evaluacionesDb->get('satisfaccion');
+            $evaluaciones['final'] = $evaluacionesDb->get('final');
+            
+            $recursos['dc3'] = $certificacionesDb->get('dc3');
+        }
+        
+        return view('cursos.paso6', compact('curso', 'recursos', 'evaluaciones')); 
+    }
     
-    public function guardarPaso6(Request $request) {
+    public function guardarPaso6(Request $request) 
+    {
         $v = $request->validate([
-            'Presentación' => 'nullable|string', 
+            'Presentacion' => 'nullable|string',
             'DrivePresentacion' => 'nullable|string',
-            'Evaluación_diagnostica' => 'nullable|string', 
-            'EvaluaciondeSatisfacción' => 'nullable|string', 
-            'EvaluacionFinal' => 'nullable|string', 
-            'DC3' => 'nullable|string'
+            'EvaluacionDiagnostica' => 'nullable|string',
+            'EvaluacionSatisfaccion' => 'nullable|string',
+            'EvaluacionFinal' => 'nullable|string',
+            'DC3' => 'nullable|string',
         ]);
+        
         $curso = Cursos::findOrFail(session('curso_id'));
-        $curso->update([
-            'presentacion' => $v['Presentación'] ?? '',
-            'drive_presentacion' => $v['DrivePresentacion'] ?? '',
-            'evaluacion_diagnostica' => $v['Evaluación_diagnostica'] ?? '',
-            'evaluacion_satisfaccion' => $v['EvaluaciondeSatisfacción'] ?? '',
-            'evaluacion_final' => $v['EvaluacionFinal'] ?? '',
-            'dc3' => $v['DC3'] ?? '',
+
+        if (!empty($v['Presentacion']) || !empty($v['DrivePresentacion'])) {
+            CursoRecurso::updateOrCreate(
+                ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion'],
+                ['url' => $v['Presentacion'] ?? null, 'drive_url' => $v['DrivePresentacion'] ?? null]
+            );
+        }
+
+        $this->guardarArchivosCurso($curso, $request, [
+            'archivoPresentacion' => 'presentacion_archivo',
         ]);
+
+        $evaluacionesMap = [
+            'diagnostica' => $v['EvaluacionDiagnostica'] ?? null,
+            'satisfaccion' => $v['EvaluacionSatisfaccion'] ?? null,
+            'final' => $v['EvaluacionFinal'] ?? null,
+        ];
+
+        foreach ($evaluacionesMap as $tipo => $url) {
+            if (!empty($url)) {
+                CursoEvaluacion::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_evaluacion' => $tipo],
+                    ['url' => $url]
+                );
+            }
+        }
+
+        if (!empty($v['DC3'])) {
+            CursoCertificacion::updateOrCreate(
+                ['curso_id' => $curso->id, 'tipo_certificacion' => 'dc3'],
+                ['nombre' => $v['DC3']]
+            );
+        }
+        
         session(['cursos_paso6' => $v]);
         return redirect()->route('curso.paso7');
     }
-
-    public function mostrarPaso7() { return view('cursos.paso7', ['curso' => Cursos::find(session('curso_id')), 'archivosLocales' => []]); }
+    // ============================================
+    // PASO 7
+    // ============================================
+    public function mostrarPaso7() 
+    { 
+        $curso = Cursos::find(session('curso_id'));
+        $certificaciones = [];
+        $recursos = [];
+        $fechaRegistro = null;
+        
+        if ($curso) {
+            $certificacionesDb = $curso->certificaciones()->get()->keyBy('tipo_certificacion');
+            $recursosDb = $curso->recursos()->get()->keyBy('tipo_recurso');
+            
+            $certificaciones['dc5'] = $certificacionesDb->get('dc5');
+            $certificaciones['certificado_comprobacion'] = $certificacionesDb->get('certificado_comprobacion');
+            $certificaciones['carta_poder'] = $certificacionesDb->get('carta_poder');
+            $fechaRegistro = $certificacionesDb->get('fecha_registro');
+            
+            $recursos['dc5_archivo'] = $recursosDb->get('dc5_archivo');
+            $recursos['certificado_archivo'] = $recursosDb->get('certificado_archivo');
+            $recursos['carta_poder_archivo'] = $recursosDb->get('carta_poder_archivo');
+            $recursos['udemy'] = $recursosDb->get('udemy');
+        }
+        
+        return view('cursos.paso7', compact('curso', 'certificaciones', 'recursos', 'fechaRegistro')); 
+    }
     
-    public function guardarPaso7(Request $request) {
+    public function guardarPaso7(Request $request) 
+    {
         $v = $request->validate([
-            'FechadeRegistro_STPS' => 'nullable|date',
-            'Formato_DC5' => 'nullable|string',
-            'Formato_DC5_Tienefirma' => 'nullable|string',
-            'Certificadodecomprobacion' => 'nullable|string',
-            'DrivedeCertificadodecomprobacion' => 'nullable|string',
-            'Cartapoder_tienefirma' => 'nullable|string',
-            'DriveCartapoder' => 'nullable|string',
+            'FechaRegistroSTPS' => 'nullable|date',
+            'FormatoDC5' => 'nullable|string',
+            'FormatoDC5TieneFirma' => 'nullable|string',
+            'CertificadoComprobacion' => 'nullable|string',
+            'DriveCertificadoComprobacion' => 'nullable|string',
+            'CartaPoderTieneFirma' => 'nullable|string',
+            'DriveCartaPoder' => 'nullable|string',
             'UDEMY' => 'nullable|string',
         ]);
+        
         $curso = Cursos::findOrFail(session('curso_id'));
 
-        $dc5Firma = ($v['Formato_DC5_Tienefirma'] ?? 'No') === 'Si';
-        $cartaFirma = ($v['Cartapoder_tienefirma'] ?? 'No') === 'Si';
+        $dc5Firma = ($v['FormatoDC5TieneFirma'] ?? 'No') === 'Si';
+        $cartaFirma = ($v['CartaPoderTieneFirma'] ?? 'No') === 'Si';
         $udemyBool = ($v['UDEMY'] ?? 'No se ha prellenado') === 'Prellenado';
 
-        $curso->update([
-            'fecha_registro_stps' => $v['FechadeRegistro_STPS'],
-            'formato_dc5' => $v['Formato_DC5'] ?? '',
-            'formato_dc5_tiene_firma' => $dc5Firma,
-            'certificado_comprobacion' => $v['Certificadodecomprobacion'] ?? '',
-            'drive_certificado_comprobacion' => $v['DrivedeCertificadodecomprobacion'] ?? '',
-            'carta_poder_tiene_firma' => $cartaFirma,
-            'drive_carta_poder' => $v['DriveCartapoder'] ?? '',
-            'udemy' => $udemyBool,
+        // Guardar FECHA en curso_certificaciones
+        if (!empty($v['FechaRegistroSTPS'])) {
+            CursoCertificacion::updateOrCreate(
+                ['curso_id' => $curso->id, 'tipo_certificacion' => 'fecha_registro'],
+                ['fecha_registro' => $v['FechaRegistroSTPS']]
+            );
+        } else {
+            $curso->certificaciones()->where('tipo_certificacion', 'fecha_registro')->delete();
+        }
+
+        // Guardar certificaciones
+        $certificacionesMap = [
+            'dc5' => ['nombre' => $v['FormatoDC5'] ?? null, 'tiene_firma' => $dc5Firma],
+            'certificado_comprobacion' => [
+                'nombre' => $v['CertificadoComprobacion'] ?? null,
+                'drive_url' => $v['DriveCertificadoComprobacion'] ?? null
+            ],
+            'carta_poder' => [
+                'drive_url' => $v['DriveCartaPoder'] ?? null,
+                'tiene_firma' => $cartaFirma
+            ],
+        ];
+
+        foreach ($certificacionesMap as $tipo => $data) {
+            if (!empty($data['nombre']) || !empty($data['drive_url']) || isset($data['tiene_firma'])) {
+                CursoCertificacion::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_certificacion' => $tipo],
+                    $data
+                );
+            }
+        }
+
+        // Guardar archivos
+        $this->guardarArchivosCurso($curso, $request, [
+            'archivoDC5' => 'dc5_archivo',
+            'archivoCertificado' => 'certificado_archivo',
+            'archivoCartaPoder' => 'carta_poder_archivo',
         ]);
+
+        // Guardar UDEMY
+        if ($udemyBool) {
+            CursoRecurso::updateOrCreate(
+                ['curso_id' => $curso->id, 'tipo_recurso' => 'udemy'],
+                ['url' => 'https://www.udemy.com/']
+            );
+        } else {
+            $curso->recursos()->where('tipo_recurso', 'udemy')->delete();
+        }
 
         CourseActionLog::create([
             'curso_id' => $curso->id,
@@ -466,20 +748,94 @@ class CursoController extends Controller
         return redirect()->route('cursos.index')->with('success', 'Curso creado con éxito.');
     }
 
-    // --- EDICIÓN POR PASOS ---
-
+    // ============================================
+    // EDICIÓN POR PASOS
+    // ============================================
     public function editPaso(Cursos $curso, $paso)
     {
-        $rutaLocal = null;
+        $recursos = [];
+        $evaluaciones = [];
+        $certificaciones = [];
+        $fechaRegistro = null;
+        
+        $recursosDb = $curso->recursos()->get()->keyBy('tipo_recurso');
+        $evaluacionesDb = $curso->evaluaciones()->get()->keyBy('tipo_evaluacion');
+        $certificacionesDb = $curso->certificaciones()->get()->keyBy('tipo_certificacion');
+        
         switch($paso) {
-            case 1: return view('cursos.edit-paso1', compact('curso'));
-            case 2: return view('cursos.edit-paso2', compact('curso'));
-            case 3: return view('cursos.edit-paso3', compact('curso', 'rutaLocal'));
-            case 4: return view('cursos.edit-paso4', compact('curso', 'rutaLocal'));
-            case 5: return view('cursos.edit-paso5', compact('curso', 'rutaLocal'));
-            case 6: return view('cursos.edit-paso6', compact('curso', 'rutaLocal'));
-            case 7: return view('cursos.edit-paso7', compact('curso', 'rutaLocal'));
-            default: return redirect()->route('cursos.index');
+            case 1:
+                return view('cursos.edit-paso1', compact('curso'));
+                
+            case 2:
+                return view('cursos.edit-paso2', compact('curso'));
+                
+            case 3:
+                $recursos['sin_fecha'] = $recursosDb->get('sin_fecha');
+                $recursos['facebook'] = $recursosDb->get('facebook');
+                $recursos['linkedin'] = $recursosDb->get('linkedin');
+                $recursos['instagram'] = $recursosDb->get('instagram');
+                $recursos['sin_fecha_archivo'] = $recursosDb->get('sin_fecha_archivo');
+                $recursos['facebook_archivo'] = $recursosDb->get('facebook_archivo');
+                $recursos['linkedin_archivo'] = $recursosDb->get('linkedin_archivo');
+                $recursos['instagram_archivo'] = $recursosDb->get('instagram_archivo');
+                return view('cursos.edit-paso3', compact('curso', 'recursos'));
+                
+            case 4:
+                $recursos['temario'] = $recursosDb->get('temario');
+                $recursos['itinerario'] = $recursosDb->get('itinerario');
+                $recursos['planeacion'] = $recursosDb->get('planeacion');
+                $recursos['temario_archivo'] = $recursosDb->get('temario_archivo');
+                $recursos['itinerario_archivo'] = $recursosDb->get('itinerario_archivo');
+                $recursos['planeacion_archivo'] = $recursosDb->get('planeacion_archivo');
+                return view('cursos.edit-paso4', compact('curso', 'recursos'));
+                
+            case 5:
+                $recursos['digital'] = $recursosDb->get('digital');
+                $recursos['presentacion'] = $recursosDb->get('presentacion');
+                $recursos['impreso'] = $recursosDb->get('impreso');
+                $recursos['digital_archivo'] = $recursosDb->get('digital_archivo');
+                $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
+                $recursos['impreso_archivo'] = $recursosDb->get('impreso_archivo');
+                return view('cursos.edit-paso5', compact('curso', 'recursos'));
+                
+            case 6:
+    $recursosDb = $curso->recursos()->get()->keyBy('tipo_recurso');
+    $evaluacionesDb = $curso->evaluaciones()->get()->keyBy('tipo_evaluacion');
+    $certificacionesDb = $curso->certificaciones()->get()->keyBy('tipo_certificacion');
+    
+    $recursos['presentacion'] = $recursosDb->get('presentacion');
+    $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
+    
+    $evaluaciones['diagnostica'] = $evaluacionesDb->get('diagnostica');
+    $evaluaciones['satisfaccion'] = $evaluacionesDb->get('satisfaccion');
+    $evaluaciones['final'] = $evaluacionesDb->get('final');
+    
+    $recursos['dc3'] = $certificacionesDb->get('dc3');
+    
+    // ============================================
+    // DD PARA VER QUÉ SE RECUPERA
+    // ============================================
+    dd([
+        'evaluacionesDb' => $evaluacionesDb->toArray(),
+        'evaluaciones' => $evaluaciones
+    ]);
+    // ============================================
+    
+    return view('cursos.edit-paso6', compact('curso', 'recursos', 'evaluaciones'));
+
+            case 7:
+                $certificaciones['dc5'] = $certificacionesDb->get('dc5');
+                $certificaciones['certificado_comprobacion'] = $certificacionesDb->get('certificado_comprobacion');
+                $certificaciones['carta_poder'] = $certificacionesDb->get('carta_poder');
+                $fechaRegistro = $certificacionesDb->get('fecha_registro');
+                $recursos['dc5_archivo'] = $recursosDb->get('dc5_archivo');
+                $recursos['certificado_archivo'] = $recursosDb->get('certificado_archivo');
+                $recursos['carta_poder_archivo'] = $recursosDb->get('carta_poder_archivo');
+                $recursos['udemy'] = $recursosDb->get('udemy');
+                return view('cursos.edit-paso7', compact('curso', 'certificaciones', 'recursos', 'fechaRegistro'));
+                
+            default:
+                return redirect()->route('cursos.index');
         }
     }
 
@@ -489,187 +845,328 @@ class CursoController extends Controller
             $request->validate([
                 'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $curso->id,
             ]);
+            
+            $data = [
+                'nomenclatura' => $request->Nomenclatura,
+                'nombre' => $request->NombredelCurso ?? '',
+                'descripcion' => $request->DescripciondeCurso ?? '',
+                'costo' => $request->CostodelCurso ?? 0,
+                'instructor_responsable' => $request->InstructorResponsable ?? '',
+                'fecha_inicio' => $request->FechadeInicio ?? null,
+                'fecha_termino' => $request->FechadeTermino ?? null,
+                'duracion' => $request->Duracioncurso ?? '',
+            ];
+            $curso->update($data);
         }
 
-        $map = [
-            'Nomenclatura' => 'nomenclatura', 
-            'NombredelCurso' => 'nombre', 
-            'DescripciondeCurso' => 'descripcion', 
-            'CostodelCurso' => 'costo',
-            'InstructorResponsable' => 'instructor_responsable', 
-            'FechadeInicio' => 'fecha_inicio', 
-            'FechadeTermino' => 'fecha_termino',
-            'Duracioncurso' => 'duracion', 
-            'Virtual' => 'virtual', 
-            'Presencial' => 'presencial', 
-            'Mixto' => 'mixto',
-            'SinFecha' => 'sin_fecha',
-            'DriveSinFecha' => 'drive_sin_fecha',
-            'Facebook' => 'facebook',
-            'DriveFacebook' => 'drive_facebook',
-            'Linkedin' => 'linkedin',
-            'DriveLinkedin' => 'drive_linkedin',
-            'Instagram' => 'instagram',
-            'DriveInstagram' => 'drive_instagram',
-            'Temario' => 'temario',
-            'DriveTemario' => 'drive_temario',
-            'Itinerario' => 'itinerario',
-            'DriveItinerario' => 'drive_itinerario',
-            'Planeación' => 'planeacion',
-            'DrivePlaneación' => 'drive_planeacion',
-            'Digital' => 'digital',
-            'DriveDigital' => 'drive_digital',
-            'Impreso_Presentable' => 'impreso_presentable',
-            'Presentación' => 'presentacion',
-            'DrivePresentacion' => 'drive_presentacion',
-            'Evaluación_diagnostica' => 'evaluacion_diagnostica',
-            'EvaluaciondeSatisfacción' => 'evaluacion_satisfaccion',
-            'EvaluacionFinal' => 'evaluacion_final',
-            'DC3' => 'dc3',
-            'FechadeRegistro_STPS' => 'fecha_registro_stps',
-            'Formato_DC5' => 'formato_dc5',
-            'Formato_DC5_Tienefirma' => 'formato_dc5_tiene_firma',
-            'Certificadodecomprobacion' => 'certificado_comprobacion',
-            'DrivedeCertificadodecomprobacion' => 'drive_certificado_comprobacion',
-            'Cartapoder_tienefirma' => 'carta_poder_tiene_firma',
-            'DriveCartapoder' => 'drive_carta_poder',
-            'UDEMY' => 'udemy'
-        ];
+        if ($paso == 2) {
+            $request->validate([
+                'modalidad' => 'required|in:virtual,presencial,mixto',
+                'sin_fecha' => 'nullable|boolean'
+            ]);
+            
+            $curso->update([
+                'modalidad' => $request->modalidad,
+                'sin_fecha' => $request->sin_fecha ?? false,
+            ]);
 
-        $data = [];
-        foreach ($request->all() as $key => $value) {
-            if (isset($map[$key])) {
-                $finalValue = $value;
-                
-                if (in_array($map[$key], ['virtual', 'presencial', 'mixto', 'formato_dc5_tiene_firma', 'carta_poder_tiene_firma'])) {
-                    $finalValue = (int) $value;
+            if ($request->sin_fecha) {
+                $curso->update(['fecha_inicio' => null, 'fecha_termino' => null]);
+            }
+
+            CursoModalidad::updateOrCreate(
+                ['curso_id' => $curso->id, 'modalidad' => $request->modalidad],
+                ['curso_id' => $curso->id, 'modalidad' => $request->modalidad]
+            );
+        }
+
+        if ($paso == 3) {
+            $recursosMap = [
+                'sin_fecha' => ['url' => $request->SinFecha, 'drive_url' => $request->DriveSinFecha],
+                'facebook' => ['url' => $request->Facebook, 'drive_url' => $request->DriveFacebook],
+                'linkedin' => ['url' => $request->Linkedin, 'drive_url' => $request->DriveLinkedin],
+                'instagram' => ['url' => $request->Instagram, 'drive_url' => $request->DriveInstagram],
+            ];
+
+            foreach ($recursosMap as $tipo => $data) {
+                if (!empty($data['url']) || !empty($data['drive_url'])) {
+                    CursoRecurso::updateOrCreate(
+                        ['curso_id' => $curso->id, 'tipo_recurso' => $tipo],
+                        $data
+                    );
+                } else {
+                    $curso->recursos()->where('tipo_recurso', $tipo)->delete();
                 }
-                elseif ($map[$key] === 'udemy') {
-                    $finalValue = ($value === 'Prellenado' || $value == 1);
+            }
+
+            $this->guardarArchivosCurso($curso, $request, [
+                'archivoSinFecha' => 'sin_fecha_archivo',
+                'archivoFacebook' => 'facebook_archivo',
+                'archivoLinkedIn' => 'linkedin_archivo',
+                'archivoInstagram' => 'instagram_archivo',
+            ]);
+        }
+
+        if ($paso == 4) {
+            $recursosMap = [
+                'temario' => ['url' => $request->Temario, 'drive_url' => $request->DriveTemario],
+                'itinerario' => ['url' => $request->Itinerario, 'drive_url' => $request->DriveItinerario],
+                'planeacion' => ['url' => $request->Planeacion, 'drive_url' => $request->DrivePlaneacion],
+            ];
+
+            foreach ($recursosMap as $tipo => $data) {
+                if (!empty($data['url']) || !empty($data['drive_url'])) {
+                    CursoRecurso::updateOrCreate(
+                        ['curso_id' => $curso->id, 'tipo_recurso' => $tipo],
+                        $data
+                    );
+                } else {
+                    $curso->recursos()->where('tipo_recurso', $tipo)->delete();
                 }
-                elseif (in_array($map[$key], ['digital', 'impreso_presentable'])) {
-                    if (str_contains($value, '%')) {
-                        $finalValue = ($value === '100%');
-                    } else {
-                        $finalValue = ($value == 100 || !empty($value));
-                    }
+            }
+
+            $this->guardarArchivosCurso($curso, $request, [
+                'archivoTemario' => 'temario_archivo',
+                'archivoItinerario' => 'itinerario_archivo',
+                'archivoPlaneacion' => 'planeacion_archivo',
+            ]);
+        }
+
+        if ($paso == 5) {
+            $recursosMap = [
+                'digital' => ['url' => $request->Digital, 'drive_url' => $request->DriveDigital],
+                'presentacion' => ['url' => $request->Presentacion, 'drive_url' => $request->DrivePresentacion],
+                'impreso' => ['url' => $request->Impreso_Presentable, 'drive_url' => $request->DriveImpreso],
+            ];
+
+            foreach ($recursosMap as $tipo => $data) {
+                if (!empty($data['url']) || !empty($data['drive_url'])) {
+                    CursoRecurso::updateOrCreate(
+                        ['curso_id' => $curso->id, 'tipo_recurso' => $tipo],
+                        $data
+                    );
+                } else {
+                    $curso->recursos()->where('tipo_recurso', $tipo)->delete();
                 }
-                $data[$map[$key]] = $finalValue;
+            }
+
+            $this->guardarArchivosCurso($curso, $request, [
+                'archivoDigital' => 'digital_archivo',
+                'archivoPresentacion' => 'presentacion_archivo',
+                'archivoImpreso' => 'impreso_archivo',
+            ]);
+        }
+
+        if ($paso == 6) {
+    // ============================================
+    // 1. GUARDAR PRESENTACIÓN
+    // ============================================
+    if (!empty($request->Presentacion) || !empty($request->DrivePresentacion)) {
+        CursoRecurso::updateOrCreate(
+            ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion'],
+            [
+                'url' => $request->Presentacion ?? null,
+                'drive_url' => $request->DrivePresentacion ?? null
+            ]
+        );
+    } else {
+        $curso->recursos()->where('tipo_recurso', 'presentacion')->delete();
+    }
+
+    // ============================================
+    // 2. GUARDAR EVALUACIONES - FORZADO
+    // ============================================
+    // Eliminar evaluaciones existentes primero
+    $curso->evaluaciones()->whereIn('tipo_evaluacion', ['diagnostica', 'satisfaccion', 'final'])->delete();
+    
+    // Guardar nuevas evaluaciones
+    $evaluacionesMap = [
+        'diagnostica' => $request->EvaluacionDiagnostica ?? null,
+        'satisfaccion' => $request->EvaluacionSatisfaccion ?? null,
+        'final' => $request->EvaluacionFinal ?? null,
+    ];
+
+    foreach ($evaluacionesMap as $tipo => $url) {
+        if (!empty($url)) {
+            CursoEvaluacion::create([
+                'curso_id' => $curso->id,
+                'tipo_evaluacion' => $tipo,
+                'url' => $url
+            ]);
+        }
+    }
+
+    // ============================================
+    // 3. GUARDAR DC3
+    // ============================================
+    if (!empty($request->DC3)) {
+        $curso->certificaciones()->where('tipo_certificacion', 'dc3')->delete();
+        CursoCertificacion::create([
+            'curso_id' => $curso->id,
+            'tipo_certificacion' => 'dc3',
+            'nombre' => $request->DC3
+        ]);
+    }
+
+    // ============================================
+    // 4. VERIFICAR QUÉ SE GUARDÓ
+    // ============================================
+    $evaluacionesGuardadas = $curso->evaluaciones()->get();
+    dd('EVALUACIONES GUARDADAS:', $evaluacionesGuardadas->toArray());
+    // ============================================
+}
+
+        if ($paso == 7) {
+            $dc5Firma = ($request->FormatoDC5TieneFirma ?? 'No') === 'Si';
+            $cartaFirma = ($request->CartaPoderTieneFirma ?? 'No') === 'Si';
+            $udemyBool = ($request->UDEMY ?? 'No se ha prellenado') === 'Prellenado';
+
+            // Guardar FECHA en curso_certificaciones
+            if (!empty($request->FechaRegistroSTPS)) {
+                CursoCertificacion::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_certificacion' => 'fecha_registro'],
+                    ['fecha_registro' => $request->FechaRegistroSTPS]
+                );
+            } else {
+                $curso->certificaciones()->where('tipo_certificacion', 'fecha_registro')->delete();
+            }
+
+            $certificacionesMap = [
+                'dc5' => ['nombre' => $request->FormatoDC5, 'tiene_firma' => $dc5Firma],
+                'certificado_comprobacion' => [
+                    'nombre' => $request->CertificadoComprobacion,
+                    'drive_url' => $request->DriveCertificadoComprobacion
+                ],
+                'carta_poder' => [
+                    'drive_url' => $request->DriveCartaPoder,
+                    'tiene_firma' => $cartaFirma
+                ],
+            ];
+
+            foreach ($certificacionesMap as $tipo => $data) {
+                if (!empty($data['nombre']) || !empty($data['drive_url']) || isset($data['tiene_firma'])) {
+                    CursoCertificacion::updateOrCreate(
+                        ['curso_id' => $curso->id, 'tipo_certificacion' => $tipo],
+                        $data
+                    );
+                } else {
+                    $curso->certificaciones()->where('tipo_certificacion', $tipo)->delete();
+                }
+            }
+
+            $this->guardarArchivosCurso($curso, $request, [
+                'archivoDC5' => 'dc5_archivo',
+                'archivoCertificado' => 'certificado_archivo',
+                'archivoCartaPoder' => 'carta_poder_archivo',
+            ]);
+
+            if ($udemyBool) {
+                CursoRecurso::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_recurso' => 'udemy'],
+                    ['url' => 'https://www.udemy.com/']
+                );
+            } else {
+                $curso->recursos()->where('tipo_recurso', 'udemy')->delete();
             }
         }
-
-        // Archivos
-        $archivosMap = [
-            // Paso 3
-            'archivoSinFecha' => 'ruta_sin_fecha',
-            'archivoFacebook' => 'ruta_facebook',
-            'archivoLinkedIn' => 'ruta_linkedin',
-            'archivoInstagram' => 'ruta_instagram',
-            // Paso 4
-            'archivoTemario' => 'ruta_temario',
-            'archivoItinerario' => 'ruta_itinerario',
-            'archivoPlaneacion' => 'ruta_planeacion',
-            // Paso 5
-            'archivoDigital' => 'ruta_digital',
-            'archivoImpresoPresentable' => 'ruta_impreso_presentable',
-            // Paso 6
-            'archivoPresentacion' => 'ruta_presentacion',
-            'archivoEvaluacionDiagnostica' => 'ruta_evaluacion_diagnostica',
-            'archivoEvaluacionSatisfaccion' => 'ruta_evaluacion_satisfaccion',
-            'archivoEvaluacionFinal' => 'ruta_evaluacion_final',
-            // Paso 7
-            'archivoFormatoDC5' => 'ruta_formato_dc5',
-            'archivoCertificadoComprobacion' => 'ruta_certificado_comprobacion',
-            'archivoCartaPoder' => 'ruta_carta_poder',
-            'archivoUdemy' => 'ruta_udemy',
-        ];
-
-        foreach ($archivosMap as $inputName => $campoBD) {
-            if ($request->hasFile($inputName) && $request->file($inputName)->isValid()) {
-                $file = $request->file($inputName);
-                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('public/cursos/' . $curso->id, $fileName);
-                $rutaPublica = str_replace('public/', 'storage/', $path);
-                $data[$campoBD] = $rutaPublica;
-            }
-        }
-
-        $curso->update($data);
 
         return redirect()->route('cursos.edit', $curso->id)->with('success', "Paso $paso actualizado.");
     }
 
-    /**
-     * Calcular el progreso de cada paso
-     */
+    // ============================================
+    // PROGRESO
+    // ============================================
     private function calcularProgresoPaso(Cursos $curso): array
     {
         $progreso = [];
         
         $pasosCampos = [
             1 => ['nomenclatura', 'nombre', 'descripcion', 'costo', 'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion'],
-            2 => ['virtual', 'presencial', 'mixto'],
-            3 => ['sin_fecha', 'facebook', 'drive_facebook', 'linkedin', 'drive_linkedin', 'instagram', 'drive_instagram', 'ruta_sin_fecha', 'ruta_facebook', 'ruta_linkedin', 'ruta_instagram'],
-            4 => ['temario', 'drive_temario', 'itinerario', 'drive_itinerario', 'planeacion', 'drive_planeacion', 'ruta_temario', 'ruta_itinerario', 'ruta_planeacion'],
-            5 => ['digital', 'drive_digital', 'impreso_presentable', 'ruta_digital', 'ruta_impreso_presentable'],
-            6 => ['presentacion', 'drive_presentacion', 'evaluacion_diagnostica', 'evaluacion_satisfaccion', 'evaluacion_final', 'dc3', 'ruta_presentacion', 'ruta_evaluacion_diagnostica', 'ruta_evaluacion_satisfaccion', 'ruta_evaluacion_final'],
-            7 => ['fecha_registro_stps', 'formato_dc5', 'formato_dc5_tiene_firma', 'certificado_comprobacion', 'drive_certificado_comprobacion', 'carta_poder_tiene_firma', 'drive_carta_poder', 'udemy', 'ruta_formato_dc5', 'ruta_certificado_comprobacion', 'ruta_carta_poder', 'ruta_udemy'],
+            2 => ['modalidad'],
+            3 => ['recursos' => ['sin_fecha', 'facebook', 'linkedin', 'instagram']],
+            4 => ['recursos' => ['temario', 'itinerario', 'planeacion']],
+            5 => ['recursos' => ['digital', 'presentacion', 'impreso']],
+            6 => ['evaluaciones' => ['diagnostica', 'satisfaccion', 'final'], 'recursos' => ['presentacion'], 'certificaciones' => ['dc3']],
+            7 => ['certificaciones' => ['fecha_registro', 'dc5', 'certificado_comprobacion', 'carta_poder'], 'recursos' => ['udemy']],
         ];
 
         foreach ($pasosCampos as $paso => $campos) {
             $llenos = 0;
-            $totalCampos = count($campos);
+            $total = 0;
 
-            foreach ($campos as $campo) {
-                $valor = $curso->$campo;
-                
-                if (in_array($campo, ['virtual', 'presencial', 'mixto', 'digital', 'impreso_presentable', 'udemy', 'formato_dc5_tiene_firma', 'carta_poder_tiene_firma', 'sin_fecha'])) {
-                    if ($valor == 1 || $valor === true || $valor === '1') {
-                        $llenos++;
-                    }
-                } 
-                elseif (in_array($campo, ['fecha_inicio', 'fecha_termino', 'fecha_registro_stps'])) {
-                    if (!empty($valor) && $valor !== '0000-00-00' && $valor !== null) {
-                        $llenos++;
-                    }
-                }
-                else {
-                    if (!empty($valor) && $valor !== '' && $valor !== null && $valor !== '0') {
-                        if (is_string($valor) && str_contains($valor, '%')) {
-                            $numVal = (int) str_replace('%', '', $valor);
-                            if ($numVal === 100) {
-                                $llenos++;
-                            }
-                        } else {
+            foreach ($campos as $key => $campo) {
+                if (is_array($campo)) {
+                    foreach ($campo as $subCampo) {
+                        $total++;
+                        if ($this->campoEstaLleno($curso, $key, $subCampo)) {
                             $llenos++;
                         }
                     }
-                }
-            }
-
-            if ($paso == 2) {
-                if ($curso->virtual == 1 || $curso->presencial == 1 || $curso->mixto == 1) {
-                    $llenos = $totalCampos;
                 } else {
-                    $llenos = 0;
+                    $total++;
+                    if ($this->campoDirectoLleno($curso, $campo)) {
+                        $llenos++;
+                    }
                 }
             }
 
-            $porcentaje = ($totalCampos > 0) ? round(($llenos / $totalCampos) * 100) : 0;
+            if ($paso == 2 && !empty($curso->modalidad)) {
+                $llenos = $total;
+            }
+
+            $porcentaje = ($total > 0) ? round(($llenos / $total) * 100) : 0;
             
-            // Colores GRIS con textos descriptivos
             if ($porcentaje == 100) {
-                $progreso[$paso] = ['class' => 'btn-secondary', 'texto' => 'Completado'];
+                $progreso[$paso] = ['class' => 'btn-success', 'texto' => 'Completado'];
             } elseif ($porcentaje >= 30) {
-                $progreso[$paso] = ['class' => 'btn-secondary', 'texto' => 'En progreso'];
+                $progreso[$paso] = ['class' => 'btn-warning', 'texto' => 'En progreso'];
             } else {
-                $progreso[$paso] = ['class' => 'btn-secondary', 'texto' => 'Incompleto'];
+                $progreso[$paso] = ['class' => 'btn-danger', 'texto' => 'Incompleto'];
             }
         }
         
         return $progreso;
     }
 
+    private function campoDirectoLleno($curso, $campo)
+    {
+        $valor = $curso->$campo;
+        
+        if (in_array($campo, ['sin_fecha'])) {
+            return $valor == 1 || $valor === true;
+        }
+        if (in_array($campo, ['fecha_inicio', 'fecha_termino'])) {
+            return !empty($valor) && $valor !== '0000-00-00';
+        }
+        if ($campo === 'modalidad') {
+            return !empty($valor);
+        }
+        return !empty($valor) && $valor !== '' && $valor !== null && $valor !== '0';
+    }
+
+    private function campoEstaLleno($curso, $tipo, $subCampo)
+    {
+        if ($tipo === 'recursos') {
+            $recurso = $curso->recursos()->where('tipo_recurso', $subCampo)->first();
+            return $recurso && (!empty($recurso->url) || !empty($recurso->drive_url));
+        }
+        if ($tipo === 'evaluaciones') {
+            $evaluacion = $curso->evaluaciones()->where('tipo_evaluacion', $subCampo)->first();
+            return $evaluacion && !empty($evaluacion->url);
+        }
+        if ($tipo === 'certificaciones') {
+            $certificacion = $curso->certificaciones()->where('tipo_certificacion', $subCampo)->first();
+            if ($subCampo === 'dc3') {
+                return $certificacion && !empty($certificacion->nombre);
+            }
+            return $certificacion && (!empty($certificacion->nombre) || !empty($certificacion->drive_url) || !empty($certificacion->fecha_registro));
+        }
+        return false;
+    }
+
+    // ============================================
+    // OTROS MÉTODOS
+    // ============================================
     public function finalizacionForzada(Request $request)
     {
         $curso = Cursos::find(session('curso_id'));
@@ -688,9 +1185,28 @@ class CursoController extends Controller
         return response()->json(['success' => false], 404);
     }
 
-    public function getFechaInicio($id) { return response()->json(['fecha_inicio' => Cursos::findOrFail($id)->fecha_inicio]); }
-    public function exportarExcel() { return Excel::download(new CursosExport(Cursos::where('status', 1)->get()), 'cursos.xlsx'); }
-    public function exportarCsv() { return Excel::download(new CursosExport(Cursos::where('status', 1)->get()), 'cursos.csv'); }
-    public function rutas() { return view('cursos.ruta'); }
-    public function prepararRutaSubcurso() { return back()->with('error', 'Función no disponible en el hosting actual.'); }
+    public function getFechaInicio($id) 
+    { 
+        return response()->json(['fecha_inicio' => Cursos::findOrFail($id)->fecha_inicio]); 
+    }
+    
+    public function exportarExcel() 
+    { 
+        return Excel::download(new CursosExport(Cursos::where('status', 1)->get()), 'cursos.xlsx'); 
+    }
+    
+    public function exportarCsv() 
+    { 
+        return Excel::download(new CursosExport(Cursos::where('status', 1)->get()), 'cursos.csv'); 
+    }
+    
+    public function rutas() 
+    { 
+        return view('cursos.ruta'); 
+    }
+    
+    public function prepararRutaSubcurso() 
+    { 
+        return back()->with('error', 'Función no disponible en el hosting actual.'); 
+    }
 }

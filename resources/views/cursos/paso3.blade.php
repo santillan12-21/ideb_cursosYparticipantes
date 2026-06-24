@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+
 <style>
+
     .step-container {
         padding: 50px 0;
         background-color: #f4f7f6;
@@ -32,29 +34,7 @@
         padding: 25px;
         margin-bottom: 30px;
         border: 1px solid #e9ecef;
-        transition: all 0.3s ease;
-        position: relative;
     }
-    .form-section-card.completo {
-        border-left: 4px solid #28a745;
-        background: #f0fff4;
-    }
-    .form-section-card.incompleto {
-        border-left: 4px solid #ffc107;
-        background: #fffef0;
-    }
-    .form-section-card.vacio {
-        border-left: 4px solid #dc3545;
-        background: #fff5f5;
-        animation: pulse-section 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse-section {
-        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.1); }
-        50% { box-shadow: 0 0 20px 5px rgba(220, 53, 69, 0.1); }
-        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.1); }
-    }
-    
     .form-label {
         font-weight: 700;
         color: #495057;
@@ -79,33 +59,48 @@
         box-shadow: none;
         border-color: #dee2e6;
     }
-    
+
     /* ============================================
-       ESTILOS PARA VALIDACIÓN DE CAMPOS
+       ESTILOS PARA PORCENTAJE (VERDE/AMARILLO/ROJO)
        ============================================ */
-    
-    .form-control.validado-completo {
+    .form-control.porcentaje-completo {
         border-color: #28a745 !important;
         background-color: #f0fff4 !important;
         border-left: 4px solid #28a745 !important;
-        box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.1);
     }
-    
-    .form-control.validado-incompleto {
+    .form-control.porcentaje-incompleto {
         border-color: #ffc107 !important;
         background-color: #fffef0 !important;
         border-left: 4px solid #ffc107 !important;
-        box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.1);
     }
-    
-    .form-control.validado-vacio {
+    .form-control.porcentaje-vacio {
         border-color: #dc3545 !important;
         background-color: #fff5f5 !important;
         border-left: 4px solid #dc3545 !important;
-        box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.1);
         animation: pulse-red 2s ease-in-out infinite;
     }
-    
+
+    /* ============================================
+       ESTILOS PARA DRIVE (VERDE/ROJO)
+       ============================================ */
+    .form-control.drive-completo {
+        border-color: #28a745 !important;
+        background-color: #f0fff4 !important;
+        border-left: 4px solid #28a745 !important;
+    }
+    .form-control.drive-vacio {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        border-left: 4px solid #dc3545 !important;
+        animation: pulse-red 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+        50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
+        100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
+    }
+
     .estado-indicador {
         display: inline-block;
         width: 14px;
@@ -115,53 +110,67 @@
         flex-shrink: 0;
         border: 2px solid #e9ecef;
     }
-    
     .estado-indicador.estado-verde {
         background-color: #28a745;
         border-color: #28a745;
         box-shadow: 0 0 12px rgba(40, 167, 69, 0.4);
     }
-    
     .estado-indicador.estado-amarillo {
         background-color: #ffc107;
         border-color: #ffc107;
         box-shadow: 0 0 12px rgba(255, 193, 7, 0.4);
     }
-    
     .estado-indicador.estado-rojo {
         background-color: #dc3545;
         border-color: #dc3545;
         box-shadow: 0 0 12px rgba(220, 53, 69, 0.4);
         animation: pulse-red 2s ease-in-out infinite;
     }
-    
-    @keyframes pulse-red {
-        0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
-        50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
-        100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
-    }
-    
-    #estadoBadge {
-        display: inline-flex;
+
+    /* ============================================
+       DOCUMENTOS SUBIDOS
+       ============================================ */
+    .documento-preview {
+        display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 20px;
-        border-radius: 50px;
+        gap: 12px;
+        padding: 8px 15px;
+        background: #e9ecef;
+        border-radius: 6px;
+        margin-top: 8px;
+        font-size: 0.9rem;
+    }
+    .documento-preview i {
+        font-size: 1.3rem;
+        color: #0d6efd;
+    }
+    .documento-preview .doc-nombre {
+        flex: 1;
+        font-weight: 500;
+        color: #212529;
+        word-break: break-all;
+    }
+    .documento-preview .doc-acciones {
+        display: flex;
+        gap: 8px;
+    }
+    .documento-preview .doc-acciones a {
+        text-decoration: none;
         font-size: 0.85rem;
-        font-weight: 600;
-        transition: all 0.5s ease;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
+        padding: 4px 12px;
+        border-radius: 4px;
     }
-    
-    #estadoBadge .estado-indicador {
-        width: 16px;
-        height: 16px;
-        border: none;
+    .btn-ver-doc {
+        background: #0d6efd;
+        color: white !important;
     }
-    
+    .btn-ver-doc:hover {
+        background: #0b5ed7;
+    }
+
+    /* ============================================
+       BOTONES
+       ============================================ */
     .botones-container {
         display: flex;
         justify-content: center;
@@ -169,7 +178,6 @@
         margin-top: 20px;
         flex-wrap: wrap;
     }
-    
     .btn-custom {
         border-radius: 6px;
         padding: 12px 35px;
@@ -179,7 +187,6 @@
         font-size: 0.85rem;
         transition: all 0.3s ease;
     }
-    
     .btn-guardar-verde {
         background-color: #28a745 !important;
         border: 2px solid #28a745 !important;
@@ -195,7 +202,20 @@
     .btn-guardar-verde i {
         color: #ffffff !important;
     }
-    
+
+    .platform-title {
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #333;
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
     .contador-campos {
         text-align: center;
         margin-top: 15px;
@@ -211,18 +231,25 @@
     .contador-campos .completos { color: #28a745; }
     .contador-campos .incompletos { color: #ffc107; }
     .contador-campos .vacios { color: #dc3545; }
-    
-    .platform-title {
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #333;
-        border-bottom: 2px solid #333;
-        padding-bottom: 5px;
-        margin-bottom: 20px;
-        font-size: 0.9rem;
-        display: flex;
+
+    #estadoBadge {
+        display: inline-flex;
         align-items: center;
         gap: 10px;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.5s ease;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+    }
+    #estadoBadge .estado-indicador {
+        width: 16px;
+        height: 16px;
+        border: none;
     }
 </style>
 
@@ -234,7 +261,7 @@
                     <div class="step-header">
                         <h2>Paso 3: Formato de Flyer / Imagen</h2>
                         <p class="mb-0 mt-2 opacity-75">Material gráfico y redes sociales</p>
-                        
+
                         <div id="estadoGeneral" class="mt-3">
                             <span id="estadoBadge">
                                 <span class="estado-indicador" id="indicadorGeneral"></span>
@@ -246,9 +273,11 @@
                     <div class="card-body p-4 p-md-5">
                         <form action="{{ route('curso.paso3.guardar') }}" method="POST" enctype="multipart/form-data" id="formularioCurso">
                             @csrf
-                            
-                            <!-- Sin Fecha -->
-                            <div class="form-section-card shadow-sm" id="seccion-SinFecha">
+
+                            <!-- ==========================================
+                            SIN FECHA
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
                                 <div class="platform-title"><i class="fas fa-calendar-times"></i> Sin Fecha</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -260,7 +289,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="SinFecha" id="SinFecha" 
                                                 class="form-control" 
-                                                value="{{ old('SinFecha') }}" 
+                                                value="{{ old('SinFecha', $recursos['sin_fecha']->url ?? '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -268,35 +297,41 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="DriveSinFecha" class="form-label">
-                                            URL Drive (opcional)
+                                            URL Drive
                                             <span class="estado-indicador" id="estado-DriveSinFecha"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveSinFecha" id="DriveSinFecha" 
                                                 class="form-control" 
-                                                value="{{ old('DriveSinFecha') }}" 
+                                                value="{{ old('DriveSinFecha', $recursos['sin_fecha']->drive_url ?? '') }}" 
                                                 placeholder="https://drive.google.com/..."
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label">Archivo Local (opcional)</label>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
-                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
-                                            </button>
-                                            <div id="archivoSinFechaContainer" style="display: none; flex-grow: 1;">
-                                                <input type="file" name="archivoSinFecha" class="form-control" onchange="validarArchivo(this, 'SinFecha')">
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoSinFecha" class="form-control">
+                                        @if(isset($recursos['sin_fecha_archivo']) && $recursos['sin_fecha_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-pdf"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['sin_fecha_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset('storage/' . $recursos['sin_fecha_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Facebook -->
-                            <div class="form-section-card shadow-sm" id="seccion-Facebook">
+                            <!-- ==========================================
+                            FACEBOOK
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
                                 <div class="platform-title"><i class="fab fa-facebook"></i> Facebook</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -308,7 +343,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Facebook" id="Facebook" 
                                                 class="form-control" 
-                                                value="{{ old('Facebook') }}" 
+                                                value="{{ old('Facebook', $recursos['facebook']->url ?? '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -316,35 +351,41 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="DriveFacebook" class="form-label">
-                                            URL Drive (opcional)
+                                            URL Drive
                                             <span class="estado-indicador" id="estado-DriveFacebook"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveFacebook" id="DriveFacebook" 
                                                 class="form-control" 
-                                                value="{{ old('DriveFacebook') }}" 
+                                                value="{{ old('DriveFacebook', $recursos['facebook']->drive_url ?? '') }}" 
                                                 placeholder="https://drive.google.com/..."
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label">Archivo Local (opcional)</label>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
-                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
-                                            </button>
-                                            <div id="archivoFacebookContainer" style="display: none; flex-grow: 1;">
-                                                <input type="file" name="archivoFacebook" class="form-control" onchange="validarArchivo(this, 'Facebook')">
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoFacebook" class="form-control">
+                                        @if(isset($recursos['facebook_archivo']) && $recursos['facebook_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-image"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['facebook_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset('storage/' . $recursos['facebook_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- LinkedIn -->
-                            <div class="form-section-card shadow-sm" id="seccion-LinkedIn">
+                            <!-- ==========================================
+                            LINKEDIN
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
                                 <div class="platform-title"><i class="fab fa-linkedin"></i> LinkedIn</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -356,7 +397,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Linkedin" id="Linkedin" 
                                                 class="form-control" 
-                                                value="{{ old('Linkedin') }}" 
+                                                value="{{ old('Linkedin', $recursos['linkedin']->url ?? '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -364,35 +405,41 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="DriveLinkedin" class="form-label">
-                                            URL Drive (opcional)
+                                            URL Drive
                                             <span class="estado-indicador" id="estado-DriveLinkedin"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveLinkedin" id="DriveLinkedin" 
                                                 class="form-control" 
-                                                value="{{ old('DriveLinkedin') }}" 
+                                                value="{{ old('DriveLinkedin', $recursos['linkedin']->drive_url ?? '') }}" 
                                                 placeholder="https://drive.google.com/..."
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label">Archivo Local (opcional)</label>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
-                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
-                                            </button>
-                                            <div id="archivoLinkedInContainer" style="display: none; flex-grow: 1;">
-                                                <input type="file" name="archivoLinkedIn" class="form-control" onchange="validarArchivo(this, 'LinkedIn')">
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoLinkedIn" class="form-control">
+                                        @if(isset($recursos['linkedin_archivo']) && $recursos['linkedin_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-pdf"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['linkedin_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset('storage/' . $recursos['linkedin_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Instagram -->
-                            <div class="form-section-card shadow-sm" id="seccion-Instagram">
+                            <!-- ==========================================
+                            INSTAGRAM
+                            ========================================== -->
+                            <div class="form-section-card shadow-sm">
                                 <div class="platform-title"><i class="fab fa-instagram"></i> Instagram</div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -404,7 +451,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Instagram" id="Instagram" 
                                                 class="form-control" 
-                                                value="{{ old('Instagram') }}" 
+                                                value="{{ old('Instagram', $recursos['instagram']->url ?? '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -412,29 +459,33 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="DriveInstagram" class="form-label">
-                                            URL Drive (opcional)
+                                            URL Drive
                                             <span class="estado-indicador" id="estado-DriveInstagram"></span>
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveInstagram" id="DriveInstagram" 
                                                 class="form-control" 
-                                                value="{{ old('DriveInstagram') }}" 
+                                                value="{{ old('DriveInstagram', $recursos['instagram']->drive_url ?? '') }}" 
                                                 placeholder="https://drive.google.com/..."
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
+                                                oninput="validarDrive(this)"
+                                                onchange="validarDrive(this)">
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label">Archivo Local (opcional)</label>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <button type="button" class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="crearCarpetasLocales()">
-                                                <i class="fas fa-folder-plus me-1"></i> Crear carpeta local
-                                            </button>
-                                            <div id="archivoInstagramContainer" style="display: none; flex-grow: 1;">
-                                                <input type="file" name="archivoInstagram" class="form-control" onchange="validarArchivo(this, 'Instagram')">
+                                        <label class="form-label">Archivo Local</label>
+                                        <input type="file" name="archivoInstagram" class="form-control">
+                                        @if(isset($recursos['instagram_archivo']) && $recursos['instagram_archivo'])
+                                            <div class="documento-preview">
+                                                <i class="fas fa-file-image"></i>
+                                                <span class="doc-nombre">{{ basename($recursos['instagram_archivo']->url) }}</span>
+                                                <div class="doc-acciones">
+                                                    <a href="{{ asset('storage/' . $recursos['instagram_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -455,9 +506,6 @@
                                 <a href="{{ route('curso.cancelar') }}" class="btn btn-danger btn-custom shadow-sm" onclick="return confirm('¿Estás seguro de que deseas cancelar la creación? Se perderán los datos ingresados.')">
                                     <i class="fas fa-times me-2"></i> Cancelar
                                 </a>
-                                <button type="button" class="btn btn-warning btn-custom shadow-sm" id="finalizarForzadoBtn">
-                                    <i class="fas fa-exclamation-triangle me-2"></i> Finalización Forzada
-                                </button>
                             </div>
                         </form>
                     </div>
@@ -467,20 +515,14 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const campos = document.querySelectorAll('#formularioCurso .form-control');
-    
-    campos.forEach(campo => {
-        if (campo.id.includes('SinFecha') || campo.id.includes('Facebook') || 
-            campo.id.includes('Linkedin') || campo.id.includes('Instagram')) {
-            validarPorcentaje(campo);
-        } else {
-            validarCampo(campo);
-        }
+    document.querySelectorAll('#SinFecha, #Facebook, #Linkedin, #Instagram').forEach(campo => {
+        validarPorcentaje(campo);
     });
-    
+    document.querySelectorAll('#DriveSinFecha, #DriveFacebook, #DriveLinkedin, #DriveInstagram').forEach(campo => {
+        validarDrive(campo);
+    });
     actualizarContadores();
     actualizarEstadoGeneral();
 });
@@ -489,102 +531,45 @@ function validarPorcentaje(campo) {
     const valor = campo.value.trim();
     const indicador = document.getElementById('estado-' + campo.id);
     
-    campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
+    campo.classList.remove('porcentaje-completo', 'porcentaje-incompleto', 'porcentaje-vacio');
     if (indicador) {
         indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
     }
     
     if (valor === '') {
-        campo.classList.add('validado-vacio');
-        if (indicador) {
-            indicador.classList.add('estado-rojo');
-            indicador.title = 'Campo vacío - Requiere 100%';
-        }
+        campo.classList.add('porcentaje-vacio');
+        if (indicador) indicador.classList.add('estado-rojo');
     } else if (valor === '100%' || valor === '100 %' || valor === '100') {
-        campo.classList.add('validado-completo');
-        if (indicador) {
-            indicador.classList.add('estado-verde');
-            indicador.title = '✅ 100% completo';
-        }
+        campo.classList.add('porcentaje-completo');
+        if (indicador) indicador.classList.add('estado-verde');
     } else {
-        campo.classList.add('validado-incompleto');
-        if (indicador) {
-            indicador.classList.add('estado-amarillo');
-            indicador.title = '⚠️ Debe ser 100%';
-        }
+        campo.classList.add('porcentaje-incompleto');
+        if (indicador) indicador.classList.add('estado-amarillo');
     }
     
-    actualizarSeccion(campo);
     actualizarContadores();
     actualizarEstadoGeneral();
 }
 
-function validarCampo(campo) {
+function validarDrive(campo) {
     const valor = campo.value.trim();
     const indicador = document.getElementById('estado-' + campo.id);
     
-    campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
+    campo.classList.remove('drive-completo', 'drive-vacio');
     if (indicador) {
-        indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
+        indicador.classList.remove('estado-verde', 'estado-rojo');
     }
     
     if (valor === '') {
-        campo.classList.add('validado-vacio');
+        campo.classList.add('drive-vacio');
         if (indicador) indicador.classList.add('estado-rojo');
-    } else if (valor.length < 3) {
-        campo.classList.add('validado-incompleto');
-        if (indicador) indicador.classList.add('estado-amarillo');
     } else {
-        campo.classList.add('validado-completo');
+        campo.classList.add('drive-completo');
         if (indicador) indicador.classList.add('estado-verde');
     }
     
-    actualizarSeccion(campo);
     actualizarContadores();
     actualizarEstadoGeneral();
-}
-
-function validarArchivo(input, seccion) {
-    // Solo para mostrar feedback visual en creación
-    const seccionCard = document.getElementById('seccion-' + seccion);
-    if (input.files && input.files.length > 0) {
-        seccionCard.style.borderLeftColor = '#28a745';
-    } else {
-        seccionCard.style.borderLeftColor = '';
-    }
-    actualizarSeccion(null);
-    actualizarContadores();
-    actualizarEstadoGeneral();
-}
-
-function actualizarSeccion(campo) {
-    const secciones = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
-    
-    secciones.forEach(seccion => {
-        const seccionCard = document.getElementById('seccion-' + seccion);
-        if (!seccionCard) return;
-        
-        const camposSeccion = seccionCard.querySelectorAll('.form-control');
-        let completos = 0, incompletos = 0, vacios = 0;
-        
-        camposSeccion.forEach(campo => {
-            if (campo.classList.contains('validado-completo')) completos++;
-            else if (campo.classList.contains('validado-incompleto')) incompletos++;
-            else if (campo.classList.contains('validado-vacio')) vacios++;
-        });
-        
-        seccionCard.classList.remove('completo', 'incompleto', 'vacio');
-        
-        if (vacios > 0 && completos === 0 && incompletos === 0) {
-            seccionCard.classList.add('vacio');
-        } else if (incompletos > 0) {
-            seccionCard.classList.add('incompleto');
-        } else if (completos > 0 && vacios === 0 && incompletos === 0) {
-            seccionCard.classList.add('completo');
-        } else if (completos > 0 && vacios > 0) {
-            seccionCard.classList.add('incompleto');
-        }
-    });
 }
 
 function actualizarContadores() {
@@ -592,9 +577,13 @@ function actualizarContadores() {
     let completos = 0, incompletos = 0, vacios = 0;
     
     campos.forEach(campo => {
-        if (campo.classList.contains('validado-completo')) completos++;
-        else if (campo.classList.contains('validado-incompleto')) incompletos++;
-        else if (campo.classList.contains('validado-vacio')) vacios++;
+        if (campo.classList.contains('porcentaje-completo') || campo.classList.contains('drive-completo')) {
+            completos++;
+        } else if (campo.classList.contains('porcentaje-incompleto')) {
+            incompletos++;
+        } else if (campo.classList.contains('porcentaje-vacio') || campo.classList.contains('drive-vacio')) {
+            vacios++;
+        }
     });
     
     document.getElementById('totalCompletos').textContent = completos;
@@ -608,9 +597,13 @@ function actualizarEstadoGeneral() {
     const total = campos.length;
     
     campos.forEach(campo => {
-        if (campo.classList.contains('validado-completo')) completos++;
-        else if (campo.classList.contains('validado-incompleto')) incompletos++;
-        else if (campo.classList.contains('validado-vacio')) vacios++;
+        if (campo.classList.contains('porcentaje-completo') || campo.classList.contains('drive-completo')) {
+            completos++;
+        } else if (campo.classList.contains('porcentaje-incompleto')) {
+            incompletos++;
+        } else if (campo.classList.contains('porcentaje-vacio') || campo.classList.contains('drive-vacio')) {
+            vacios++;
+        }
     });
     
     const indicadorGeneral = document.getElementById('indicadorGeneral');
@@ -630,49 +623,5 @@ function actualizarEstadoGeneral() {
         textoEstado.textContent = 'Verificando campos...';
     }
 }
-
-function crearCarpetasLocales() {
-    const tipos = ['SinFecha', 'Facebook', 'LinkedIn', 'Instagram'];
-    tipos.forEach(tipo => {
-        const container = document.getElementById('archivo' + tipo + 'Container');
-        if (container) {
-            container.style.display = 'block';
-        }
-    });
-}
-
-document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esto guardará el curso como incompleto y no podrás continuar editándolo.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, finalizar ahora',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const formData = new FormData(document.querySelector('form'));
-            fetch('{{ route("curso.finalizacionForzada") }}', {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Curso guardado',
-                        text: 'El curso ha sido guardado como incompleto.'
-                    }).then(() => { window.location.href = "{{ route('cursos.index') }}"; });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-                }
-            });
-        }
-    });
-});
 </script>
 @endsection

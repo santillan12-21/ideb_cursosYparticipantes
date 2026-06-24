@@ -47,12 +47,12 @@
         color: #6c757d;
         border-right: none;
     }
-    .form-select, .form-control {
+    .form-select {
         border-left: none;
         padding: 10px 15px;
         transition: all 0.3s ease;
     }
-    .form-select:focus, .form-control:focus {
+    .form-select:focus {
         box-shadow: none;
         border-color: #dee2e6;
     }
@@ -190,60 +190,22 @@
                             <div class="form-section-card shadow-sm">
                                 <div class="row g-4">
                                     <div class="col-md-12">
-                                        <label for="Virtual" class="form-label">
-                                            ¿El curso es Virtual?
-                                            <span class="estado-indicador" id="estado-Virtual"></span>
+                                        <label for="modalidad" class="form-label">
+                                            Modalidad del Curso
+                                            <span class="estado-indicador" id="estado-modalidad"></span>
                                         </label>
                                         <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-laptop"></i></span>
-                                            <select name="Virtual" id="Virtual" 
-                                                class="form-select @error('Virtual') is-invalid @enderror" 
-                                                onchange="validarSelect(this)">
-                                                <option value="">Seleccione una opción</option>
-                                                <option value="1" {{ old('Virtual', $curso->virtual) == '1' ? 'selected' : '' }}>Sí</option>
-                                                <option value="0" {{ old('Virtual', $curso->virtual) == '0' ? 'selected' : '' }}>No</option>
+                                            <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
+                                            <select name="modalidad" id="modalidad" 
+                                                class="form-select @error('modalidad') is-invalid @enderror" 
+                                                onchange="validarSelect(this)"
+                                                required>
+                                                <option value="" disabled>Seleccione una modalidad</option>
+                                                <option value="virtual" {{ old('modalidad', $curso->modalidad) == 'virtual' ? 'selected' : '' }}>💻 Virtual</option>
+                                                <option value="presencial" {{ old('modalidad', $curso->modalidad) == 'presencial' ? 'selected' : '' }}>🏫 Presencial</option>
+                                                <option value="mixto" {{ old('modalidad', $curso->modalidad) == 'mixto' ? 'selected' : '' }}>🔄 Mixto</option>
                                             </select>
-                                            @error('Virtual')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12">
-                                        <label for="Presencial" class="form-label">
-                                            ¿El curso es Presencial?
-                                            <span class="estado-indicador" id="estado-Presencial"></span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-users"></i></span>
-                                            <select name="Presencial" id="Presencial" 
-                                                class="form-select @error('Presencial') is-invalid @enderror" 
-                                                onchange="validarSelect(this)">
-                                                <option value="">Seleccione una opción</option>
-                                                <option value="1" {{ old('Presencial', $curso->presencial) == '1' ? 'selected' : '' }}>Sí</option>
-                                                <option value="0" {{ old('Presencial', $curso->presencial) == '0' ? 'selected' : '' }}>No</option>
-                                            </select>
-                                            @error('Presencial')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12">
-                                        <label for="Mixto" class="form-label">
-                                            ¿El curso es Mixto?
-                                            <span class="estado-indicador" id="estado-Mixto"></span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-blender"></i></span>
-                                            <select name="Mixto" id="Mixto" 
-                                                class="form-select @error('Mixto') is-invalid @enderror" 
-                                                onchange="validarSelect(this)">
-                                                <option value="">Seleccione una opción</option>
-                                                <option value="1" {{ old('Mixto', $curso->mixto) == '1' ? 'selected' : '' }}>Sí</option>
-                                                <option value="0" {{ old('Mixto', $curso->mixto) == '0' ? 'selected' : '' }}>No</option>
-                                            </select>
-                                            @error('Mixto')
+                                            @error('modalidad')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
