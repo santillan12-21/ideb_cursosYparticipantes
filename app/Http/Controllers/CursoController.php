@@ -799,29 +799,18 @@ class CursoController extends Controller
                 return view('cursos.edit-paso5', compact('curso', 'recursos'));
                 
             case 6:
-    $recursosDb = $curso->recursos()->get()->keyBy('tipo_recurso');
-    $evaluacionesDb = $curso->evaluaciones()->get()->keyBy('tipo_evaluacion');
-    $certificacionesDb = $curso->certificaciones()->get()->keyBy('tipo_certificacion');
-    
-    $recursos['presentacion'] = $recursosDb->get('presentacion');
-    $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
-    
-    $evaluaciones['diagnostica'] = $evaluacionesDb->get('diagnostica');
-    $evaluaciones['satisfaccion'] = $evaluacionesDb->get('satisfaccion');
-    $evaluaciones['final'] = $evaluacionesDb->get('final');
-    
-    $recursos['dc3'] = $certificacionesDb->get('dc3');
-    
-    // ============================================
-    // DD PARA VER QUÉ SE RECUPERA
-    // ============================================
-    dd([
-        'evaluacionesDb' => $evaluacionesDb->toArray(),
-        'evaluaciones' => $evaluaciones
-    ]);
-    // ============================================
-    
-    return view('cursos.edit-paso6', compact('curso', 'recursos', 'evaluaciones'));
+                $recursos = [];
+                $evaluaciones = [];
+                
+                $recursos['presentacion'] = $curso->recursos()->where('tipo_recurso', 'presentacion')->first();
+                
+                $evaluaciones['diagnostica'] = $curso->evaluaciones()->where('tipo_evaluacion', 'diagnostica')->first();
+                $evaluaciones['satisfaccion'] = $curso->evaluaciones()->where('tipo_evaluacion', 'satisfaccion')->first();
+                $evaluaciones['final'] = $curso->evaluaciones()->where('tipo_evaluacion', 'final')->first();
+                
+                $recursos['dc3'] = $curso->certificaciones()->where('tipo_certificacion', 'dc3')->first();
+                
+                return view('cursos.edit-paso6', compact('curso', 'recursos', 'evaluaciones'));
 
             case 7:
                 $certificaciones['dc5'] = $certificacionesDb->get('dc5');
@@ -959,62 +948,52 @@ class CursoController extends Controller
 
         if ($paso == 6) {
     // ============================================
-    // 1. GUARDAR PRESENTACIÓN
+    // PASO 6 - GUARDADO SIMPLE
     // ============================================
-    if (!empty($request->Presentacion) || !empty($request->DrivePresentacion)) {
-        CursoRecurso::updateOrCreate(
-            ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion'],
-            [
-                'url' => $request->Presentacion ?? null,
-                'drive_url' => $request->DrivePresentacion ?? null
-            ]
-        );
-    } else {
-        $curso->recursos()->where('tipo_recurso', 'presentacion')->delete();
-    }
-
-    // ============================================
-    // 2. GUARDAR EVALUACIONES - FORZADO
-    // ============================================
-    // Eliminar evaluaciones existentes primero
-    $curso->evaluaciones()->whereIn('tipo_evaluacion', ['diagnostica', 'satisfaccion', 'final'])->delete();
     
-    // Guardar nuevas evaluaciones
-    $evaluacionesMap = [
-        'diagnostica' => $request->EvaluacionDiagnostica ?? null,
-        'satisfaccion' => $request->EvaluacionSatisfaccion ?? null,
-        'final' => $request->EvaluacionFinal ?? null,
-    ];
-
-    foreach ($evaluacionesMap as $tipo => $url) {
-        if (!empty($url)) {
-            CursoEvaluacion::create([
-                'curso_id' => $curso->id,
-                'tipo_evaluacion' => $tipo,
-                'url' => $url
-            ]);
-        }
-    }
-
-    // ============================================
-    // 3. GUARDAR DC3
-    // ============================================
-    if (!empty($request->DC3)) {
-        $curso->certificaciones()->where('tipo_certificacion', 'dc3')->delete();
-        CursoCertificacion::create([
-            'curso_id' => $curso->id,
-            'tipo_certificacion' => 'dc3',
-            'nombre' => $request->DC3
-        ]);
-    }
-
-    // ============================================
-    // 4. VERIFICAR QUÉ SE GUARDÓ
-    // ============================================
-    $evaluacionesGuardadas = $curso->evaluaciones()->get();
-    dd('EVALUACIONES GUARDADAS:', $evaluacionesGuardadas->toArray());
-    // ============================================
+    // Guardar Presentación (en curso_recursos)
+    CursoRecurso::updateOrCreate(
+        ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion'],
+        [
+            'url' => $request->Presentacion ?? null,
+            'drive_url' => $request->DrivePresentacion ?? null
+        ]
+    );
+    
+    // Guardar Evaluación Diagnóstica
+    CursoEvaluacion::updateOrCreate(
+        ['curso_id' => $curso->id, 'tipo_evaluacion' => 'diagnostica'],
+        [
+            'url' => $request->EvaluacionDiagnostica ?? null,
+            'drive_url' => $request->DriveEvaluacionDiagnostica ?? null
+        ]
+    );
+    
+    // Guardar Evaluación Satisfacción
+    CursoEvaluacion::updateOrCreate(
+        ['curso_id' => $curso->id, 'tipo_evaluacion' => 'satisfaccion'],
+        [
+            'url' => $request->EvaluacionSatisfaccion ?? null,
+            'drive_url' => $request->DriveEvaluacionSatisfaccion ?? null
+        ]
+    );
+    
+    // Guardar Evaluación Final
+    CursoEvaluacion::updateOrCreate(
+        ['curso_id' => $curso->id, 'tipo_evaluacion' => 'final'],
+        [
+            'url' => $request->EvaluacionFinal ?? null,
+            'drive_url' => $request->DriveEvaluacionFinal ?? null
+        ]
+    );
+    
+    // Guardar DC3
+    CursoCertificacion::updateOrCreate(
+        ['curso_id' => $curso->id, 'tipo_certificacion' => 'dc3'],
+        ['nombre' => $request->DC3 ?? null]
+    );
 }
+
 
         if ($paso == 7) {
             $dc5Firma = ($request->FormatoDC5TieneFirma ?? 'No') === 'Si';

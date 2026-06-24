@@ -237,7 +237,7 @@
                                             <input type="text" name="Nomenclatura" id="Nomenclatura" 
                                                 class="form-control @error('Nomenclatura') is-invalid @enderror"
                                                 placeholder="Ej: CUR-2024-001" 
-                                                value="{{ old('Nomenclatura', session('nomenclatura_generada')) }}" 
+                                                value="{{ old('Nomenclatura', $curso->nomenclatura ?? '') }}" 
                                                 required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
