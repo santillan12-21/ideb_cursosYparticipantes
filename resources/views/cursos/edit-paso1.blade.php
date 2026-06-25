@@ -62,7 +62,6 @@
        ESTILOS PARA VALIDACIÓN DE CAMPOS
        ============================================ */
     
-    /* Campo COMPLETO (verde) */
     .form-control.validado-completo {
         border-color: #28a745 !important;
         background-color: #f0fff4 !important;
@@ -70,7 +69,6 @@
         box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.1);
     }
     
-    /* Campo INCOMPLETO (amarillo) */
     .form-control.validado-incompleto {
         border-color: #ffc107 !important;
         background-color: #fffef0 !important;
@@ -78,7 +76,6 @@
         box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.1);
     }
     
-    /* Campo VACÍO (rojo) */
     .form-control.validado-vacio {
         border-color: #dc3545 !important;
         background-color: #fff5f5 !important;
@@ -87,7 +84,6 @@
         animation: pulse-red 2s ease-in-out infinite;
     }
     
-    /* Indicadores de estado (círculos junto al label) */
     .estado-indicador {
         display: inline-block;
         width: 14px;
@@ -117,14 +113,12 @@
         animation: pulse-red 2s ease-in-out infinite;
     }
     
-    /* Animación de pulso para estado rojo */
     @keyframes pulse-red {
         0% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
         50% { box-shadow: 0 0 25px rgba(220, 53, 69, 0.8); }
         100% { box-shadow: 0 0 12px rgba(220, 53, 69, 0.4); }
     }
     
-    /* Badge de estado general */
     #estadoBadge {
         display: inline-flex;
         align-items: center;
@@ -146,10 +140,6 @@
         border: none;
     }
     
-    /* ============================================
-       ESTILOS PARA BOTONES
-       ============================================ */
-    
     .botones-container {
         display: flex;
         justify-content: center;
@@ -168,7 +158,6 @@
         transition: all 0.3s ease;
     }
     
-    /* Botón Guardar en VERDE */
     .btn-guardar-verde {
         background-color: #28a745 !important;
         border: 2px solid #28a745 !important;
@@ -185,7 +174,6 @@
         color: #ffffff !important;
     }
     
-    /* Contador de campos */
     .contador-campos {
         text-align: center;
         margin-top: 15px;
@@ -212,7 +200,6 @@
                         <h2>Editar Paso 1: Datos del Curso</h2>
                         <p class="mb-0 mt-2 opacity-75">Información básica y general</p>
                         
-                        <!-- Indicador de estado general -->
                         <div id="estadoGeneral" class="mt-3">
                             <span id="estadoBadge">
                                 <span class="estado-indicador" id="indicadorGeneral"></span>
@@ -228,10 +215,10 @@
                             
                             <div class="form-section-card shadow-sm">
                                 <div class="row g-3">
-                                    <!-- Campo 1: Nomenclatura -->
+                                    <!-- Campo 1: Nomenclatura - OBLIGATORIO -->
                                     <div class="col-md-6">
                                         <label for="Nomenclatura" class="form-label">
-                                            Nomenclatura del Curso
+                                            Nomenclatura del Curso *
                                             <span class="estado-indicador" id="estado-Nomenclatura"></span>
                                         </label>
                                         <div class="input-group">
@@ -239,7 +226,7 @@
                                             <input type="text" name="Nomenclatura" id="Nomenclatura" 
                                                 class="form-control @error('Nomenclatura') is-invalid @enderror"
                                                 placeholder="Ej: CUR-2024-001" 
-                                                value="{{ old('Nomenclatura', $curso->nomenclatura ?? '') }}"
+                                                value="{{ old('Nomenclatura', $curso->nomenclatura ?? '') }}" 
                                                 required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
@@ -249,10 +236,10 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 2: Nombre del Curso -->
+                                    <!-- Campo 2: Nombre del Curso - OBLIGATORIO -->
                                     <div class="col-md-6">
                                         <label for="NombredelCurso" class="form-label">
-                                            Nombre del Curso
+                                            Nombre del Curso *
                                             <span class="estado-indicador" id="estado-NombredelCurso"></span>
                                         </label>
                                         <div class="input-group">
@@ -260,7 +247,7 @@
                                             <input type="text" name="NombredelCurso" id="NombredelCurso"
                                                 class="form-control @error('NombredelCurso') is-invalid @enderror" 
                                                 placeholder="Ingrese el nombre" 
-                                                value="{{ old('NombredelCurso', $curso->NombredelCurso) }}" 
+                                                value="{{ old('NombredelCurso', $curso->nombre ?? '') }}" 
                                                 required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
@@ -270,7 +257,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 3: Descripción -->
+                                    <!-- Campo 3: Descripción - NO OBLIGATORIO -->
                                     <div class="col-12">
                                         <label for="DescripciondeCurso" class="form-label">
                                             Descripción
@@ -281,16 +268,15 @@
                                             <textarea name="DescripciondeCurso" id="DescripciondeCurso" 
                                                 class="form-control @error('DescripciondeCurso') is-invalid @enderror" 
                                                 rows="3" placeholder="Breve descripción del curso" 
-                                                required
                                                 oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">{{ old('DescripciondeCurso', $curso->DescripciondeCurso) }}</textarea>
+                                                onchange="validarCampo(this)">{{ old('DescripciondeCurso', $curso->descripcion ?? '') }}</textarea>
                                             @error('DescripciondeCurso')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                     </div>
 
-                                    <!-- Campo 4: Costo -->
+                                    <!-- Campo 4: Costo - NO OBLIGATORIO -->
                                     <div class="col-md-4">
                                         <label for="CostodelCurso" class="form-label">
                                             Costo ($)
@@ -300,9 +286,8 @@
                                             <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
                                             <input type="number" step="0.01" name="CostodelCurso" id="CostodelCurso"
                                                 class="form-control @error('CostodelCurso') is-invalid @enderror"
-                                                value="{{ old('CostodelCurso', $curso->CostodelCurso) }}"
+                                                value="{{ old('CostodelCurso', $curso->costo ?? '') }}"
                                                 placeholder="0.00" 
-                                                required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('CostodelCurso')
@@ -311,7 +296,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 5: Instructor -->
+                                    <!-- Campo 5: Instructor - NO OBLIGATORIO -->
                                     <div class="col-md-8">
                                         <label for="InstructorResponsable" class="form-label">
                                             Instructor Responsable
@@ -322,8 +307,7 @@
                                             <input type="text" name="InstructorResponsable" id="InstructorResponsable"
                                                 class="form-control @error('InstructorResponsable') is-invalid @enderror"
                                                 placeholder="Nombre del instructor" 
-                                                value="{{ old('InstructorResponsable', $curso->InstructorResponsable) }}" 
-                                                required
+                                                value="{{ old('InstructorResponsable', $curso->instructor_responsable ?? '') }}" 
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('InstructorResponsable')
@@ -332,7 +316,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 6: Fecha Inicio -->
+                                    <!-- Campo 6: Fecha Inicio - NO OBLIGATORIO -->
                                     <div class="col-md-6">
                                         <label for="FechadeInicio" class="form-label">
                                             Fecha de Inicio
@@ -342,8 +326,7 @@
                                             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                                             <input type="date" name="FechadeInicio" id="FechadeInicio"
                                                 class="form-control @error('FechadeInicio') is-invalid @enderror"
-                                                value="{{ old('FechadeInicio', $curso->FechadeInicio) }}" 
-                                                required
+                                                value="{{ old('FechadeInicio', $curso->fecha_inicio ?? '') }}" 
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('FechadeInicio')
@@ -352,7 +335,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 7: Fecha Término -->
+                                    <!-- Campo 7: Fecha Término - NO OBLIGATORIO -->
                                     <div class="col-md-6">
                                         <label for="FechadeTermino" class="form-label">
                                             Fecha de Término
@@ -362,8 +345,7 @@
                                             <span class="input-group-text"><i class="fas fa-calendar-check"></i></span>
                                             <input type="date" name="FechadeTermino" id="FechadeTermino"
                                                 class="form-control @error('FechadeTermino') is-invalid @enderror"
-                                                value="{{ old('FechadeTermino', $curso->FechadeTermino) }}" 
-                                                required
+                                                value="{{ old('FechadeTermino', $curso->fecha_termino ?? '') }}" 
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('FechadeTermino')
@@ -372,7 +354,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 8: Duración -->
+                                    <!-- Campo 8: Duración - NO OBLIGATORIO -->
                                     <div class="col-12">
                                         <label for="Duracioncurso" class="form-label">
                                             Duración del Curso
@@ -383,8 +365,7 @@
                                             <input type="text" name="Duracioncurso" id="Duracioncurso"
                                                 class="form-control @error('Duracioncurso') is-invalid @enderror"
                                                 placeholder="Ej: 20 horas" 
-                                                value="{{ old('Duracioncurso', $curso->Duracioncurso) }}" 
-                                                required
+                                                value="{{ old('Duracioncurso', $curso->duracion ?? '') }}" 
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('Duracioncurso')
@@ -420,49 +401,38 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Obtener todos los campos del formulario
     const campos = document.querySelectorAll('#formularioCurso .form-control');
     
-    // Validar todos los campos al cargar la página
     campos.forEach(campo => {
         validarCampo(campo);
     });
     
-    // Actualizar estado general
     actualizarEstadoGeneral();
 });
 
-/**
- * Función principal para validar un campo
- */
 function validarCampo(campo) {
     const valor = campo.value.trim();
     const idCampo = campo.id;
     const indicador = document.getElementById('estado-' + idCampo);
     
-    // Remover clases anteriores
     campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
     if (indicador) {
         indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
     }
     
-    // Determinar el estado del campo
     if (valor === '') {
-        // CAMPO VACÍO - ROJO
         campo.classList.add('validado-vacio');
         if (indicador) {
             indicador.classList.add('estado-rojo');
             indicador.title = 'Campo vacío';
         }
     } else if (valor.length > 0 && valor.length < 3) {
-        // CAMPO INCOMPLETO - AMARILLO (menos de 3 caracteres)
         campo.classList.add('validado-incompleto');
         if (indicador) {
             indicador.classList.add('estado-amarillo');
             indicador.title = 'Campo incompleto';
         }
     } else {
-        // CAMPO COMPLETO - VERDE
         campo.classList.add('validado-completo');
         if (indicador) {
             indicador.classList.add('estado-verde');
@@ -470,14 +440,10 @@ function validarCampo(campo) {
         }
     }
     
-    // Actualizar contadores y estado general
     actualizarContadores();
     actualizarEstadoGeneral();
 }
 
-/**
- * Actualizar los contadores de campos
- */
 function actualizarContadores() {
     const campos = document.querySelectorAll('#formularioCurso .form-control');
     let completos = 0, incompletos = 0, vacios = 0;
@@ -497,9 +463,6 @@ function actualizarContadores() {
     document.getElementById('totalVacios').textContent = vacios;
 }
 
-/**
- * Actualizar el estado general del formulario
- */
 function actualizarEstadoGeneral() {
     const campos = document.querySelectorAll('#formularioCurso .form-control');
     let completos = 0, incompletos = 0, vacios = 0;
@@ -518,21 +481,16 @@ function actualizarEstadoGeneral() {
     const indicadorGeneral = document.getElementById('indicadorGeneral');
     const textoEstado = document.getElementById('textoEstado');
     
-    // Determinar el estado general
     if (vacios > 0) {
-        // Hay campos vacíos - ROJO
         indicadorGeneral.className = 'estado-indicador estado-rojo';
         textoEstado.textContent = `⚠️ ${vacios} campo(s) vacío(s) - Requiere atención`;
     } else if (incompletos > 0) {
-        // Hay campos incompletos - AMARILLO
         indicadorGeneral.className = 'estado-indicador estado-amarillo';
         textoEstado.textContent = `🟡 ${incompletos} campo(s) incompleto(s) - Revisar`;
     } else if (completos === total) {
-        // Todos los campos completos - VERDE
         indicadorGeneral.className = 'estado-indicador estado-verde';
         textoEstado.textContent = '✅ Todos los campos completos - Listo para guardar';
     } else {
-        // Estado por defecto
         indicadorGeneral.className = 'estado-indicador';
         textoEstado.textContent = 'Verificando campos...';
     }

@@ -307,7 +307,7 @@ class CursoController extends Controller
         $cursoId = session('curso_id');
         $validated = $request->validate([
             'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $cursoId,
-            'NombredelCurso' => 'nullable|string|max:255',
+            'NombredelCurso' => 'required|string|max:255',
             'DescripciondeCurso' => 'nullable|string|max:2000',
             'CostodelCurso' => 'nullable|numeric',
             'InstructorResponsable' => 'nullable|string|max:255',
@@ -344,14 +344,14 @@ class CursoController extends Controller
     public function guardarPaso2(Request $request)
     {
         $v = $request->validate([
-            'modalidad' => 'required|in:virtual,presencial,mixto',
+            'modalidad' => 'nullable|in:virtual,presencial,mixto',
             'sin_fecha' => 'nullable|boolean'
         ]);
         
         $curso = Cursos::findOrFail(session('curso_id'));
         
         $curso->update([
-            'modalidad' => $v['modalidad'],
+            'modalidad' => $v['modalidad'] ?? null,
             'sin_fecha' => $v['sin_fecha'] ?? false,
         ]);
 
@@ -362,10 +362,14 @@ class CursoController extends Controller
             ]);
         }
         
-        CursoModalidad::updateOrCreate(
-            ['curso_id' => $curso->id, 'modalidad' => $v['modalidad']],
-            ['curso_id' => $curso->id, 'modalidad' => $v['modalidad']]
-        );
+        if (!empty($v['modalidad'])) {
+            CursoModalidad::updateOrCreate(
+                ['curso_id' => $curso->id, 'modalidad' => $v['modalidad']],
+                ['curso_id' => $curso->id, 'modalidad' => $v['modalidad']]
+            );
+        } else {
+            $curso->modalidades()->delete();
+        }
         
         session(['cursos_paso2' => $v]);
         
@@ -563,7 +567,7 @@ class CursoController extends Controller
         return redirect()->route('curso.paso6');
     }
 
-        // ============================================
+    // ============================================
     // PASO 6
     // ============================================
     public function mostrarPaso6() 
@@ -600,20 +604,40 @@ class CursoController extends Controller
             'EvaluacionFinal' => 'nullable|string',
             'DC3' => 'nullable|string',
         ]);
-        
+
         $curso = Cursos::findOrFail(session('curso_id'));
 
+        // Guardar Presentación
         if (!empty($v['Presentacion']) || !empty($v['DrivePresentacion'])) {
             CursoRecurso::updateOrCreate(
                 ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion'],
-                ['url' => $v['Presentacion'] ?? null, 'drive_url' => $v['DrivePresentacion'] ?? null]
+                [
+                    'url' => $v['Presentacion'] ?? null,
+                    'drive_url' => $v['DrivePresentacion'] ?? null
+                ]
+            );
+        } else {
+            $curso->recursos()->where('tipo_recurso', 'presentacion')->delete();
+        }
+
+        // Guardar archivo de presentación
+        if ($request->hasFile('archivoPresentacion') && $request->file('archivoPresentacion')->isValid()) {
+            $file = $request->file('archivoPresentacion');
+            $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+            $cursoPath = storage_path('app/public/cursos/' . $curso->id);
+            if (!file_exists($cursoPath)) {
+                mkdir($cursoPath, 0777, true);
+            }
+            $file->move($cursoPath, $fileName);
+            $rutaPublica = 'storage/cursos/' . $curso->id . '/' . $fileName;
+            
+            CursoRecurso::updateOrCreate(
+                ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion_archivo'],
+                ['url' => $rutaPublica]
             );
         }
 
-        $this->guardarArchivosCurso($curso, $request, [
-            'archivoPresentacion' => 'presentacion_archivo',
-        ]);
-
+        // Guardar evaluaciones
         $evaluacionesMap = [
             'diagnostica' => $v['EvaluacionDiagnostica'] ?? null,
             'satisfaccion' => $v['EvaluacionSatisfaccion'] ?? null,
@@ -626,19 +650,25 @@ class CursoController extends Controller
                     ['curso_id' => $curso->id, 'tipo_evaluacion' => $tipo],
                     ['url' => $url]
                 );
+            } else {
+                $curso->evaluaciones()->where('tipo_evaluacion', $tipo)->delete();
             }
         }
 
+        // Guardar DC3
         if (!empty($v['DC3'])) {
             CursoCertificacion::updateOrCreate(
                 ['curso_id' => $curso->id, 'tipo_certificacion' => 'dc3'],
                 ['nombre' => $v['DC3']]
             );
+        } else {
+            $curso->certificaciones()->where('tipo_certificacion', 'dc3')->delete();
         }
         
         session(['cursos_paso6' => $v]);
-        return redirect()->route('curso.paso7');
+        return redirect()->route('curso.paso7')->with('success', 'Paso 6 guardado correctamente');
     }
+
     // ============================================
     // PASO 7
     // ============================================
@@ -799,19 +829,14 @@ class CursoController extends Controller
                 return view('cursos.edit-paso5', compact('curso', 'recursos'));
                 
             case 6:
-                $recursos = [];
-                $evaluaciones = [];
-                
-                $recursos['presentacion'] = $curso->recursos()->where('tipo_recurso', 'presentacion')->first();
-                
-                $evaluaciones['diagnostica'] = $curso->evaluaciones()->where('tipo_evaluacion', 'diagnostica')->first();
-                $evaluaciones['satisfaccion'] = $curso->evaluaciones()->where('tipo_evaluacion', 'satisfaccion')->first();
-                $evaluaciones['final'] = $curso->evaluaciones()->where('tipo_evaluacion', 'final')->first();
-                
-                $recursos['dc3'] = $curso->certificaciones()->where('tipo_certificacion', 'dc3')->first();
-                
+                $recursos['presentacion'] = $recursosDb->get('presentacion');
+                $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
+                $evaluaciones['diagnostica'] = $evaluacionesDb->get('diagnostica');
+                $evaluaciones['satisfaccion'] = $evaluacionesDb->get('satisfaccion');
+                $evaluaciones['final'] = $evaluacionesDb->get('final');
+                $recursos['dc3'] = $certificacionesDb->get('dc3');
                 return view('cursos.edit-paso6', compact('curso', 'recursos', 'evaluaciones'));
-
+                
             case 7:
                 $certificaciones['dc5'] = $certificacionesDb->get('dc5');
                 $certificaciones['certificado_comprobacion'] = $certificacionesDb->get('certificado_comprobacion');
@@ -833,6 +858,7 @@ class CursoController extends Controller
         if ($paso == 1) {
             $request->validate([
                 'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $curso->id,
+                'NombredelCurso' => 'required|string|max:255',
             ]);
             
             $data = [
@@ -850,12 +876,12 @@ class CursoController extends Controller
 
         if ($paso == 2) {
             $request->validate([
-                'modalidad' => 'required|in:virtual,presencial,mixto',
+                'modalidad' => 'nullable|in:virtual,presencial,mixto',
                 'sin_fecha' => 'nullable|boolean'
             ]);
             
             $curso->update([
-                'modalidad' => $request->modalidad,
+                'modalidad' => $request->modalidad ?? null,
                 'sin_fecha' => $request->sin_fecha ?? false,
             ]);
 
@@ -863,10 +889,14 @@ class CursoController extends Controller
                 $curso->update(['fecha_inicio' => null, 'fecha_termino' => null]);
             }
 
-            CursoModalidad::updateOrCreate(
-                ['curso_id' => $curso->id, 'modalidad' => $request->modalidad],
-                ['curso_id' => $curso->id, 'modalidad' => $request->modalidad]
-            );
+            if (!empty($request->modalidad)) {
+                CursoModalidad::updateOrCreate(
+                    ['curso_id' => $curso->id, 'modalidad' => $request->modalidad],
+                    ['curso_id' => $curso->id, 'modalidad' => $request->modalidad]
+                );
+            } else {
+                $curso->modalidades()->delete();
+            }
         }
 
         if ($paso == 3) {
@@ -947,53 +977,61 @@ class CursoController extends Controller
         }
 
         if ($paso == 6) {
-    // ============================================
-    // PASO 6 - GUARDADO SIMPLE
-    // ============================================
-    
-    // Guardar Presentación (en curso_recursos)
-    CursoRecurso::updateOrCreate(
-        ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion'],
-        [
-            'url' => $request->Presentacion ?? null,
-            'drive_url' => $request->DrivePresentacion ?? null
-        ]
-    );
-    
-    // Guardar Evaluación Diagnóstica
-    CursoEvaluacion::updateOrCreate(
-        ['curso_id' => $curso->id, 'tipo_evaluacion' => 'diagnostica'],
-        [
-            'url' => $request->EvaluacionDiagnostica ?? null,
-            'drive_url' => $request->DriveEvaluacionDiagnostica ?? null
-        ]
-    );
-    
-    // Guardar Evaluación Satisfacción
-    CursoEvaluacion::updateOrCreate(
-        ['curso_id' => $curso->id, 'tipo_evaluacion' => 'satisfaccion'],
-        [
-            'url' => $request->EvaluacionSatisfaccion ?? null,
-            'drive_url' => $request->DriveEvaluacionSatisfaccion ?? null
-        ]
-    );
-    
-    // Guardar Evaluación Final
-    CursoEvaluacion::updateOrCreate(
-        ['curso_id' => $curso->id, 'tipo_evaluacion' => 'final'],
-        [
-            'url' => $request->EvaluacionFinal ?? null,
-            'drive_url' => $request->DriveEvaluacionFinal ?? null
-        ]
-    );
-    
-    // Guardar DC3
-    CursoCertificacion::updateOrCreate(
-        ['curso_id' => $curso->id, 'tipo_certificacion' => 'dc3'],
-        ['nombre' => $request->DC3 ?? null]
-    );
-}
+            // Guardar Presentacion
+            if (!empty($request->Presentacion) || !empty($request->DrivePresentacion)) {
+                CursoRecurso::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion'],
+                    ['url' => $request->Presentacion, 'drive_url' => $request->DrivePresentacion]
+                );
+            } else {
+                $curso->recursos()->where('tipo_recurso', 'presentacion')->delete();
+            }
 
+            // Guardar archivo de presentacion
+            if ($request->hasFile('archivoPresentacion') && $request->file('archivoPresentacion')->isValid()) {
+                $file = $request->file('archivoPresentacion');
+                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                $cursoPath = storage_path('app/public/cursos/' . $curso->id);
+                if (!file_exists($cursoPath)) {
+                    mkdir($cursoPath, 0777, true);
+                }
+                $file->move($cursoPath, $fileName);
+                $rutaPublica = 'storage/cursos/' . $curso->id . '/' . $fileName;
+                
+                CursoRecurso::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion_archivo'],
+                    ['url' => $rutaPublica]
+                );
+            }
+
+            // Guardar evaluaciones
+            $evaluacionesMap = [
+                'diagnostica' => $request->EvaluacionDiagnostica,
+                'satisfaccion' => $request->EvaluacionSatisfaccion,
+                'final' => $request->EvaluacionFinal,
+            ];
+
+            foreach ($evaluacionesMap as $tipo => $url) {
+                if (!empty($url)) {
+                    CursoEvaluacion::updateOrCreate(
+                        ['curso_id' => $curso->id, 'tipo_evaluacion' => $tipo],
+                        ['url' => $url]
+                    );
+                } else {
+                    $curso->evaluaciones()->where('tipo_evaluacion', $tipo)->delete();
+                }
+            }
+
+            // Guardar DC3
+            if (!empty($request->DC3)) {
+                CursoCertificacion::updateOrCreate(
+                    ['curso_id' => $curso->id, 'tipo_certificacion' => 'dc3'],
+                    ['nombre' => $request->DC3]
+                );
+            } else {
+                $curso->certificaciones()->where('tipo_certificacion', 'dc3')->delete();
+            }
+        }
 
         if ($paso == 7) {
             $dc5Firma = ($request->FormatoDC5TieneFirma ?? 'No') === 'Si';
@@ -1060,8 +1098,8 @@ class CursoController extends Controller
         $progreso = [];
         
         $pasosCampos = [
-            1 => ['nomenclatura', 'nombre', 'descripcion', 'costo', 'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion'],
-            2 => ['modalidad'],
+            1 => ['nomenclatura', 'nombre'],
+            2 => [],
             3 => ['recursos' => ['sin_fecha', 'facebook', 'linkedin', 'instagram']],
             4 => ['recursos' => ['temario', 'itinerario', 'planeacion']],
             5 => ['recursos' => ['digital', 'presentacion', 'impreso']],
@@ -1087,10 +1125,6 @@ class CursoController extends Controller
                         $llenos++;
                     }
                 }
-            }
-
-            if ($paso == 2 && !empty($curso->modalidad)) {
-                $llenos = $total;
             }
 
             $porcentaje = ($total > 0) ? round(($llenos / $total) * 100) : 0;
@@ -1144,26 +1178,49 @@ class CursoController extends Controller
     }
 
     // ============================================
-    // OTROS MÉTODOS
+    // FINALIZACIÓN FORZADA
     // ============================================
     public function finalizacionForzada(Request $request)
     {
         $curso = Cursos::find(session('curso_id'));
+        
         if ($curso) {
+            // Verificar que tenga al menos Nomenclatura y Nombre
+            if (empty($curso->nomenclatura) || empty($curso->nombre)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El curso debe tener al menos Nomenclatura y Nombre para finalizar.'
+                ], 400);
+            }
+            
+            // Guardar log
             CourseActionLog::create([
                 'curso_id' => $curso->id, 
                 'nombre_curso' => $curso->nombre, 
                 'user_id' => Auth::id(), 
                 'accion' => 'Forzado', 
-                'detalles' => 'Finalización forzada.', 
+                'detalles' => 'Finalización forzada del curso.',
                 'fecha_accion' => now()
             ]);
+            
+            // Limpiar sesión
             session()->forget(['curso_id', 'cursos_paso1', 'cursos_paso2', 'cursos_paso3', 'cursos_paso4', 'cursos_paso5', 'cursos_paso6']);
-            return response()->json(['success' => true]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Curso finalizado correctamente'
+            ]);
         }
-        return response()->json(['success' => false], 404);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Curso no encontrado'
+        ], 404);
     }
 
+    // ============================================
+    // OTROS MÉTODOS
+    // ============================================
     public function getFechaInicio($id) 
     { 
         return response()->json(['fecha_inicio' => Cursos::findOrFail($id)->fecha_inicio]); 

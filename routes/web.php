@@ -22,9 +22,9 @@ use Illuminate\Http\Request;
 
 
 //Rutas de inicio de sesion:
-Route::get('/login', function () {
+Route::get('/', function () {
     return view('auth.login');
-})->name('login');
+});
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/inicio', function () {
     return view('home');

@@ -185,6 +185,20 @@
         color: #ffffff !important;
     }
     
+    /* Botón Finalización Forzada (AMARILLO) */
+    .btn-forzar {
+        background-color: #ffc107 !important;
+        border: 2px solid #ffc107 !important;
+        color: #212529 !important;
+    }
+    .btn-forzar:hover {
+        background-color: #e0a800 !important;
+        border-color: #e0a800 !important;
+        color: #212529 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3) !important;
+    }
+    
     /* Contador de campos */
     .contador-campos {
         text-align: center;
@@ -226,10 +240,10 @@
                             @csrf
                             <div class="form-section-card shadow-sm">
                                 <div class="row g-3">
-                                    <!-- Campo 1: Nomenclatura -->
+                                    <!-- Campo 1: Nomenclatura - OBLIGATORIO -->
                                     <div class="col-md-6">
                                         <label for="Nomenclatura" class="form-label">
-                                            Nomenclatura del Curso
+                                            Nomenclatura del Curso *
                                             <span class="estado-indicador" id="estado-Nomenclatura"></span>
                                         </label>
                                         <div class="input-group">
@@ -247,10 +261,10 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 2: Nombre del Curso -->
+                                    <!-- Campo 2: Nombre del Curso - OBLIGATORIO -->
                                     <div class="col-md-6">
                                         <label for="NombredelCurso" class="form-label">
-                                            Nombre del Curso
+                                            Nombre del Curso *
                                             <span class="estado-indicador" id="estado-NombredelCurso"></span>
                                         </label>
                                         <div class="input-group">
@@ -268,7 +282,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 3: Descripción -->
+                                    <!-- Campo 3: Descripción - NO OBLIGATORIO -->
                                     <div class="col-12">
                                         <label for="DescripciondeCurso" class="form-label">
                                             Descripción
@@ -279,7 +293,6 @@
                                             <textarea name="DescripciondeCurso" id="DescripciondeCurso" 
                                                 class="form-control @error('DescripciondeCurso') is-invalid @enderror" 
                                                 rows="3" placeholder="Breve descripción del curso" 
-                                                required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">{{ old('DescripciondeCurso', $curso->DescripciondeCurso ?? '') }}</textarea>
                                             @error('DescripciondeCurso')
@@ -288,7 +301,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 4: Costo -->
+                                    <!-- Campo 4: Costo - NO OBLIGATORIO -->
                                     <div class="col-md-4">
                                         <label for="CostodelCurso" class="form-label">
                                             Costo ($)
@@ -300,7 +313,6 @@
                                                 class="form-control @error('CostodelCurso') is-invalid @enderror"
                                                 value="{{ old('CostodelCurso', $curso->CostodelCurso ?? '') }}"
                                                 placeholder="0.00" 
-                                                required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('CostodelCurso')
@@ -309,7 +321,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 5: Instructor -->
+                                    <!-- Campo 5: Instructor - NO OBLIGATORIO -->
                                     <div class="col-md-8">
                                         <label for="InstructorResponsable" class="form-label">
                                             Instructor Responsable
@@ -321,7 +333,6 @@
                                                 class="form-control @error('InstructorResponsable') is-invalid @enderror"
                                                 placeholder="Nombre del instructor" 
                                                 value="{{ old('InstructorResponsable', $curso->InstructorResponsable ?? '') }}" 
-                                                required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('InstructorResponsable')
@@ -330,7 +341,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 6: Fecha Inicio -->
+                                    <!-- Campo 6: Fecha Inicio - NO OBLIGATORIO -->
                                     <div class="col-md-6">
                                         <label for="FechadeInicio" class="form-label">
                                             Fecha de Inicio
@@ -341,7 +352,6 @@
                                             <input type="date" name="FechadeInicio" id="FechadeInicio"
                                                 class="form-control @error('FechadeInicio') is-invalid @enderror"
                                                 value="{{ old('FechadeInicio', $curso->FechadeInicio ?? '') }}" 
-                                                required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('FechadeInicio')
@@ -350,7 +360,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 7: Fecha Término -->
+                                    <!-- Campo 7: Fecha Término - NO OBLIGATORIO -->
                                     <div class="col-md-6">
                                         <label for="FechadeTermino" class="form-label">
                                             Fecha de Término
@@ -361,7 +371,6 @@
                                             <input type="date" name="FechadeTermino" id="FechadeTermino"
                                                 class="form-control @error('FechadeTermino') is-invalid @enderror"
                                                 value="{{ old('FechadeTermino', $curso->FechadeTermino ?? '') }}" 
-                                                required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('FechadeTermino')
@@ -370,7 +379,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 8: Duración -->
+                                    <!-- Campo 8: Duración - NO OBLIGATORIO -->
                                     <div class="col-12">
                                         <label for="Duracioncurso" class="form-label">
                                             Duración del Curso
@@ -382,7 +391,6 @@
                                                 class="form-control @error('Duracioncurso') is-invalid @enderror"
                                                 placeholder="Ej: 20 horas" 
                                                 value="{{ old('Duracioncurso', $curso->Duracioncurso ?? '') }}" 
-                                                required
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
                                             @error('Duracioncurso')
@@ -404,6 +412,9 @@
                                 <button type="submit" class="btn btn-guardar-verde btn-custom shadow-sm">
                                     <i class="fas fa-save me-2"></i> Guardar y Continuar
                                 </button>
+                                <button type="button" class="btn btn-warning btn-custom shadow-sm" id="finalizarForzadoBtn">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> Finalización Forzada
+                                </button>
                                 <a href="{{ route('curso.cancelar') }}" class="btn btn-secondary btn-custom shadow-sm">
                                     <i class="fas fa-times me-2"></i> Cancelar
                                 </a>
@@ -416,6 +427,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener todos los campos del formulario
@@ -428,6 +440,57 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Actualizar estado general
     actualizarEstadoGeneral();
+    
+    // ============================================
+    // FINALIZACIÓN FORZADA
+    // ============================================
+    document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esto guardará el curso con los datos actuales y no podrás continuar editándolo.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, finalizar ahora',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('{{ route("curso.finalizacionForzada") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Curso guardado',
+                            text: 'El curso ha sido guardado exitosamente.'
+                        }).then(() => {
+                            window.location.href = "{{ route('cursos.index') }}";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Ocurrió un error al finalizar el curso.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al procesar la solicitud.'
+                    });
+                });
+            }
+        });
+    });
 });
 
 /**

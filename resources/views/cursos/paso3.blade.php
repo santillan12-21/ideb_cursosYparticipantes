@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-
     .step-container {
         padding: 50px 0;
         background-color: #f4f7f6;
@@ -60,9 +60,6 @@
         border-color: #dee2e6;
     }
 
-    /* ============================================
-       ESTILOS PARA PORCENTAJE (VERDE/AMARILLO/ROJO)
-       ============================================ */
     .form-control.porcentaje-completo {
         border-color: #28a745 !important;
         background-color: #f0fff4 !important;
@@ -80,9 +77,6 @@
         animation: pulse-red 2s ease-in-out infinite;
     }
 
-    /* ============================================
-       ESTILOS PARA DRIVE (VERDE/ROJO)
-       ============================================ */
     .form-control.drive-completo {
         border-color: #28a745 !important;
         background-color: #f0fff4 !important;
@@ -127,9 +121,6 @@
         animation: pulse-red 2s ease-in-out infinite;
     }
 
-    /* ============================================
-       DOCUMENTOS SUBIDOS
-       ============================================ */
     .documento-preview {
         display: flex;
         align-items: center;
@@ -168,9 +159,6 @@
         background: #0b5ed7;
     }
 
-    /* ============================================
-       BOTONES
-       ============================================ */
     .botones-container {
         display: flex;
         justify-content: center;
@@ -289,7 +277,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="SinFecha" id="SinFecha" 
                                                 class="form-control" 
-                                                value="{{ old('SinFecha', $recursos['sin_fecha']->url ?? '') }}" 
+                                                value="{{ old('SinFecha', isset($recursos['sin_fecha']) ? $recursos['sin_fecha']->url : '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -304,7 +292,7 @@
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveSinFecha" id="DriveSinFecha" 
                                                 class="form-control" 
-                                                value="{{ old('DriveSinFecha', $recursos['sin_fecha']->drive_url ?? '') }}" 
+                                                value="{{ old('DriveSinFecha', isset($recursos['sin_fecha']) ? $recursos['sin_fecha']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
                                                 oninput="validarDrive(this)"
                                                 onchange="validarDrive(this)">
@@ -318,7 +306,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['sin_fecha_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['sin_fecha_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ asset($recursos['sin_fecha_archivo']->url) }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -343,7 +331,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Facebook" id="Facebook" 
                                                 class="form-control" 
-                                                value="{{ old('Facebook', $recursos['facebook']->url ?? '') }}" 
+                                                value="{{ old('Facebook', isset($recursos['facebook']) ? $recursos['facebook']->url : '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -358,7 +346,7 @@
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveFacebook" id="DriveFacebook" 
                                                 class="form-control" 
-                                                value="{{ old('DriveFacebook', $recursos['facebook']->drive_url ?? '') }}" 
+                                                value="{{ old('DriveFacebook', isset($recursos['facebook']) ? $recursos['facebook']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
                                                 oninput="validarDrive(this)"
                                                 onchange="validarDrive(this)">
@@ -372,7 +360,7 @@
                                                 <i class="fas fa-file-image"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['facebook_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['facebook_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ asset($recursos['facebook_archivo']->url) }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -397,7 +385,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Linkedin" id="Linkedin" 
                                                 class="form-control" 
-                                                value="{{ old('Linkedin', $recursos['linkedin']->url ?? '') }}" 
+                                                value="{{ old('Linkedin', isset($recursos['linkedin']) ? $recursos['linkedin']->url : '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -412,7 +400,7 @@
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveLinkedin" id="DriveLinkedin" 
                                                 class="form-control" 
-                                                value="{{ old('DriveLinkedin', $recursos['linkedin']->drive_url ?? '') }}" 
+                                                value="{{ old('DriveLinkedin', isset($recursos['linkedin']) ? $recursos['linkedin']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
                                                 oninput="validarDrive(this)"
                                                 onchange="validarDrive(this)">
@@ -426,7 +414,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['linkedin_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['linkedin_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ asset($recursos['linkedin_archivo']->url) }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -451,7 +439,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Instagram" id="Instagram" 
                                                 class="form-control" 
-                                                value="{{ old('Instagram', $recursos['instagram']->url ?? '') }}" 
+                                                value="{{ old('Instagram', isset($recursos['instagram']) ? $recursos['instagram']->url : '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -466,7 +454,7 @@
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveInstagram" id="DriveInstagram" 
                                                 class="form-control" 
-                                                value="{{ old('DriveInstagram', $recursos['instagram']->drive_url ?? '') }}" 
+                                                value="{{ old('DriveInstagram', isset($recursos['instagram']) ? $recursos['instagram']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
                                                 oninput="validarDrive(this)"
                                                 onchange="validarDrive(this)">
@@ -480,7 +468,7 @@
                                                 <i class="fas fa-file-image"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['instagram_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['instagram_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ asset($recursos['instagram_archivo']->url) }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -500,6 +488,9 @@
                                 <button type="submit" class="btn btn-guardar-verde btn-custom shadow-sm">
                                     <i class="fas fa-save me-2"></i> Guardar y Continuar
                                 </button>
+                                <button type="button" class="btn btn-warning btn-custom shadow-sm" id="finalizarForzadoBtn">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> Finalización Forzada
+                                </button>
                                 <a href="{{ route('curso.paso2') }}" class="btn btn-secondary btn-custom shadow-sm">
                                     <i class="fas fa-arrow-left me-2"></i> Regresar
                                 </a>
@@ -515,6 +506,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('#SinFecha, #Facebook, #Linkedin, #Instagram').forEach(campo => {
@@ -525,6 +517,55 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     actualizarContadores();
     actualizarEstadoGeneral();
+    
+    // Finalización Forzada
+    document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esto guardará el curso con los datos actuales y no podrás continuar editándolo.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, finalizar ahora',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('{{ route("curso.finalizacionForzada") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Curso guardado',
+                            text: 'El curso ha sido guardado exitosamente.'
+                        }).then(() => {
+                            window.location.href = "{{ route('cursos.index') }}";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Ocurrió un error al finalizar el curso.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al procesar la solicitud.'
+                    });
+                });
+            }
+        });
+    });
 });
 
 function validarPorcentaje(campo) {

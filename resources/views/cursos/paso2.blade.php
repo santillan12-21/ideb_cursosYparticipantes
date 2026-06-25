@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
     .step-container {
         padding: 50px 0;
@@ -198,8 +200,7 @@
                                             <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
                                             <select name="modalidad" id="modalidad" 
                                                 class="form-select @error('modalidad') is-invalid @enderror" 
-                                                onchange="validarSelect(this)"
-                                                required>
+                                                onchange="validarSelect(this)">
                                                 <option value="" disabled {{ old('modalidad') ? '' : 'selected' }}>Seleccione una modalidad</option>
                                                 <option value="virtual" {{ old('modalidad') == 'virtual' ? 'selected' : '' }}>💻 Virtual</option>
                                                 <option value="presencial" {{ old('modalidad') == 'presencial' ? 'selected' : '' }}>🏫 Presencial</option>
@@ -209,6 +210,7 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+                                        <small class="text-muted">Selecciona la modalidad principal del curso (opcional)</small>
                                     </div>
                                 </div>
                             </div>
@@ -221,6 +223,9 @@
                             <div class="botones-container">
                                 <button type="submit" class="btn btn-guardar-verde btn-custom shadow-sm">
                                     <i class="fas fa-save me-2"></i> Guardar y Continuar
+                                </button>
+                                <button type="button" class="btn btn-warning btn-custom shadow-sm" id="finalizarForzadoBtn">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> Finalización Forzada
                                 </button>
                                 <a href="{{ route('curso.paso1') }}" class="btn btn-secondary btn-custom shadow-sm">
                                     <i class="fas fa-arrow-left me-2"></i> Regresar
@@ -237,6 +242,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const selects = document.querySelectorAll('#formularioCurso .form-select');
@@ -244,6 +250,55 @@ document.addEventListener('DOMContentLoaded', function() {
         validarSelect(select);
     });
     actualizarEstadoGeneral();
+    
+    // Finalización Forzada
+    document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esto guardará el curso con los datos actuales y no podrás continuar editándolo.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, finalizar ahora',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('{{ route("curso.finalizacionForzada") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Curso guardado',
+                            text: 'El curso ha sido guardado exitosamente.'
+                        }).then(() => {
+                            window.location.href = "{{ route('cursos.index') }}";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Ocurrió un error al finalizar el curso.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al procesar la solicitud.'
+                    });
+                });
+            }
+        });
+    });
 });
 
 function validarSelect(select) {

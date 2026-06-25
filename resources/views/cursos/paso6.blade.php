@@ -271,7 +271,8 @@
                     </div>
 
                     <div class="card-body p-4 p-md-5">
-                        <form action="/curso/paso6-test" method="POST" enctype="multipart/form-data" id="formularioCurso">
+                        <form action="{{ route('curso.paso6.guardar') }}" method="POST" enctype="multipart/form-data" id="formularioCurso">
+                            @csrf
 
                             <!-- ==========================================
                             PRESENTACIÓN
@@ -288,7 +289,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="Presentacion" id="Presentacion" 
                                                 class="form-control" 
-                                                value="{{ old('Presentacion', $recursos['presentacion']->url ?? '') }}" 
+                                                value="{{ old('Presentacion', isset($recursos['presentacion']) ? $recursos['presentacion']->url : '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -303,7 +304,7 @@
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DrivePresentacion" id="DrivePresentacion" 
                                                 class="form-control" 
-                                                value="{{ old('DrivePresentacion', $recursos['presentacion']->drive_url ?? '') }}" 
+                                                value="{{ old('DrivePresentacion', isset($recursos['presentacion']) ? $recursos['presentacion']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
                                                 oninput="validarDrive(this)"
                                                 onchange="validarDrive(this)">
@@ -342,7 +343,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="EvaluacionDiagnostica" id="EvaluacionDiagnostica" 
                                                 class="form-control" 
-                                                value="{{ old('EvaluacionDiagnostica', $evaluaciones['diagnostica']->url ?? '') }}" 
+                                                value="{{ old('EvaluacionDiagnostica', isset($evaluaciones['diagnostica']) ? $evaluaciones['diagnostica']->url : '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -385,7 +386,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="EvaluacionSatisfaccion" id="EvaluacionSatisfaccion" 
                                                 class="form-control" 
-                                                value="{{ old('EvaluacionSatisfaccion', $evaluaciones['satisfaccion']->url ?? '') }}" 
+                                                value="{{ old('EvaluacionSatisfaccion', isset($evaluaciones['satisfaccion']) ? $evaluaciones['satisfaccion']->url : '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -428,7 +429,7 @@
                                             <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                                             <input type="text" name="EvaluacionFinal" id="EvaluacionFinal" 
                                                 class="form-control" 
-                                                value="{{ old('EvaluacionFinal', $evaluaciones['final']->url ?? '') }}" 
+                                                value="{{ old('EvaluacionFinal', isset($evaluaciones['final']) ? $evaluaciones['final']->url : '') }}" 
                                                 placeholder="Ej: 100%"
                                                 oninput="validarPorcentaje(this)"
                                                 onchange="validarPorcentaje(this)">
@@ -472,10 +473,10 @@
                                             <select name="DC3" id="DC3" 
                                                 class="form-select @error('DC3') is-invalid @enderror" 
                                                 onchange="validarSelect(this)">
-                                                <option value="" disabled {{ old('DC3', $recursos['dc3']->nombre ?? '') ? '' : 'selected' }}>Seleccione el estado del DC3</option>
-                                                <option value="Se entrega DC3" {{ old('DC3', $recursos['dc3']->nombre ?? '') == 'Se entrega DC3' ? 'selected' : '' }}>Se entrega DC3</option>
-                                                <option value="No se entrega DC3" {{ old('DC3', $recursos['dc3']->nombre ?? '') == 'No se entrega DC3' ? 'selected' : '' }}>No se entrega DC3</option>
-                                                <option value="Entrega pendiente de DC3" {{ old('DC3', $recursos['dc3']->nombre ?? '') == 'Entrega pendiente de DC3' ? 'selected' : '' }}>Entrega pendiente de DC3</option>
+                                                <option value="" disabled {{ old('DC3', isset($recursos['dc3']) ? $recursos['dc3']->nombre : '') ? '' : 'selected' }}>Seleccione el estado del DC3</option>
+                                                <option value="Se entrega DC3" {{ old('DC3', isset($recursos['dc3']) ? $recursos['dc3']->nombre : '') == 'Se entrega DC3' ? 'selected' : '' }}>Se entrega DC3</option>
+                                                <option value="No se entrega DC3" {{ old('DC3', isset($recursos['dc3']) ? $recursos['dc3']->nombre : '') == 'No se entrega DC3' ? 'selected' : '' }}>No se entrega DC3</option>
+                                                <option value="Entrega pendiente de DC3" {{ old('DC3', isset($recursos['dc3']) ? $recursos['dc3']->nombre : '') == 'Entrega pendiente de DC3' ? 'selected' : '' }}>Entrega pendiente de DC3</option>
                                             </select>
                                             @error('DC3')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -495,6 +496,9 @@
                                 <button type="submit" class="btn btn-guardar-verde btn-custom shadow-sm">
                                     <i class="fas fa-save me-2"></i> Guardar y Continuar
                                 </button>
+                                <button type="button" class="btn btn-warning btn-custom shadow-sm" id="finalizarForzadoBtn">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> Finalización Forzada
+                                </button>
                                 <a href="{{ route('curso.paso5') }}" class="btn btn-secondary btn-custom shadow-sm">
                                     <i class="fas fa-arrow-left me-2"></i> Regresar
                                 </a>
@@ -510,6 +514,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('#Presentacion, #EvaluacionDiagnostica, #EvaluacionSatisfaccion, #EvaluacionFinal').forEach(campo => {
@@ -523,6 +528,55 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     actualizarContadores();
     actualizarEstadoGeneral();
+    
+    // Finalización Forzada
+    document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esto guardará el curso con los datos actuales y no podrás continuar editándolo.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, finalizar ahora',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('{{ route("curso.finalizacionForzada") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Curso guardado',
+                            text: 'El curso ha sido guardado exitosamente.'
+                        }).then(() => {
+                            window.location.href = "{{ route('cursos.index') }}";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Ocurrió un error al finalizar el curso.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al procesar la solicitud.'
+                    });
+                });
+            }
+        });
+    });
 });
 
 function validarPorcentaje(campo) {
