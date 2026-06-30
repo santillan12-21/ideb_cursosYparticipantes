@@ -118,7 +118,9 @@ Route::delete('/cursos/{curso}', [CursoController::class, 'destroy'])->name('cur
 
 Route::get('/configuraciones', [ConfigController::class, 'index'])->name('configuraciones.index');
 Route::post('/configuraciones', [ConfigController::class, 'store'])->name('configuraciones.store');
-Route::get('/ver-archivo/{tipo}', [CursoController::class, 'verArchivo'])->name('curso.verArchivo');
+Route::get('/cursos/{curso}/archivos/{filename}', [CursoController::class, 'verArchivoCurso'])
+    ->where('filename', '.*')
+    ->name('cursos.archivo');
 
 
 

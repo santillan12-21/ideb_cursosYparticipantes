@@ -201,10 +201,10 @@
                                             <select name="modalidad" id="modalidad" 
                                                 class="form-select @error('modalidad') is-invalid @enderror" 
                                                 onchange="validarSelect(this)">
-                                                <option value="" disabled {{ old('modalidad') ? '' : 'selected' }}>Seleccione una modalidad</option>
-                                                <option value="virtual" {{ old('modalidad') == 'virtual' ? 'selected' : '' }}>💻 Virtual</option>
-                                                <option value="presencial" {{ old('modalidad') == 'presencial' ? 'selected' : '' }}>🏫 Presencial</option>
-                                                <option value="mixto" {{ old('modalidad') == 'mixto' ? 'selected' : '' }}>🔄 Mixto</option>
+                                                <option value="" disabled {{ old('modalidad', $curso->modalidad ?? session('cursos_paso2.modalidad')) ? '' : 'selected' }}>Seleccione una modalidad</option>
+                                                <option value="virtual" {{ old('modalidad', $curso->modalidad ?? session('cursos_paso2.modalidad')) == 'virtual' ? 'selected' : '' }}>💻 Virtual</option>
+                                                <option value="presencial" {{ old('modalidad', $curso->modalidad ?? session('cursos_paso2.modalidad')) == 'presencial' ? 'selected' : '' }}>🏫 Presencial</option>
+                                                <option value="mixto" {{ old('modalidad', $curso->modalidad ?? session('cursos_paso2.modalidad')) == 'mixto' ? 'selected' : '' }}>🔄 Mixto</option>
                                             </select>
                                             @error('modalidad')
                                                 <div class="invalid-feedback">{{ $message }}</div>

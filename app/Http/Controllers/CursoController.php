@@ -264,6 +264,18 @@ class CursoController extends Controller
     // ============================================
     // FUNCIÓN AUXILIAR PARA GUARDAR ARCHIVOS
     // ============================================
+    public function verArchivoCurso(Cursos $curso, string $filename)
+    {
+        $filename = basename($filename);
+        $path = storage_path('app/public/cursos/' . $curso->id . '/' . $filename);
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path);
+    }
+
     private function guardarArchivosCurso($curso, $request, $archivosMap)
     {
         $cursoPath = storage_path('app/public/cursos/' . $curso->id);
@@ -281,7 +293,7 @@ class CursoController extends Controller
                 $fileName = time() . '_' . $nombreLimpio . '.' . $extension;
                 
                 $file->move($cursoPath, $fileName);
-                $rutaPublica = 'storage/cursos/' . $curso->id . '/' . $fileName;
+                $rutaPublica = 'cursos/' . $curso->id . '/' . $fileName;
                 
                 CursoRecurso::updateOrCreate(
                     ['curso_id' => $curso->id, 'tipo_recurso' => $tipoRecurso],
@@ -532,8 +544,6 @@ class CursoController extends Controller
         $v = $request->validate([
             'Digital' => 'nullable|string',
             'DriveDigital' => 'nullable|string',
-            'Presentacion' => 'nullable|string',
-            'DrivePresentacion' => 'nullable|string',
             'Impreso_Presentable' => 'nullable|string',
             'DriveImpreso' => 'nullable|string',
         ]);
@@ -542,7 +552,6 @@ class CursoController extends Controller
 
         $recursosMap = [
             'digital' => ['url' => $v['Digital'] ?? null, 'drive_url' => $v['DriveDigital'] ?? null],
-            'presentacion' => ['url' => $v['Presentacion'] ?? null, 'drive_url' => $v['DrivePresentacion'] ?? null],
             'impreso' => ['url' => $v['Impreso_Presentable'] ?? null, 'drive_url' => $v['DriveImpreso'] ?? null],
         ];
 
@@ -559,7 +568,6 @@ class CursoController extends Controller
 
         $this->guardarArchivosCurso($curso, $request, [
             'archivoDigital' => 'digital_archivo',
-            'archivoPresentacion' => 'presentacion_archivo',
             'archivoImpreso' => 'impreso_archivo',
         ]);
         
@@ -600,8 +608,11 @@ class CursoController extends Controller
             'Presentacion' => 'nullable|string',
             'DrivePresentacion' => 'nullable|string',
             'EvaluacionDiagnostica' => 'nullable|string',
+            'DriveEvaluacionDiagnostica' => 'nullable|string',
             'EvaluacionSatisfaccion' => 'nullable|string',
+            'DriveEvaluacionSatisfaccion' => 'nullable|string',
             'EvaluacionFinal' => 'nullable|string',
+            'DriveEvaluacionFinal' => 'nullable|string',
             'DC3' => 'nullable|string',
         ]);
 
@@ -629,7 +640,7 @@ class CursoController extends Controller
                 mkdir($cursoPath, 0777, true);
             }
             $file->move($cursoPath, $fileName);
-            $rutaPublica = 'storage/cursos/' . $curso->id . '/' . $fileName;
+            $rutaPublica = 'cursos/' . $curso->id . '/' . $fileName;
             
             CursoRecurso::updateOrCreate(
                 ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion_archivo'],
@@ -639,16 +650,25 @@ class CursoController extends Controller
 
         // Guardar evaluaciones
         $evaluacionesMap = [
-            'diagnostica' => $v['EvaluacionDiagnostica'] ?? null,
-            'satisfaccion' => $v['EvaluacionSatisfaccion'] ?? null,
-            'final' => $v['EvaluacionFinal'] ?? null,
+            'diagnostica' => [
+                'url' => $v['EvaluacionDiagnostica'] ?? null,
+                'drive_url' => $v['DriveEvaluacionDiagnostica'] ?? null,
+            ],
+            'satisfaccion' => [
+                'url' => $v['EvaluacionSatisfaccion'] ?? null,
+                'drive_url' => $v['DriveEvaluacionSatisfaccion'] ?? null,
+            ],
+            'final' => [
+                'url' => $v['EvaluacionFinal'] ?? null,
+                'drive_url' => $v['DriveEvaluacionFinal'] ?? null,
+            ],
         ];
 
-        foreach ($evaluacionesMap as $tipo => $url) {
-            if (!empty($url)) {
+        foreach ($evaluacionesMap as $tipo => $data) {
+            if (!empty($data['url']) || !empty($data['drive_url'])) {
                 CursoEvaluacion::updateOrCreate(
                     ['curso_id' => $curso->id, 'tipo_evaluacion' => $tipo],
-                    ['url' => $url]
+                    $data
                 );
             } else {
                 $curso->evaluaciones()->where('tipo_evaluacion', $tipo)->delete();
@@ -954,7 +974,6 @@ class CursoController extends Controller
         if ($paso == 5) {
             $recursosMap = [
                 'digital' => ['url' => $request->Digital, 'drive_url' => $request->DriveDigital],
-                'presentacion' => ['url' => $request->Presentacion, 'drive_url' => $request->DrivePresentacion],
                 'impreso' => ['url' => $request->Impreso_Presentable, 'drive_url' => $request->DriveImpreso],
             ];
 
@@ -971,7 +990,6 @@ class CursoController extends Controller
 
             $this->guardarArchivosCurso($curso, $request, [
                 'archivoDigital' => 'digital_archivo',
-                'archivoPresentacion' => 'presentacion_archivo',
                 'archivoImpreso' => 'impreso_archivo',
             ]);
         }
@@ -996,7 +1014,7 @@ class CursoController extends Controller
                     mkdir($cursoPath, 0777, true);
                 }
                 $file->move($cursoPath, $fileName);
-                $rutaPublica = 'storage/cursos/' . $curso->id . '/' . $fileName;
+                $rutaPublica = 'cursos/' . $curso->id . '/' . $fileName;
                 
                 CursoRecurso::updateOrCreate(
                     ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion_archivo'],
@@ -1006,16 +1024,25 @@ class CursoController extends Controller
 
             // Guardar evaluaciones
             $evaluacionesMap = [
-                'diagnostica' => $request->EvaluacionDiagnostica,
-                'satisfaccion' => $request->EvaluacionSatisfaccion,
-                'final' => $request->EvaluacionFinal,
+                'diagnostica' => [
+                    'url' => $request->EvaluacionDiagnostica,
+                    'drive_url' => $request->DriveEvaluacionDiagnostica,
+                ],
+                'satisfaccion' => [
+                    'url' => $request->EvaluacionSatisfaccion,
+                    'drive_url' => $request->DriveEvaluacionSatisfaccion,
+                ],
+                'final' => [
+                    'url' => $request->EvaluacionFinal,
+                    'drive_url' => $request->DriveEvaluacionFinal,
+                ],
             ];
 
-            foreach ($evaluacionesMap as $tipo => $url) {
-                if (!empty($url)) {
+            foreach ($evaluacionesMap as $tipo => $data) {
+                if (!empty($data['url']) || !empty($data['drive_url'])) {
                     CursoEvaluacion::updateOrCreate(
                         ['curso_id' => $curso->id, 'tipo_evaluacion' => $tipo],
-                        ['url' => $url]
+                        $data
                     );
                 } else {
                     $curso->evaluaciones()->where('tipo_evaluacion', $tipo)->delete();

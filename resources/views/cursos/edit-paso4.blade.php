@@ -305,7 +305,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['temario_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['temario_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['temario_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -359,7 +359,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['itinerario_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['itinerario_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['itinerario_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -413,7 +413,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['planeacion_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['planeacion_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['planeacion_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>

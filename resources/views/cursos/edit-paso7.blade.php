@@ -326,7 +326,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['dc5_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset($recursos['dc5_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['dc5_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -382,7 +382,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['certificado_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset($recursos['certificado_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['certificado_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -437,7 +437,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['carta_poder_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset($recursos['carta_poder_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['carta_poder_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>

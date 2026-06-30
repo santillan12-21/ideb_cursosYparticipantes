@@ -305,7 +305,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['sin_fecha_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['sin_fecha_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['sin_fecha_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -359,7 +359,7 @@
                                                 <i class="fas fa-file-image"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['facebook_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['facebook_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['facebook_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -413,7 +413,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['linkedin_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['linkedin_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['linkedin_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -467,7 +467,7 @@
                                                 <i class="fas fa-file-image"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['instagram_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset('storage/' . $recursos['instagram_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['instagram_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>

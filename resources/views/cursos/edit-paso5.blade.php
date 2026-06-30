@@ -307,7 +307,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['digital_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset($recursos['digital_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['digital_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -361,7 +361,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['impreso_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset($recursos['impreso_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['impreso_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>

@@ -318,7 +318,7 @@
                                                 <i class="fas fa-file-pdf"></i>
                                                 <span class="doc-nombre">{{ basename($recursos['presentacion_archivo']->url) }}</span>
                                                 <div class="doc-acciones">
-                                                    <a href="{{ asset($recursos['presentacion_archivo']->url) }}" target="_blank" class="btn-ver-doc">
+                                                    <a href="{{ $recursos['presentacion_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
                                                         <i class="fas fa-eye"></i> Ver
                                                     </a>
                                                 </div>
@@ -358,7 +358,7 @@
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveEvaluacionDiagnostica" id="DriveEvaluacionDiagnostica" 
                                                 class="form-control" 
-                                                value="{{ old('DriveEvaluacionDiagnostica', '') }}" 
+                                                value="{{ old('DriveEvaluacionDiagnostica', isset($evaluaciones['diagnostica']) ? $evaluaciones['diagnostica']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
                                                 oninput="validarDrive(this)"
                                                 onchange="validarDrive(this)">
@@ -401,7 +401,7 @@
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveEvaluacionSatisfaccion" id="DriveEvaluacionSatisfaccion" 
                                                 class="form-control" 
-                                                value="{{ old('DriveEvaluacionSatisfaccion', '') }}" 
+                                                value="{{ old('DriveEvaluacionSatisfaccion', isset($evaluaciones['satisfaccion']) ? $evaluaciones['satisfaccion']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
                                                 oninput="validarDrive(this)"
                                                 onchange="validarDrive(this)">
@@ -444,7 +444,7 @@
                                             <span class="input-group-text"><i class="fab fa-google-drive"></i></span>
                                             <input type="text" name="DriveEvaluacionFinal" id="DriveEvaluacionFinal" 
                                                 class="form-control" 
-                                                value="{{ old('DriveEvaluacionFinal', '') }}" 
+                                                value="{{ old('DriveEvaluacionFinal', isset($evaluaciones['final']) ? $evaluaciones['final']->drive_url : '') }}" 
                                                 placeholder="https://drive.google.com/..."
                                                 oninput="validarDrive(this)"
                                                 onchange="validarDrive(this)">
