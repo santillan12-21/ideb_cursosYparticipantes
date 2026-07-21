@@ -311,7 +311,7 @@
                                             <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
                                             <input type="number" step="0.01" name="CostodelCurso" id="CostodelCurso"
                                                 class="form-control @error('CostodelCurso') is-invalid @enderror"
-                                                value="{{ old('CostodelCurso', $curso->CostodelCurso ?? '') }}"
+                                                value="{{ old('CostodelCurso', ($curso->costo ?? null) > 0 ? $curso->costo : '') }}"
                                                 placeholder="0.00" 
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
@@ -456,11 +456,14 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
+                const formData = new FormData(document.getElementById('formularioCurso'));
+
                 fetch('{{ route("curso.finalizacionForzada") }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
+                    },
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -493,6 +496,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+const camposObligatoriosPaso1 = ['Nomenclatura', 'NombredelCurso'];
+
+function valorCampoVacio(campo, valor) {
+    if (valor === '') {
+        return true;
+    }
+
+    if (campo.id === 'CostodelCurso') {
+        const numero = parseFloat(valor);
+        return isNaN(numero) || numero <= 0;
+    }
+
+    return false;
+}
+
+function valorCampoCompleto(campo, valor) {
+    if (valorCampoVacio(campo, valor)) {
+        return false;
+    }
+
+    if (campo.type === 'date' || campo.id === 'CostodelCurso') {
+        return true;
+    }
+
+    return valor.length >= 3;
+}
+
 /**
  * Función principal para validar un campo
  */
@@ -500,6 +530,7 @@ function validarCampo(campo) {
     const valor = campo.value.trim();
     const idCampo = campo.id;
     const indicador = document.getElementById('estado-' + idCampo);
+    const esObligatorio = camposObligatoriosPaso1.includes(idCampo);
     
     // Remover clases anteriores
     campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
@@ -508,14 +539,23 @@ function validarCampo(campo) {
     }
     
     // Determinar el estado del campo
-    if (valor === '') {
-        // CAMPO VACÍO - ROJO
-        campo.classList.add('validado-vacio');
-        if (indicador) {
-            indicador.classList.add('estado-rojo');
-            indicador.title = 'Campo vacío';
+    if (valorCampoVacio(campo, valor)) {
+        if (esObligatorio) {
+            // CAMPO OBLIGATORIO VACÍO - ROJO
+            campo.classList.add('validado-vacio');
+            if (indicador) {
+                indicador.classList.add('estado-rojo');
+                indicador.title = 'Campo obligatorio vacío';
+            }
+        } else {
+            // CAMPO PENDIENTE - AMARILLO
+            campo.classList.add('validado-incompleto');
+            if (indicador) {
+                indicador.classList.add('estado-amarillo');
+                indicador.title = 'Campo pendiente';
+            }
         }
-    } else if (valor.length > 0 && valor.length < 3) {
+    } else if (!valorCampoCompleto(campo, valor)) {
         // CAMPO INCOMPLETO - AMARILLO (menos de 3 caracteres)
         campo.classList.add('validado-incompleto');
         if (indicador) {
@@ -579,23 +619,21 @@ function actualizarEstadoGeneral() {
     const indicadorGeneral = document.getElementById('indicadorGeneral');
     const textoEstado = document.getElementById('textoEstado');
     
+    const pendientes = total - completos;
+
     // Determinar el estado general
-    if (vacios > 0) {
-        // Hay campos vacíos - ROJO
-        indicadorGeneral.className = 'estado-indicador estado-rojo';
-        textoEstado.textContent = `⚠️ ${vacios} campo(s) vacío(s) - Requiere atención`;
-    } else if (incompletos > 0) {
-        // Hay campos incompletos - AMARILLO
-        indicadorGeneral.className = 'estado-indicador estado-amarillo';
-        textoEstado.textContent = `🟡 ${incompletos} campo(s) incompleto(s) - Revisar`;
-    } else if (completos === total) {
+    if (completos === total) {
         // Todos los campos completos - VERDE
         indicadorGeneral.className = 'estado-indicador estado-verde';
         textoEstado.textContent = '✅ Todos los campos completos - Listo para guardar';
+    } else if (vacios > 0 && completos === 0 && incompletos === 0) {
+        // Sin ningún dato capturado - ROJO
+        indicadorGeneral.className = 'estado-indicador estado-rojo';
+        textoEstado.textContent = `⚠️ ${vacios} campo(s) obligatorio(s) vacío(s) - Requiere atención`;
     } else {
-        // Estado por defecto
-        indicadorGeneral.className = 'estado-indicador';
-        textoEstado.textContent = 'Verificando campos...';
+        // Hay campos pendientes o incompletos - AMARILLO
+        indicadorGeneral.className = 'estado-indicador estado-amarillo';
+        textoEstado.textContent = `🟡 ${pendientes} campo(s) pendiente(s) - En progreso`;
     }
 }
 </script>

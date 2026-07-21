@@ -119,7 +119,17 @@
             </div>
             <div class="col-md-8 text-end">
                 <div class="d-flex justify-content-end gap-2 flex-wrap">
-                    <form action="{{ route('cursos.index') }}" method="GET" class="d-flex me-2">
+                    <form action="{{ route('cursos.index') }}" method="GET" class="d-flex me-2 gap-2 flex-wrap justify-content-end">
+                        <select name="sort" class="form-select shadow-sm" style="width: auto; height: 40px;" onchange="this.form.submit()">
+                            <option value="nombre" {{ ($sort ?? 'nombre') === 'nombre' ? 'selected' : '' }}>Nombre A-Z</option>
+                            <option value="nomenclatura" {{ ($sort ?? '') === 'nomenclatura' ? 'selected' : '' }}>Nomenclatura A-Z</option>
+                            <option value="instructor_responsable" {{ ($sort ?? '') === 'instructor_responsable' ? 'selected' : '' }}>Instructor A-Z</option>
+                            <option value="created_at" {{ ($sort ?? '') === 'created_at' ? 'selected' : '' }}>Más recientes</option>
+                        </select>
+                        <select name="direction" class="form-select shadow-sm" style="width: auto; height: 40px;" onchange="this.form.submit()">
+                            <option value="asc" {{ ($direction ?? 'asc') === 'asc' ? 'selected' : '' }}>Ascendente</option>
+                            <option value="desc" {{ ($direction ?? '') === 'desc' ? 'selected' : '' }}>Descendente</option>
+                        </select>
                         <div class="input-group shadow-sm" style="border-radius: 6px; overflow: hidden;">
                             <input type="text" name="search" class="form-control border-0" placeholder="Buscar curso..." value="{{ request('search') }}" style="height: 40px;">
                             <button type="submit" class="btn btn-dark" style="border-radius: 6px; margin: 0; height: 40px; min-width: 50px;"><i class="fas fa-search"></i></button>

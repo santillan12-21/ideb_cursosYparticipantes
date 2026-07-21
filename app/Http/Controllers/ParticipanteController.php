@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\ParticipantActionLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class ParticipanteController extends Controller
 {
@@ -134,28 +135,7 @@ public function papelera(Request $request)
 
             $participante = Participantes::findOrFail($id);
 
-        // Mapear los datos validados a los nombres de columna reales de la base de datos
-        $participanteData = [
-            'nombre' => $validated['NombredelPostulante'],
-            'correo' => $validated['Correo'],
-            'telefono' => $validated['Telefono'],
-            'edad' => $validated['Edad'],
-            'direccion' => $validated['Direccion'],
-            'escolaridad' => $validated['Escolaridad'],
-            'curp' => $validated['Curp'],
-            'razon_social' => $validated['RazónSocial'],
-            'empresa' => $validated['Empresa'],
-            'rfc_empresa' => $validated['RFCEmpresa'],
-            'puesto' => $validated['Puesto'],
-            'ocupacion' => $validated['Ocupacion'],
-            'pago' => $validated['Pago'],
-            'estado_pago' => $validated['EstadoDePago'],
-            'fecha_curso' => $validated['FechadelCurso'],
-            'N' => $validated['N'],
-        ];
-
-        // Actualizar los datos del participante
-        $participante->update($participanteData);
+        $participante->update($this->mapearDatosParticipante($validated));
 
         // Registrar la acción en el historial
         ParticipantActionLog::create([
@@ -182,78 +162,63 @@ public function papelera(Request $request)
      */
     public function store(Request $request)
     {
-     $validated = $request->validate([
-         'N' => 'required|string|max:255',
-         'NombredelPostulante' => 'required|string|max:255',
-         'Correo' => 'required|email|max:255|unique:participantes,correo',
-         'Telefono' => 'required|string|size:10', // Forzar exactamente 10
-         'Edad' => 'required|integer|min:18|max:90',
-         'Direccion' => 'required|string|max:255',
-         'Escolaridad' => 'required|string|max:255',
-         'Curp' => 'required|string|size:18|unique:participantes,curp',
-         'RazónSocial' => 'nullable|string|max:255',
-         'Empresa' => 'required|string|max:255',
-         'RFCEmpresa' => 'nullable|string|max:255',
-         'Puesto' => 'required|string|max:255',
-         'Ocupacion' => 'nullable|string|max:255',
-         'Pago' => 'required|numeric|min:0',
-         'EstadoDePago' => 'required|string|max:255',
-         'FechadelCurso' => 'required|date',
-         'cursos' => 'required|array|min:1',
-     ], [
-         'Edad.min' => 'La edad mínima permitida es de 18 años.',
-         'Edad.max' => 'La edad máxima permitida es de 90 años.',
-         'Telefono.size' => 'El teléfono debe tener exactamente 10 dígitos.',
-         'Curp.size' => 'La CURP debe tener exactamente 18 caracteres.',
-         'Curp.unique' => 'Esta CURP ya está registrada.',
-     ]);
+        try {
+            $validated = $request->validate([
+                'N' => 'required|string|max:255',
+                'NombredelPostulante' => 'required|string|max:255',
+                'Correo' => 'required|email|max:255|unique:participantes,correo',
+                'Telefono' => 'required|string|size:10',
+                'Edad' => 'required|integer|min:18|max:90',
+                'Direccion' => 'required|string|max:255',
+                'Escolaridad' => 'required|string|max:255',
+                'Curp' => 'required|string|size:18|unique:participantes,curp',
+                'RazónSocial' => 'nullable|string|max:255',
+                'Empresa' => 'required|string|max:255',
+                'RFCEmpresa' => 'nullable|string|max:255',
+                'Puesto' => 'required|string|max:255',
+                'Ocupacion' => 'nullable|string|max:255',
+                'Pago' => 'required|numeric|min:0',
+                'EstadoDePago' => 'required|string|max:255',
+                'FechadelCurso' => 'required|date',
+                'cursos' => 'required|array|min:1',
+            ], [
+                'Edad.min' => 'La edad mínima permitida es de 18 años.',
+                'Edad.max' => 'La edad máxima permitida es de 90 años.',
+                'Telefono.size' => 'El teléfono debe tener exactamente 10 dígitos.',
+                'Curp.size' => 'La CURP debe tener exactamente 18 caracteres.',
+                'Curp.unique' => 'Esta CURP ya está registrada.',
+            ]);
 
-    // Mapear los datos validados a los nombres de columna reales de la base de datos
-    $participanteData = [
-        'nombre' => $validated['NombredelPostulante'],
-        'correo' => $validated['Correo'],
-        'telefono' => $validated['Telefono'],
-        'edad' => $validated['Edad'],
-        'direccion' => $validated['Direccion'],
-        'escolaridad' => $validated['Escolaridad'],
-        'curp' => $validated['Curp'],
-        'razon_social' => $validated['RazónSocial'],
-        'empresa' => $validated['Empresa'],
-        'rfc_empresa' => $validated['RFCEmpresa'],
-        'puesto' => $validated['Puesto'],
-        'ocupacion' => $validated['Ocupacion'],
-        'pago' => $validated['Pago'] ?? 0,
-        'estado_pago' => $validated['EstadoDePago'],
-        'fecha_curso' => $validated['FechadelCurso'],
-        'estatus' => 1,
-        'N' => $validated['N'],
-    ];
+            $participante = Participantes::create(
+                $this->mapearDatosParticipante($validated, true)
+            );
 
-    // Guardar el participante
-    $participante = Participantes::create($participanteData);
+            ParticipantActionLog::create([
+                'participant_id' => $participante->id,
+                'nombre_postulante' => $participante->nombre,
+                'correo' => $participante->correo,
+                'accion' => 'Creado',
+                'user_id' => Auth::id(),
+                'detalles' => 'Nuevo participante registrado.',
+                'fecha_accion' => now(),
+            ]);
 
-    // Registrar el log
-    ParticipantActionLog::create([
-        'participant_id' => $participante->id,
-        'nombre_postulante' => $participante->nombre,
-        'correo' => $participante->correo,
-        'accion' => 'Creado',
-        'user_id' => Auth::id(),
-        'detalles' => 'Nuevo participante registrado.',
-        'fecha_accion' => now(),
-    ]);
+            $participante->cursos()->sync($validated['cursos']);
 
-    // Guardar las inscripciones
-    foreach ($validated['cursos'] as $curso_id) {
-        Inscripcion::create([
-            'participante_id' => $participante->id,
-            'curso_id' => $curso_id,
-        ]);
+            return redirect()->route('participantes.index')
+                ->with('success', 'Participante registrado exitosamente.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Error al guardar participante: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'No se pudo guardar el participante. Verifica los datos e intenta de nuevo.');
+        }
     }
-
-    return redirect()->route('participantes.index')
-                     ->with('success', 'Participante registrado exitosamente.');
-}
 
     /**
      * Eliminar un participante.
@@ -435,5 +400,36 @@ public function papelera(Request $request)
                     return back()->with('error', 'Error al eliminar el participante: ' . $e->getMessage());
                 }
             }
+
+    private function mapearDatosParticipante(array $validated, bool $incluirEstatus = false): array
+    {
+        $datos = [
+            'nombre' => $validated['NombredelPostulante'],
+            'correo' => $validated['Correo'],
+            'telefono' => $validated['Telefono'],
+            'edad' => $validated['Edad'],
+            'direccion' => $validated['Direccion'],
+            'escolaridad' => $validated['Escolaridad'],
+            'curp' => $validated['Curp'],
+            'razon_social' => $validated['RazónSocial'] ?: 'Sin especificar',
+            'empresa' => $validated['Empresa'],
+            'rfc_empresa' => $validated['RFCEmpresa'] ?: ('SINRFC' . strtoupper(substr(uniqid(), -8))),
+            'puesto' => $validated['Puesto'],
+            'ocupacion' => $validated['Ocupacion'] ?? null,
+            'pago' => $validated['Pago'] ?? 0,
+            'estado_pago' => $validated['EstadoDePago'],
+            'fecha_curso' => $validated['FechadelCurso'],
+        ];
+
+        if (Schema::hasColumn('participantes', 'N')) {
+            $datos['N'] = $validated['N'];
+        }
+
+        if ($incluirEstatus) {
+            $datos['estatus'] = 1;
+        }
+
+        return $datos;
+    }
 
 }

@@ -189,6 +189,15 @@
                     <div class="card-body p-4 p-md-5">
                         <form action="{{ route('curso.paso2.guardar') }}" method="POST" id="formularioCurso">
                             @csrf
+                            @php
+                                $modalidadSesion = (session('curso_id') == ($curso->id ?? null))
+                                    ? (session('cursos_paso2.modalidad') ?: null)
+                                    : null;
+                                $modalidadSeleccionada = old(
+                                    'modalidad',
+                                    $curso->modalidadPaso2Guardada() ?: $modalidadSesion
+                                );
+                            @endphp
                             <div class="form-section-card shadow-sm">
                                 <div class="row g-4">
                                     <div class="col-md-12">
@@ -201,10 +210,10 @@
                                             <select name="modalidad" id="modalidad" 
                                                 class="form-select @error('modalidad') is-invalid @enderror" 
                                                 onchange="validarSelect(this)">
-                                                <option value="" disabled {{ old('modalidad', $curso->modalidad ?? session('cursos_paso2.modalidad')) ? '' : 'selected' }}>Seleccione una modalidad</option>
-                                                <option value="virtual" {{ old('modalidad', $curso->modalidad ?? session('cursos_paso2.modalidad')) == 'virtual' ? 'selected' : '' }}>💻 Virtual</option>
-                                                <option value="presencial" {{ old('modalidad', $curso->modalidad ?? session('cursos_paso2.modalidad')) == 'presencial' ? 'selected' : '' }}>🏫 Presencial</option>
-                                                <option value="mixto" {{ old('modalidad', $curso->modalidad ?? session('cursos_paso2.modalidad')) == 'mixto' ? 'selected' : '' }}>🔄 Mixto</option>
+                                                <option value="" {{ $modalidadSeleccionada ? '' : 'selected' }}>Seleccione una modalidad</option>
+                                                <option value="virtual" {{ $modalidadSeleccionada == 'virtual' ? 'selected' : '' }}>💻 Virtual</option>
+                                                <option value="presencial" {{ $modalidadSeleccionada == 'presencial' ? 'selected' : '' }}>🏫 Presencial</option>
+                                                <option value="mixto" {{ $modalidadSeleccionada == 'mixto' ? 'selected' : '' }}>🔄 Mixto</option>
                                             </select>
                                             @error('modalidad')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -245,13 +254,15 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const selects = document.querySelectorAll('#formularioCurso .form-select');
-    selects.forEach(select => {
+    const select = document.getElementById('modalidad');
+    if (select && !@json((bool) $modalidadSeleccionada)) {
+        select.value = '';
+    }
+
+    if (select) {
         validarSelect(select);
-    });
-    actualizarEstadoGeneral();
-    
-    // Finalización Forzada
+        actualizarEstadoGeneral();
+    }
     document.getElementById('finalizarForzadoBtn').addEventListener('click', function () {
         Swal.fire({
             title: '¿Estás seguro?',
@@ -302,16 +313,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function validarSelect(select) {
+    const selectedOption = select.options[select.selectedIndex];
     const valor = select.value;
-    const idCampo = select.id;
-    const indicador = document.getElementById('estado-' + idCampo);
+    const indicador = document.getElementById('estado-' + select.id);
+    const esVacio = !valor || (selectedOption && selectedOption.disabled);
     
     select.classList.remove('validado-completo', 'validado-vacio');
     if (indicador) {
         indicador.classList.remove('estado-verde', 'estado-rojo');
     }
     
-    if (valor === '' || valor === null || valor === undefined) {
+    if (esVacio) {
         select.classList.add('validado-vacio');
         if (indicador) {
             indicador.classList.add('estado-rojo');
@@ -361,15 +373,12 @@ function actualizarEstadoGeneral() {
     const indicadorGeneral = document.getElementById('indicadorGeneral');
     const textoEstado = document.getElementById('textoEstado');
     
-    if (vacios > 0) {
-        indicadorGeneral.className = 'estado-indicador estado-rojo';
-        textoEstado.textContent = `⚠️ ${vacios} campo(s) sin seleccionar - Requiere atención`;
-    } else if (completos === total) {
+    if (completos === total) {
         indicadorGeneral.className = 'estado-indicador estado-verde';
-        textoEstado.textContent = '✅ Todos los campos completos - Listo para guardar';
+        textoEstado.textContent = '✅ Modalidad seleccionada - Listo para guardar';
     } else {
-        indicadorGeneral.className = 'estado-indicador';
-        textoEstado.textContent = 'Verificando campos...';
+        indicadorGeneral.className = 'estado-indicador estado-rojo';
+        textoEstado.textContent = '⚠️ Selecciona una modalidad para continuar';
     }
 }
 </script>

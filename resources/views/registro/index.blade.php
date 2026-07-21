@@ -4,9 +4,9 @@
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- jQuery UI -->
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <link rel="icon" type="image/x-icon" href="{{ asset('images/Logoibeb.ico') }}">
 
 <style>
@@ -123,6 +123,49 @@
         letter-spacing: 1px;
         font-size: 0.85rem;
         transition: all 0.3s ease;
+    }
+
+    .input-group .select2-container {
+        flex: 1 1 auto;
+        width: 1% !important;
+        min-width: 0;
+    }
+
+    .input-group .select2-container .select2-selection--single {
+        height: 45px;
+        border: 1px solid #dee2e6;
+        border-left: none;
+        border-radius: 0 6px 6px 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 43px;
+        padding-left: 12px;
+        color: #495057;
+    }
+
+    .input-group .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 43px;
+    }
+
+    .select2-container--open .select2-dropdown--below {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .select2-results__option {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        line-height: 1.35;
+        white-space: normal;
+    }
+
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+        background-color: #212529;
     }
 </style>
 
@@ -254,14 +297,16 @@
                                             <label for="Puesto" class="form-label">Puesto o Cargo</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
-                                                <input type="text" class="form-control" id="Puesto" name="Puesto" placeholder="Escriba su puesto..." required>
+                                                <input type="text" class="form-control" id="Puesto" name="Puesto" value="{{ old('Puesto') }}" placeholder="Ej: Gerente, Supervisor, Técnico..." required autocomplete="off">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="Ocupacion" class="form-label">Ocupación Específica</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-tools"></i></span>
-                                                <input type="text" class="form-control" id="Ocupacion" name="Ocupacion" placeholder="Detalle su ocupación..." required>
+                                                <select class="form-select" id="Ocupacion" name="Ocupacion" required>
+                                                    <option value=""></option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -359,7 +404,8 @@
     }
 
     $(function () {
-        const puestos = [
+        const ocupacionSeleccionada = @json(old('Ocupacion'));
+        const ocupaciones = [
             "01 Cultivo, crianza y aprovechamiento", "01.1 Agricultura y silvicultura", "01.2 Ganadería",
             "01.3 Pesca y acuacultura", "02 Extracción y suministro", "02.1 Exploración",
             "02.2 Extracción", "02.3 Refinación y beneficio", "02.4 Provisión de energia",
@@ -387,15 +433,16 @@
             "11.3 Difusión cultural"
         ];
 
-        $("#Puesto").autocomplete({
-            source: puestos,
-            minLength: 0,
-            select: function (event, ui) {
-                $("#Puesto").val(ui.item.value);
-                return false;
-            }
-        }).focus(function() {
-            $(this).autocomplete("search", "");
+        const $ocupacion = $('#Ocupacion');
+        ocupaciones.forEach(function (ocupacion) {
+            $ocupacion.append(new Option(ocupacion, ocupacion, false, ocupacion === ocupacionSeleccionada));
+        });
+
+        $ocupacion.select2({
+            placeholder: "Seleccione o busque ocupación...",
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $(document.body)
         });
     });
 </script>

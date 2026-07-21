@@ -698,7 +698,7 @@ select,
   </li>
 
    <li class="nav-item">
-        <a href="https://drive.google.com/drive/folders/1HRJ_UliysPgzUOm1_XvcLR4MSuAjdODD?usp=sharing" class="nav-link menu-item {{ request()->is('Usuario') ? 'active' : '' }}">
+        <a href="{{ route('drive.index') }}" class="nav-link menu-item {{ request()->routeIs('drive.*') ? 'active' : '' }}">
             <i class="fa-solid fa-folder"></i><span>Carpeta de Drive</span>
         </a>
   </li>

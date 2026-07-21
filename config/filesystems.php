@@ -64,6 +64,11 @@ return [
             'clientSecret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
             'refreshToken' => env('GOOGLE_DRIVE_REFRESH_TOKEN'),
             'folderId' => env('GOOGLE_DRIVE_FOLDER_ID'),
+            'folderUrl' => env('GOOGLE_DRIVE_FOLDER_URL') ?: (
+                env('GOOGLE_DRIVE_FOLDER_ID')
+                    ? 'https://drive.google.com/drive/folders/' . env('GOOGLE_DRIVE_FOLDER_ID') . '?usp=drive_link'
+                    : null
+            ),
         ],
 
     ],

@@ -18,6 +18,7 @@ use App\Http\Controllers\RutaCursosController;
 use App\Http\Controllers\RutaArchivosController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CourseActionLogController;
+use App\Http\Controllers\GoogleDriveController;
 use Illuminate\Http\Request;
 
 
@@ -183,6 +184,9 @@ Route::get('password/reset/{token}', [ResetPasswordController::class, 'showReset
 // Procesar el restablecimiento de contraseña
 Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update.custom');
 
+Route::get('/drive', [GoogleDriveController::class, 'index'])->name('drive.index');
+Route::get('/drive/abrir/{fileId}', [GoogleDriveController::class, 'open'])->name('drive.open');
+Route::get('/drive/descargar/{fileId}', [GoogleDriveController::class, 'download'])->name('drive.download');
 
 Route::prefix('archivos')->group(function () {
     // Ruta principal

@@ -286,7 +286,7 @@
                                             <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
                                             <input type="number" step="0.01" name="CostodelCurso" id="CostodelCurso"
                                                 class="form-control @error('CostodelCurso') is-invalid @enderror"
-                                                value="{{ old('CostodelCurso', $curso->costo ?? '') }}"
+                                                value="{{ old('CostodelCurso', ($curso->costo ?? null) > 0 ? $curso->costo : '') }}"
                                                 placeholder="0.00" 
                                                 oninput="validarCampo(this)"
                                                 onchange="validarCampo(this)">
@@ -410,23 +410,59 @@ document.addEventListener('DOMContentLoaded', function() {
     actualizarEstadoGeneral();
 });
 
+const camposObligatoriosPaso1 = ['Nomenclatura', 'NombredelCurso'];
+
+function valorCampoVacio(campo, valor) {
+    if (valor === '') {
+        return true;
+    }
+
+    if (campo.id === 'CostodelCurso') {
+        const numero = parseFloat(valor);
+        return isNaN(numero) || numero <= 0;
+    }
+
+    return false;
+}
+
+function valorCampoCompleto(campo, valor) {
+    if (valorCampoVacio(campo, valor)) {
+        return false;
+    }
+
+    if (campo.type === 'date' || campo.id === 'CostodelCurso') {
+        return true;
+    }
+
+    return valor.length >= 3;
+}
+
 function validarCampo(campo) {
     const valor = campo.value.trim();
     const idCampo = campo.id;
     const indicador = document.getElementById('estado-' + idCampo);
+    const esObligatorio = camposObligatoriosPaso1.includes(idCampo);
     
     campo.classList.remove('validado-completo', 'validado-incompleto', 'validado-vacio');
     if (indicador) {
         indicador.classList.remove('estado-verde', 'estado-amarillo', 'estado-rojo');
     }
     
-    if (valor === '') {
-        campo.classList.add('validado-vacio');
-        if (indicador) {
-            indicador.classList.add('estado-rojo');
-            indicador.title = 'Campo vacío';
+    if (valorCampoVacio(campo, valor)) {
+        if (esObligatorio) {
+            campo.classList.add('validado-vacio');
+            if (indicador) {
+                indicador.classList.add('estado-rojo');
+                indicador.title = 'Campo obligatorio vacío';
+            }
+        } else {
+            campo.classList.add('validado-incompleto');
+            if (indicador) {
+                indicador.classList.add('estado-amarillo');
+                indicador.title = 'Campo pendiente';
+            }
         }
-    } else if (valor.length > 0 && valor.length < 3) {
+    } else if (!valorCampoCompleto(campo, valor)) {
         campo.classList.add('validado-incompleto');
         if (indicador) {
             indicador.classList.add('estado-amarillo');
@@ -481,18 +517,17 @@ function actualizarEstadoGeneral() {
     const indicadorGeneral = document.getElementById('indicadorGeneral');
     const textoEstado = document.getElementById('textoEstado');
     
-    if (vacios > 0) {
-        indicadorGeneral.className = 'estado-indicador estado-rojo';
-        textoEstado.textContent = `⚠️ ${vacios} campo(s) vacío(s) - Requiere atención`;
-    } else if (incompletos > 0) {
-        indicadorGeneral.className = 'estado-indicador estado-amarillo';
-        textoEstado.textContent = `🟡 ${incompletos} campo(s) incompleto(s) - Revisar`;
-    } else if (completos === total) {
+    const pendientes = total - completos;
+
+    if (completos === total) {
         indicadorGeneral.className = 'estado-indicador estado-verde';
         textoEstado.textContent = '✅ Todos los campos completos - Listo para guardar';
+    } else if (vacios > 0 && completos === 0 && incompletos === 0) {
+        indicadorGeneral.className = 'estado-indicador estado-rojo';
+        textoEstado.textContent = `⚠️ ${vacios} campo(s) obligatorio(s) vacío(s) - Requiere atención`;
     } else {
-        indicadorGeneral.className = 'estado-indicador';
-        textoEstado.textContent = 'Verificando campos...';
+        indicadorGeneral.className = 'estado-indicador estado-amarillo';
+        textoEstado.textContent = `🟡 ${pendientes} campo(s) pendiente(s) - En progreso`;
     }
 }
 </script>

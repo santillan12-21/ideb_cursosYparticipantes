@@ -30,6 +30,13 @@ class CursoController extends Controller
     {
         $search = $request->get('search');
         $instructor = $request->get('instructor');
+        $sort = $request->get('sort', 'nombre');
+        $direction = strtolower($request->get('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $allowedSorts = ['nombre', 'nomenclatura', 'instructor_responsable', 'created_at'];
+
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'nombre';
+        }
 
         $query = Cursos::whereNull('parent_id')->whereIn('status', [0, 1]);
 
@@ -45,16 +52,16 @@ class CursoController extends Controller
             $query->where('instructor_responsable', $instructor);
         }
 
-        $cursos = $query->orderBy('created_at', 'desc')->paginate(5)->withQueryString();
-        $subcursos = Cursos::whereNotNull('parent_id')->get(); 
+        $cursos = $query->orderBy($sort, $direction)->paginate(5)->withQueryString();
+        $subcursos = Cursos::whereNotNull('parent_id')->orderBy('nombre', 'asc')->get(); 
 
-        return view('cursos.index', compact('cursos', 'subcursos'));
+        return view('cursos.index', compact('cursos', 'subcursos', 'sort', 'direction'));
     }
 
     public function obtenerSubcursos($cursoId, Request $request)
     {
         try {
-            $subcursos = Cursos::where('parent_id', $cursoId)->get()->map(function($sub) {
+            $subcursos = Cursos::where('parent_id', $cursoId)->orderBy('nombre', 'asc')->get()->map(function($sub) {
                 return [
                     'id' => $sub->id,
                     'nomenclatura' => $sub->Nomenclatura ?: $sub->nomenclatura,
@@ -200,6 +207,7 @@ class CursoController extends Controller
 
     public function edit(Cursos $curso)
     {
+        $curso->load('modalidades');
         $coloresPorPaso = $this->calcularProgresoPaso($curso);
         return view('cursos.edit', compact('curso', 'coloresPorPaso'));
     }
@@ -332,13 +340,13 @@ class CursoController extends Controller
 
         $curso->update([
             'nomenclatura' => $validated['Nomenclatura'],
-            'nombre' => $validated['NombredelCurso'] ?? '',
-            'descripcion' => $validated['DescripciondeCurso'] ?? '',
-            'costo' => $validated['CostodelCurso'] ?? 0,
-            'instructor_responsable' => $validated['InstructorResponsable'] ?? '',
-            'fecha_inicio' => $validated['FechadeInicio'] ?? null,
-            'fecha_termino' => $validated['FechadeTermino'] ?? null,
-            'duracion' => $validated['Duracioncurso'] ?? '',
+            'nombre' => $validated['NombredelCurso'],
+            'descripcion' => $request->filled('DescripciondeCurso') ? $request->DescripciondeCurso : null,
+            'costo' => $request->filled('CostodelCurso') ? $request->CostodelCurso : null,
+            'instructor_responsable' => $request->filled('InstructorResponsable') ? $request->InstructorResponsable : null,
+            'fecha_inicio' => $request->FechadeInicio ?? null,
+            'fecha_termino' => $request->FechadeTermino ?? null,
+            'duracion' => $request->filled('Duracioncurso') ? $request->Duracioncurso : null,
         ]);
 
         session(['cursos_paso1' => $validated]);
@@ -350,7 +358,9 @@ class CursoController extends Controller
     // ============================================
     public function mostrarPaso2() 
     { 
-        return view('cursos.paso2', ['curso' => Cursos::find(session('curso_id'))]); 
+        return view('cursos.paso2', [
+            'curso' => Cursos::with('modalidades')->find(session('curso_id')),
+        ]); 
     }
     
     public function guardarPaso2(Request $request)
@@ -363,7 +373,7 @@ class CursoController extends Controller
         $curso = Cursos::findOrFail(session('curso_id'));
         
         $curso->update([
-            'modalidad' => $v['modalidad'] ?? null,
+            'modalidad' => !empty($v['modalidad']) ? $v['modalidad'] : null,
             'sin_fecha' => $v['sin_fecha'] ?? false,
         ]);
 
@@ -817,6 +827,7 @@ class CursoController extends Controller
                 return view('cursos.edit-paso1', compact('curso'));
                 
             case 2:
+                $curso->load('modalidades');
                 return view('cursos.edit-paso2', compact('curso'));
                 
             case 3:
@@ -883,13 +894,13 @@ class CursoController extends Controller
             
             $data = [
                 'nomenclatura' => $request->Nomenclatura,
-                'nombre' => $request->NombredelCurso ?? '',
-                'descripcion' => $request->DescripciondeCurso ?? '',
-                'costo' => $request->CostodelCurso ?? 0,
-                'instructor_responsable' => $request->InstructorResponsable ?? '',
+                'nombre' => $request->NombredelCurso,
+                'descripcion' => $request->filled('DescripciondeCurso') ? $request->DescripciondeCurso : null,
+                'costo' => $request->filled('CostodelCurso') ? $request->CostodelCurso : null,
+                'instructor_responsable' => $request->filled('InstructorResponsable') ? $request->InstructorResponsable : null,
                 'fecha_inicio' => $request->FechadeInicio ?? null,
                 'fecha_termino' => $request->FechadeTermino ?? null,
-                'duracion' => $request->Duracioncurso ?? '',
+                'duracion' => $request->filled('Duracioncurso') ? $request->Duracioncurso : null,
             ];
             $curso->update($data);
         }
@@ -901,7 +912,7 @@ class CursoController extends Controller
             ]);
             
             $curso->update([
-                'modalidad' => $request->modalidad ?? null,
+                'modalidad' => $request->filled('modalidad') ? $request->modalidad : null,
                 'sin_fecha' => $request->sin_fecha ?? false,
             ]);
 
@@ -909,7 +920,7 @@ class CursoController extends Controller
                 $curso->update(['fecha_inicio' => null, 'fecha_termino' => null]);
             }
 
-            if (!empty($request->modalidad)) {
+            if ($request->filled('modalidad')) {
                 CursoModalidad::updateOrCreate(
                     ['curso_id' => $curso->id, 'modalidad' => $request->modalidad],
                     ['curso_id' => $curso->id, 'modalidad' => $request->modalidad]
@@ -1125,7 +1136,7 @@ class CursoController extends Controller
         $progreso = [];
         
         $pasosCampos = [
-            1 => ['nomenclatura', 'nombre'],
+            1 => ['nomenclatura', 'nombre', 'descripcion', 'costo', 'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion'],
             2 => [],
             3 => ['recursos' => ['sin_fecha', 'facebook', 'linkedin', 'instagram']],
             4 => ['recursos' => ['temario', 'itinerario', 'planeacion']],
@@ -1135,6 +1146,16 @@ class CursoController extends Controller
         ];
 
         foreach ($pasosCampos as $paso => $campos) {
+            if ($paso === 1) {
+                $progreso[1] = $this->calcularProgresoPaso1($curso);
+                continue;
+            }
+
+            if ($paso === 2) {
+                $progreso[2] = $this->calcularProgresoPaso2($curso);
+                continue;
+            }
+
             $llenos = 0;
             $total = 0;
 
@@ -1168,6 +1189,43 @@ class CursoController extends Controller
         return $progreso;
     }
 
+    private function calcularProgresoPaso1(Cursos $curso): array
+    {
+        $camposPaso1 = [
+            'nomenclatura', 'nombre', 'descripcion', 'costo',
+            'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion',
+        ];
+
+        $llenos = 0;
+        foreach ($camposPaso1 as $campo) {
+            if ($this->campoDirectoLleno($curso, $campo)) {
+                $llenos++;
+            }
+        }
+
+        $tieneMinimo = $this->campoDirectoLleno($curso, 'nomenclatura')
+            && $this->campoDirectoLleno($curso, 'nombre');
+
+        if ($llenos === count($camposPaso1)) {
+            return ['class' => 'btn-success', 'texto' => 'Completado'];
+        }
+
+        if ($tieneMinimo) {
+            return ['class' => 'btn-warning', 'texto' => 'En progreso'];
+        }
+
+        return ['class' => 'btn-danger', 'texto' => 'Incompleto'];
+    }
+
+    private function calcularProgresoPaso2(Cursos $curso): array
+    {
+        if ($curso->paso2Completado()) {
+            return ['class' => 'btn-success', 'texto' => 'Completado'];
+        }
+
+        return ['class' => 'btn-danger', 'texto' => 'Incompleto'];
+    }
+
     private function campoDirectoLleno($curso, $campo)
     {
         $valor = $curso->$campo;
@@ -1179,7 +1237,10 @@ class CursoController extends Controller
             return !empty($valor) && $valor !== '0000-00-00';
         }
         if ($campo === 'modalidad') {
-            return !empty($valor);
+            return $curso->paso2Completado();
+        }
+        if ($campo === 'costo') {
+            return $valor !== null && $valor !== '' && (float) $valor > 0;
         }
         return !empty($valor) && $valor !== '' && $valor !== null && $valor !== '0';
     }
@@ -1212,6 +1273,30 @@ class CursoController extends Controller
         $curso = Cursos::find(session('curso_id'));
         
         if ($curso) {
+            if ($request->filled('Nomenclatura') && $request->filled('NombredelCurso')) {
+                $request->validate([
+                    'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $curso->id,
+                    'NombredelCurso' => 'required|string|max:255',
+                    'DescripciondeCurso' => 'nullable|string|max:2000',
+                    'CostodelCurso' => 'nullable|numeric',
+                    'InstructorResponsable' => 'nullable|string|max:255',
+                    'FechadeInicio' => 'nullable|date',
+                    'FechadeTermino' => 'nullable|date|after_or_equal:FechadeInicio',
+                    'Duracioncurso' => 'nullable|string|max:255',
+                ]);
+
+                $curso->update([
+                    'nomenclatura' => $request->Nomenclatura,
+                    'nombre' => $request->NombredelCurso,
+                    'descripcion' => $request->filled('DescripciondeCurso') ? $request->DescripciondeCurso : null,
+                    'costo' => $request->filled('CostodelCurso') ? $request->CostodelCurso : null,
+                    'instructor_responsable' => $request->filled('InstructorResponsable') ? $request->InstructorResponsable : null,
+                    'fecha_inicio' => $request->FechadeInicio ?? null,
+                    'fecha_termino' => $request->FechadeTermino ?? null,
+                    'duracion' => $request->filled('Duracioncurso') ? $request->Duracioncurso : null,
+                ]);
+            }
+
             // Verificar que tenga al menos Nomenclatura y Nombre
             if (empty($curso->nomenclatura) || empty($curso->nombre)) {
                 return response()->json([

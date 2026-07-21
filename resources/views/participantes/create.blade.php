@@ -1,13 +1,10 @@
 @extends('layouts.app') 
 
 @section('content')
-<!-- jQuery UI -->
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
@@ -51,6 +48,49 @@
     .select2-container--default .select2-search--inline .select2-search__field {
         margin-top: 7px !important;
     }
+
+    .input-group .select2-container {
+        flex: 1 1 auto;
+        width: 1% !important;
+        min-width: 0;
+    }
+
+    .input-group .select2-container .select2-selection--single {
+        height: 45px;
+        border: 1px solid #dee2e6;
+        border-radius: 0 6px 6px 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 43px;
+        padding-left: 12px;
+        color: #495057;
+    }
+
+    .input-group .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 43px;
+    }
+
+    .select2-container--open .select2-dropdown--below {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .select2-results__option {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        line-height: 1.35;
+        white-space: normal;
+    }
+
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+        background-color: #212529;
+    }
+
     .create-container {
         padding: 50px 0;
     }
@@ -198,6 +238,12 @@
                         </div>
                     @endif
 
+                    @if (session('error'))
+                        <div class="alert alert-danger border-0 shadow-sm mb-4">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
                     <form action="{{ route('participantes.store') }}" method="POST">
                         @csrf 
                         
@@ -294,14 +340,16 @@
                                             <label for="Puesto" class="form-label">Puesto</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
-                                                <input type="text" class="form-control" id="Puesto" name="Puesto" value="{{ old('Puesto') }}" required placeholder="Escriba el puesto...">
+                                                <input type="text" class="form-control" id="Puesto" name="Puesto" value="{{ old('Puesto') }}" required placeholder="Ej: Gerente, Supervisor, Técnico..." autocomplete="off">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="Ocupacion" class="form-label">Ocupación específica</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-tools"></i></span>
-                                                <input type="text" class="form-control" id="Ocupacion" name="Ocupacion" value="{{ old('Ocupacion') }}" required placeholder="Escribe la ocupación...">
+                                                <select class="form-select" id="Ocupacion" name="Ocupacion" required>
+                                                    <option value=""></option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -404,7 +452,8 @@ $(document).ready(function() {
         width: 'resolve'
     });
 
-    const puestos = [
+    const ocupacionSeleccionada = @json(old('Ocupacion'));
+    const ocupaciones = [
         "01 Cultivo, crianza y aprovechamiento", "01.1 Agricultura y silvicultura", "01.2 Ganadería",
         "01.3 Pesca y acuacultura", "02 Extracción y suministro", "02.1 Exploración",
         "02.2 Extracción", "02.3 Refinación y beneficio", "02.4 Provisión de energia",
@@ -432,15 +481,16 @@ $(document).ready(function() {
         "11.3 Difusión cultural"
     ];
 
-    $("#Puesto").autocomplete({
-        source: puestos,
-        minLength: 0,
-        select: function (event, ui) {
-            $("#Puesto").val(ui.item.value);
-            return false;
-        }
-    }).focus(function() {
-        $(this).autocomplete("search", "");
+    const $ocupacion = $('#Ocupacion');
+    ocupaciones.forEach(function (ocupacion) {
+        $ocupacion.append(new Option(ocupacion, ocupacion, false, ocupacion === ocupacionSeleccionada));
+    });
+
+    $ocupacion.select2({
+        placeholder: "Seleccione o busque ocupación...",
+        allowClear: true,
+        width: '100%',
+        dropdownParent: $(document.body)
     });
 
     $('#cursos').on('change', function() {

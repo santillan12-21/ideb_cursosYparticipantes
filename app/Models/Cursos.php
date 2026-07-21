@@ -17,6 +17,9 @@ class Cursos extends Model
         'fecha_inicio',
         'fecha_termino',
         'modalidad',
+        'virtual',
+        'presencial',
+        'mixto',
         'sin_fecha',
         'status',
         'duracion',
@@ -78,11 +81,47 @@ class Cursos extends Model
     public function getNomenclaturaAttribute($value) { return $value ?? ''; }
     public function getNombredelCursoAttribute($value) { return $this->attributes['nombre'] ?? ''; }
     public function getDescripciondeCursoAttribute($value) { return $this->attributes['descripcion'] ?? ''; }
-    public function getCostodelCursoAttribute($value) { return $this->attributes['costo'] ?? ''; }
+    public function getCostodelCursoAttribute($value)
+    {
+        $costo = $this->attributes['costo'] ?? null;
+        return ($costo !== null && (float) $costo > 0) ? $costo : '';
+    }
     public function getInstructorResponsableAttribute($value) { return $this->attributes['instructor_responsable'] ?? ''; }
     public function getFechadeInicioAttribute($value) { return $this->attributes['fecha_inicio'] ?? ''; }
     public function getFechadeTerminoAttribute($value) { return $this->attributes['fecha_termino'] ?? ''; }
     public function getDuracioncursoAttribute($value) { return $this->attributes['duracion'] ?? ''; }
+
+    public function getModalidadAttribute($value)
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        if ($this->relationLoaded('modalidades')) {
+            return $this->modalidades->first()?->modalidad;
+        }
+
+        return $this->modalidades()->value('modalidad');
+    }
+
+    public function modalidadPaso2Guardada(): ?string
+    {
+        $modalidad = $this->attributes['modalidad'] ?? null;
+
+        return in_array($modalidad, ['virtual', 'presencial', 'mixto'], true)
+            ? $modalidad
+            : null;
+    }
+
+    public function paso2Completado(): bool
+    {
+        return $this->modalidadPaso2Guardada() !== null;
+    }
+
+    public function tieneModalidad(): bool
+    {
+        return $this->paso2Completado();
+    }
 
     // Accessor para modalidad (para las vistas)
     public function getModalidadTextoAttribute()
@@ -105,7 +144,16 @@ class Cursos extends Model
 
         $llenos = 0;
         foreach ($campos as $campo) {
-            if (!empty($this->attributes[$campo])) $llenos++;
+            if ($campo === 'modalidad') {
+                if ($this->paso2Completado()) {
+                    $llenos++;
+                }
+                continue;
+            }
+
+            if (!empty($this->attributes[$campo])) {
+                $llenos++;
+            }
         }
 
         $porcentaje = (count($campos) > 0) ? ($llenos / count($campos)) * 100 : 0;
