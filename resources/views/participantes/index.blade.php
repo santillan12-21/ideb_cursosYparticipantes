@@ -78,7 +78,10 @@
 
         <div id="filtersContainer" class="card p-3 mb-4 bg-light" style="display: none;">
             <form action="{{ route('participantes.index') }}" method="GET" class="row g-3">
-                <div class="col-md-4">
+                @if(request('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+                <div class="col-md-3">
                     <label>Curso:</label>
                     <select name="curso" class="form-control">
                         <option value="">Todos</option>
@@ -87,7 +90,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label>Estado Pago:</label>
                     <select name="estado_pago" class="form-control">
                         <option value="">Todos</option>
@@ -97,7 +100,22 @@
                         <option value="Cancelado" {{ request('estado_pago') == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
                     </select>
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
+                <div class="col-md-3">
+                    <label>Ordenar por:</label>
+                    <select name="sort" class="form-control">
+                        <option value="id" {{ ($sort ?? 'id') === 'id' ? 'selected' : '' }}>N° de registro</option>
+                        <option value="nombre" {{ ($sort ?? '') === 'nombre' ? 'selected' : '' }}>Nombre</option>
+                        <option value="N" {{ ($sort ?? '') === 'N' ? 'selected' : '' }}>Nomenclatura</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Orden alfabético:</label>
+                    <select name="direction" class="form-control">
+                        <option value="asc" {{ ($direction ?? 'asc') === 'asc' ? 'selected' : '' }}>A-Z (Ascendente)</option>
+                        <option value="desc" {{ ($direction ?? '') === 'desc' ? 'selected' : '' }}>Z-A (Descendente)</option>
+                    </select>
+                </div>
+                <div class="col-12 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary-p me-2" style="height: 38px; min-width: 100px;">
                         <i class="fas fa-filter me-1"></i> Filtrar
                     </button>
@@ -109,6 +127,18 @@
         </div>
 
     <form method="GET" action="{{ route('participantes.index') }}" class="mb-4">
+        @if(request('curso'))
+            <input type="hidden" name="curso" value="{{ request('curso') }}">
+        @endif
+        @if(request('estado_pago'))
+            <input type="hidden" name="estado_pago" value="{{ request('estado_pago') }}">
+        @endif
+        @if(request('sort'))
+            <input type="hidden" name="sort" value="{{ request('sort') }}">
+        @endif
+        @if(request('direction'))
+            <input type="hidden" name="direction" value="{{ request('direction') }}">
+        @endif
         <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
             <input type="text" name="search" class="form-control border-0" placeholder="Buscar por nombre, correo, empresa..." value="{{ request('search') }}" style="height: 45px;">
             <button class="btn btn-dark" type="submit" style="min-width: 80px; border-radius: 6px; margin: 0; height: 45px;"><i class="fas fa-search"></i></button>

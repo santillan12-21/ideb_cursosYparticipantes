@@ -25,7 +25,11 @@ public function index(Request $request)
 {
     $cursos = Cursos::all();
 
-    $query = Participantes::where('estatus', 1)->orderBy('id', 'asc');
+    $allowedSorts = ['id', 'nombre', 'N'];
+    $sort = in_array($request->get('sort'), $allowedSorts, true) ? $request->get('sort') : 'id';
+    $direction = strtolower($request->get('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+    $query = Participantes::where('estatus', 1)->orderBy($sort, $direction);
 
     if ($request->has('search') && !empty($request->search)) {
         $query->where(function ($q) use ($request) {
@@ -55,7 +59,7 @@ public function index(Request $request)
 
     $participantes = $query->with('cursos')->paginate(10);
 
-    return view('participantes.index', compact('cursos', 'participantes'));
+    return view('participantes.index', compact('cursos', 'participantes', 'sort', 'direction'));
 }
 
 public function papelera(Request $request)

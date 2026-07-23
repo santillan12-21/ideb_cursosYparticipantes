@@ -6,6 +6,7 @@ use App\Models\Participantes;
 use App\Models\Cursos;
 use App\Models\Inscripcion;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class RegistroController extends Controller
 {
@@ -18,6 +19,7 @@ class RegistroController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'N' => 'required|string|max:255',
             'NombredelPostulante' => 'required|string|max:255',
             'Correo' => 'required|email|max:255|unique:participantes,correo',
             'Telefono' => 'required|string|size:10',
@@ -68,9 +70,9 @@ class RegistroController extends Controller
     $participante->pago = $request->Pago ?? 0;
     $participante->estatus = 1;
 
-    // Nota: La columna 'N' no existe en la base de datos según el esquema actual.
-    // Si necesitas guardar el código IC-XXXX, deberías añadir la columna 'N' a la tabla.
-    // Por ahora, usaremos el ID autoincremental para las inscripciones.
+    if (Schema::hasColumn('participantes', 'N')) {
+        $participante->N = $validated['N'];
+    }
 
     $inscripciones = [];
     foreach ($request->cursos as $curso_id) {

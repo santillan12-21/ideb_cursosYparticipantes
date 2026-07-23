@@ -205,7 +205,14 @@
                                 <h5 class="form-section-title"><i class="fas fa-user"></i> Datos Personales</h5>
                                 <div class="form-section-card shadow-sm">
                                     <div class="row g-3">
-                                        <div class="col-md-8">
+                                        <div class="col-md-3">
+                                            <label for="N" class="form-label">Nomenclatura</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                                                <input type="text" class="form-control" id="N" name="N" value="{{ old('N') }}" required placeholder="Ej: 001">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
                                             <label for="NombredelPostulante" class="form-label">Nombre Completo</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
