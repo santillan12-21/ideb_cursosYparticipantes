@@ -11,19 +11,27 @@ class GoogleDriveService
     public static function getService(): Drive
     {
         $config = config('filesystems.disks.google');
+        $clientId = trim((string) ($config['clientId'] ?? ''));
+        $clientSecret = trim((string) ($config['clientSecret'] ?? ''));
+        $refreshToken = trim((string) ($config['refreshToken'] ?? ''));
 
-        if (empty($config['clientId']) || empty($config['clientSecret']) || empty($config['refreshToken'])) {
+        if ($clientId === '' || $clientSecret === '' || $refreshToken === '') {
             throw new RuntimeException('Faltan credenciales de Google Drive en el archivo .env.');
         }
 
         $client = new Client();
-        $client->setClientId($config['clientId']);
-        $client->setClientSecret($config['clientSecret']);
+        $client->setClientId($clientId);
+        $client->setClientSecret($clientSecret);
+        $client->setScopes([Drive::DRIVE_READONLY]);
 
-        $token = $client->fetchAccessTokenWithRefreshToken($config['refreshToken']);
+        $token = $client->fetchAccessTokenWithRefreshToken($refreshToken);
 
         if (isset($token['error'])) {
-            throw new RuntimeException('Error de autenticación con Google Drive: ' . ($token['error_description'] ?? $token['error']));
+            $details = trim(($token['error_description'] ?? '') . ' ' . ($token['error'] ?? ''));
+            throw new RuntimeException(
+                'Error de autenticación con Google Drive: ' . $details .
+                '. Verifica GOOGLE_DRIVE_CLIENT_ID, GOOGLE_DRIVE_CLIENT_SECRET y GOOGLE_DRIVE_REFRESH_TOKEN en el .env.'
+            );
         }
 
         $client->setAccessToken($token);

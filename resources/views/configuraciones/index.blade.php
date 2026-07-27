@@ -94,6 +94,12 @@
         opacity: 0;
         cursor: pointer;
     }
+
+    .config-section-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+    }
 </style>
 
 <div class="container">
@@ -294,6 +300,38 @@
             </div>
             <button type="submit" class="btn btn-primary w-100">Aplicar Selección</button>
         </form>
+    </div>
+
+    <h2>Herramientas del Sistema</h2>
+    <div class="card p-4 shadow-sm mb-5 config-section-card">
+        <div class="row g-4 justify-content-center mb-0">
+            <div class="col-md-6">
+                <a href="{{ route('ruta.archivos') }}" class="btn btn-info w-100" style="height: 45px;">
+                    <i class="fa-solid fa-folder-tree me-2"></i> Ruta archivos
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{{ route('drive.index') }}" class="btn btn-secondary w-100" style="height: 45px;">
+                    <i class="fa-solid fa-folder me-2"></i> Carpeta de Drive
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <h2>Base de Datos</h2>
+    <div class="card p-4 shadow-sm mb-5 config-section-card">
+        <div class="row g-4 justify-content-center mb-0">
+            <div class="col-md-6">
+                <a href="{{ route('database.export') }}" class="btn btn-primary w-100" style="height: 45px;">
+                    <i class="fa-solid fa-file-export me-2"></i> Exportar Base de Datos
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="#" onclick="selectFile(); return false;" class="btn btn-warning w-100" style="height: 45px;">
+                    <i class="fa-solid fa-file-import me-2"></i> Importar Base de Datos
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

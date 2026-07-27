@@ -42,6 +42,12 @@
 </style>
 
 <div class="drive-container">
+    <div class="mb-4">
+        <a href="{{ route('configuraciones.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Volver a Configuración
+        </a>
+    </div>
+
     <div class="card drive-card">
         <div class="drive-header d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
@@ -61,7 +67,24 @@
             @endif
 
             @if($error)
-                <div class="alert alert-danger">{{ $error }}</div>
+                <div class="alert alert-danger">
+                    <strong>{{ $error }}</strong>
+                    @if(str_contains($error, 'autenticación') || str_contains($error, 'credenciales') || str_contains($error, '.env'))
+                        <hr class="my-3">
+                        <p class="mb-2">Para corregirlo, revisa estas variables en el archivo <code>.env</code>:</p>
+                        <ul class="mb-2">
+                            <li><code>GOOGLE_DRIVE_CLIENT_ID</code></li>
+                            <li><code>GOOGLE_DRIVE_CLIENT_SECRET</code></li>
+                            <li><code>GOOGLE_DRIVE_REFRESH_TOKEN</code></li>
+                            <li><code>GOOGLE_DRIVE_FOLDER_ID</code></li>
+                        </ul>
+                        <p class="mb-0 small">
+                            El error <strong>Bad Request</strong> suele indicar que el refresh token no coincide con el Client ID/Secret,
+                            expiró, fue revocado o tiene espacios/comillas de más. Genera un token nuevo en Google Cloud Console
+                            (OAuth 2.0) con la API de Drive activada y vuelve a ejecutar <code>php artisan config:clear</code>.
+                        </p>
+                    @endif
+                </div>
             @endif
 
             @if(!empty($breadcrumbs))

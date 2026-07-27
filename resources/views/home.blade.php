@@ -691,29 +691,6 @@ select,
         </a>
   </li>
   @endif
-  <li class="nav-item">
-        <a href="{{ route('ruta.archivos') }}" class="nav-link menu-item {{ request()->is('archivos') ? 'active' : '' }}">
-            <i class="fa-solid fa-folder-tree"></i> <span>Ruta archivos</span>
-        </a>
-  </li>
-
-   <li class="nav-item">
-        <a href="{{ route('drive.index') }}" class="nav-link menu-item {{ request()->routeIs('drive.*') ? 'active' : '' }}">
-            <i class="fa-solid fa-folder"></i><span>Carpeta de Drive</span>
-        </a>
-  </li>
-
-  <li class="nav-item">
-        <a href="/export-db" class="nav-link menu-item {{ request()->is('export-db') ? 'active' : '' }}">
-           <i class="fa-solid fa-file-export"></i><span>Exportar Base de Datos</span>
-        </a>
-  </li>
-
-  <li class="nav-item">
-        <a href="#" onclick="selectFile()" class="nav-link menu-item {{ request()->is('Usuario') ? 'active' : '' }}">
-            <i class="fa-solid fa-file-import"></i> <span>Importar Base de Datos</span>
-        </a>
-  </li>
 <li class="nav-item">
         <a href="https://erp.idebmexico.com/inicio" rel="noopener noreferrer" class="nav-link menu-item">
             <i class="fa-solid fa-house"></i> <span>Regresar al Inicio IDEB</span>

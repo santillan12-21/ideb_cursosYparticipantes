@@ -37,6 +37,12 @@
 </style>
 
 <div class="container-custom py-4">
+    <div class="mb-4">
+        <a href="{{ route('configuraciones.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Volver a Configuración
+        </a>
+    </div>
+
     <h1 class="text-center mb-4">Gestión de Archivos</h1>
 
     @if (session('success'))

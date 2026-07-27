@@ -206,7 +206,7 @@
                                 <div class="form-section-card shadow-sm">
                                     <div class="row g-3">
                                         <div class="col-md-3">
-                                            <label for="N" class="form-label">Nomenclatura</label>
+                                            <label for="N" class="form-label">ID</label>
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
                                                 <input type="text" class="form-control" id="N" name="N" value="{{ old('N') }}" required placeholder="Ej: 001">

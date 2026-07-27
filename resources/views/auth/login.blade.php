@@ -89,6 +89,7 @@
     <div class="login-container">
         <!-- Imagen centrada -->
         <img src="{{ asset('images/logo.png') }}" alt="Logo" class="mx-auto d-block">
+        <h4 class="text-center mb-4" style="font-weight: 300; color: #333;">IT25-BDD-008</h4>
 
         <h2 class="text-center mb-4" style="font-weight: 300; color: #333;">Registro de</h2>
 
