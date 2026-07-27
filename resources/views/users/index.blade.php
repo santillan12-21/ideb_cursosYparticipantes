@@ -32,26 +32,39 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 30px !important;
-        padding: 6px 15px;
+        border-radius: 8px !important;
+        padding: 0 16px;
         font-size: 13px;
         font-weight: 600;
         transition: all 0.2s ease;
-        height: 38px;
-        width: auto;
-        min-width: 100px;
+        height: 40px;
+        min-width: 120px;
         margin: 2px;
         border: none;
         color: white !important;
-        text-decoration: none;
+        text-decoration: none !important;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        white-space: nowrap;
     }
     .btn-action:hover {
         transform: translateY(-1px);
-        opacity: 0.9;
+        opacity: 0.92;
         color: white !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+    .btn-action:focus-visible {
+        outline: 2px solid rgba(13, 110, 253, 0.35);
+        outline-offset: 2px;
     }
     .btn-action i {
-        margin-right: 8px;
+        margin-right: 6px;
+    }
+    .btn-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
     }
 
     .btn-info-modern { background-color: #17a2b8; }
@@ -77,30 +90,48 @@
         right: 0; 
         background-color: white !important; 
         z-index: 5; 
-        box-shadow: -5px 0 10px rgba(0,0,0,0.05); 
+        box-shadow: -5px 0 10px rgba(0,0,0,0.05);
+        min-width: 360px;
+        width: 360px;
     }
     .table thead th.sticky-col {
         background-color: #212529 !important;
         z-index: 6;
     }
     tr:hover .sticky-col { background-color: #f8f9fa !important; }
+
+    .actions-group {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+    .actions-group .btn-action {
+        min-width: auto;
+        padding: 0 12px;
+        flex: 0 0 auto;
+    }
+    .actions-group form {
+        display: inline-flex;
+        margin: 0;
+        padding: 0;
+    }
 </style>
 
 <div class="container-fluid users-container">
     <div class="table-card">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h1 class="h3 mb-0" style="font-weight: 300;">Gestión de Usuarios</h1>
-            <div class="d-flex gap-2">
-                <button>
-                    <a href="{{ route('users.create') }}" class="btn-action btn-success-modern shadow-sm" style="min-width: 180px; height: 40px;">
-                        <i class="fas fa-plus me-2"></i> Nuevo Usuario
-                    </a>
-                </button>
-                <button>
-                    <a href="{{ route('users.papelera') }}" class="btn-action btn-secondary-modern shadow-sm" style="min-width: 150px; height: 40px;">
-                        <i class="fas fa-trash-alt me-2"></i> Papelera
-                    </a>
-                </button>
+            <div class="btn-toolbar">
+                <a href="{{ route('users.create') }}" class="btn-action btn-success-modern">
+                    <i class="fas fa-plus"></i> Nuevo Usuario
+                </a>
+                <a href="{{ route('users.papelera') }}" class="btn-action btn-secondary-modern">
+                    <i class="fas fa-trash-alt"></i> Papelera
+                </a>
             </div>
         </div>
 
@@ -134,14 +165,14 @@
                             <td class="text-center">{{ $user->edad }}</td>
                             <td class="text-center">{{ $user->telefono }}</td>
                             <td class="sticky-col">
-                                <div class="d-flex justify-content-center align-items-center flex-nowrap" style="gap: 2px;">
-                                    <button class="btn-action btn-info-modern view-password" data-id="{{ $user->id }}" title="Ver Contraseña">
+                                <div class="actions-group">
+                                    <button type="button" class="btn-action btn-info-modern view-password" data-id="{{ $user->id }}" title="Ver Contraseña">
                                         <i class="fas fa-key"></i> Contraseña
                                     </button>
-                                    <button><a href="{{ route('users.edit', $user->id) }}" class="btn-action btn-warning-modern" title="Editar">
+                                    <a href="{{ route('users.edit', $user->id) }}" class="btn-action btn-warning-modern" title="Editar">
                                         <i class="fas fa-edit"></i> Editar
-                                    </a></button>
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Enviar usuario a la papelera?')" class="m-0 p-0">
+                                    </a>
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Enviar usuario a la papelera?')">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="btn-action btn-danger-modern" title="Eliminar">
                                             <i class="fas fa-trash"></i> Borrar
