@@ -1,3 +1,16 @@
+@php
+    $valorFechaInput = function ($fecha) {
+        if ($fecha instanceof \DateTimeInterface) {
+            return $fecha->format('Y-m-d');
+        }
+        if (is_string($fecha) && strlen($fecha) >= 10) {
+            return substr($fecha, 0, 10);
+        }
+
+        return $fecha ?? '';
+    };
+@endphp
+
 <div class="col-12">
     <hr class="my-2">
     <p class="small text-muted mb-2 fw-semibold text-uppercase">Desarrollo del curso</p>
@@ -12,7 +25,7 @@
         <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
         <input type="date" name="FechadeInicio" id="FechadeInicio"
             class="form-control @error('FechadeInicio') is-invalid @enderror"
-            value="{{ old('FechadeInicio', $fechaInicio ?? '') }}"
+            value="{{ old('FechadeInicio', $valorFechaInput($fechaInicio ?? '')) }}"
             oninput="validarCampo(this)"
             onchange="validarCampo(this)">
         @error('FechadeInicio')
@@ -30,7 +43,7 @@
         <span class="input-group-text"><i class="fas fa-calendar-check"></i></span>
         <input type="date" name="FechadeTermino" id="FechadeTermino"
             class="form-control @error('FechadeTermino') is-invalid @enderror"
-            value="{{ old('FechadeTermino', $fechaTermino ?? '') }}"
+            value="{{ old('FechadeTermino', $valorFechaInput($fechaTermino ?? '')) }}"
             oninput="validarCampo(this)"
             onchange="validarCampo(this)">
         @error('FechadeTermino')
@@ -53,7 +66,7 @@
         <span class="input-group-text"><i class="fas fa-chalkboard-teacher"></i></span>
         <input type="date" name="FechaImparticionInicio" id="FechaImparticionInicio"
             class="form-control @error('FechaImparticionInicio') is-invalid @enderror"
-            value="{{ old('FechaImparticionInicio', $fechaImparticionInicio ?? '') }}"
+            value="{{ old('FechaImparticionInicio', $valorFechaInput($fechaImparticionInicio ?? '')) }}"
             oninput="validarCampo(this)"
             onchange="validarCampo(this)">
         @error('FechaImparticionInicio')
@@ -71,7 +84,7 @@
         <span class="input-group-text"><i class="fas fa-flag-checkered"></i></span>
         <input type="date" name="FechaImparticionTermino" id="FechaImparticionTermino"
             class="form-control @error('FechaImparticionTermino') is-invalid @enderror"
-            value="{{ old('FechaImparticionTermino', $fechaImparticionTermino ?? '') }}"
+            value="{{ old('FechaImparticionTermino', $valorFechaInput($fechaImparticionTermino ?? '')) }}"
             oninput="validarCampo(this)"
             onchange="validarCampo(this)">
         @error('FechaImparticionTermino')

@@ -554,6 +554,11 @@ class CursoController extends Controller
     public function guardarPaso1(Request $request)
     {
         $cursoId = session('curso_id');
+        if (!$cursoId) {
+            return redirect()->route('cursos.index')
+                ->withErrors(['session' => 'La sesión del curso expiró. Vuelve a iniciar el registro desde la lista de cursos.']);
+        }
+
         $validated = $request->validate(array_merge([
             'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $cursoId,
             'NombredelCurso' => 'required|string|max:255',

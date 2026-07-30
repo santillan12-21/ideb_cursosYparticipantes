@@ -89,10 +89,23 @@ class Cursos extends Model
         return ($costo !== null && (float) $costo > 0) ? $costo : '';
     }
     public function getInstructorResponsableAttribute($value) { return $this->attributes['instructor_responsable'] ?? ''; }
-    public function getFechadeInicioAttribute($value) { return $this->attributes['fecha_inicio'] ?? ''; }
-    public function getFechadeTerminoAttribute($value) { return $this->attributes['fecha_termino'] ?? ''; }
-    public function getFechaImparticionInicioAttribute($value) { return $this->attributes['fecha_imparticion_inicio'] ?? ''; }
-    public function getFechaImparticionTerminoAttribute($value) { return $this->attributes['fecha_imparticion_termino'] ?? ''; }
+    private function formatFechaParaInput($fecha): string
+    {
+        if ($fecha === null || $fecha === '') {
+            return '';
+        }
+
+        if ($fecha instanceof \DateTimeInterface) {
+            return $fecha->format('Y-m-d');
+        }
+
+        return substr((string) $fecha, 0, 10);
+    }
+
+    public function getFechadeInicioAttribute($value) { return $this->formatFechaParaInput($this->attributes['fecha_inicio'] ?? null); }
+    public function getFechadeTerminoAttribute($value) { return $this->formatFechaParaInput($this->attributes['fecha_termino'] ?? null); }
+    public function getFechaImparticionInicioAttribute($value) { return $this->formatFechaParaInput($this->attributes['fecha_imparticion_inicio'] ?? null); }
+    public function getFechaImparticionTerminoAttribute($value) { return $this->formatFechaParaInput($this->attributes['fecha_imparticion_termino'] ?? null); }
     public function getDuracioncursoAttribute($value) { return $this->attributes['duracion'] ?? ''; }
 
     public function getModalidadAttribute($value)

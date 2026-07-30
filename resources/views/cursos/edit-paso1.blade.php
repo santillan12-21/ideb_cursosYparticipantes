@@ -209,6 +209,17 @@
                     </div>
 
                     <div class="card-body p-4 p-md-5">
+                        @if ($errors->any())
+                            <div class="alert alert-danger mb-4">
+                                <strong>No se pudieron guardar los cambios:</strong>
+                                <ul class="mb-0 mt-2">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <form action="{{ route('cursos.update.paso', [$curso->id, 1]) }}" method="POST" id="formularioCurso">
                             @csrf
                             @method('PUT')
@@ -299,10 +310,10 @@
                                     @include('cursos.partials.instructores-fields')
 
                                     @include('cursos.partials.fechas-curso-fields', [
-                                        'fechaInicio' => old('FechadeInicio', $curso->fecha_inicio ?? ''),
-                                        'fechaTermino' => old('FechadeTermino', $curso->fecha_termino ?? ''),
-                                        'fechaImparticionInicio' => old('FechaImparticionInicio', $curso->fecha_imparticion_inicio ?? ''),
-                                        'fechaImparticionTermino' => old('FechaImparticionTermino', $curso->fecha_imparticion_termino ?? ''),
+                                        'fechaInicio' => $curso->FechadeInicio ?? '',
+                                        'fechaTermino' => $curso->FechadeTermino ?? '',
+                                        'fechaImparticionInicio' => $curso->FechaImparticionInicio ?? '',
+                                        'fechaImparticionTermino' => $curso->FechaImparticionTermino ?? '',
                                     ])
 
                                     <!-- Campo: Duración - NO OBLIGATORIO -->
