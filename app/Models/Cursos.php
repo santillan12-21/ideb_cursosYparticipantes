@@ -16,6 +16,8 @@ class Cursos extends Model
         'instructor_responsable',
         'fecha_inicio',
         'fecha_termino',
+        'fecha_imparticion_inicio',
+        'fecha_imparticion_termino',
         'modalidad',
         'virtual',
         'presencial',
@@ -89,6 +91,8 @@ class Cursos extends Model
     public function getInstructorResponsableAttribute($value) { return $this->attributes['instructor_responsable'] ?? ''; }
     public function getFechadeInicioAttribute($value) { return $this->attributes['fecha_inicio'] ?? ''; }
     public function getFechadeTerminoAttribute($value) { return $this->attributes['fecha_termino'] ?? ''; }
+    public function getFechaImparticionInicioAttribute($value) { return $this->attributes['fecha_imparticion_inicio'] ?? ''; }
+    public function getFechaImparticionTerminoAttribute($value) { return $this->attributes['fecha_imparticion_termino'] ?? ''; }
     public function getDuracioncursoAttribute($value) { return $this->attributes['duracion'] ?? ''; }
 
     public function getModalidadAttribute($value)
@@ -138,7 +142,8 @@ class Cursos extends Model
     {
         $campos = [
             'nomenclatura', 'nombre', 'descripcion', 'costo', 
-            'instructor_responsable', 'fecha_inicio', 'fecha_termino', 
+            'instructor_responsable', 'fecha_inicio', 'fecha_termino',
+            'fecha_imparticion_inicio', 'fecha_imparticion_termino',
             'duracion', 'modalidad'
         ];
 
@@ -170,6 +175,8 @@ class Cursos extends Model
     protected $dates = [
         'fecha_inicio',
         'fecha_termino',
+        'fecha_imparticion_inicio',
+        'fecha_imparticion_termino',
     ];
 
     // Método auxiliar para obtener recurso por tipo

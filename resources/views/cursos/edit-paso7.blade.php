@@ -71,6 +71,11 @@
         border-left: 4px solid #dc3545 !important;
         animation: pulse-red 2s ease-in-out infinite;
     }
+    .form-control.link-incompleto {
+        border-color: #ffc107 !important;
+        background-color: #fffbeb !important;
+        border-left: 4px solid #ffc107 !important;
+    }
 
     .form-select.select-completo {
         border-color: #28a745 !important;
@@ -258,6 +263,8 @@
                             @csrf
                             @method('PUT')
 
+                            @include('cursos.partials.file-upload-hint')
+
                             <!-- ==========================================
                             FECHA REGISTRO STPS
                             ========================================== -->
@@ -318,21 +325,12 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Archivo Local</label>
-                                        <input type="file" name="archivoDC5" class="form-control">
-                                        @if(isset($recursos['dc5_archivo']) && $recursos['dc5_archivo'])
-                                            <div class="documento-preview">
-                                                <i class="fas fa-file-pdf"></i>
-                                                <span class="doc-nombre">{{ basename($recursos['dc5_archivo']->url) }}</span>
-                                                <div class="doc-acciones">
-                                                    <a href="{{ $recursos['dc5_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    
+                                    @include('cursos.partials.archivos-locales-doble', [
+                                        'inputName' => 'archivoDC5',
+                                        'recursoKey' => 'dc5_archivo',
+                                        'recursos' => $recursos,
+                                    ])
                                 </div>
                             </div>
 
@@ -374,21 +372,12 @@
                                                 onchange="validarDrive(this)">
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Archivo Local</label>
-                                        <input type="file" name="archivoCertificado" class="form-control">
-                                        @if(isset($recursos['certificado_archivo']) && $recursos['certificado_archivo'])
-                                            <div class="documento-preview">
-                                                <i class="fas fa-file-pdf"></i>
-                                                <span class="doc-nombre">{{ basename($recursos['certificado_archivo']->url) }}</span>
-                                                <div class="doc-acciones">
-                                                    <a href="{{ $recursos['certificado_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    
+                                    @include('cursos.partials.archivos-locales-doble', [
+                                        'inputName' => 'archivoCertificado',
+                                        'recursoKey' => 'certificado_archivo',
+                                        'recursos' => $recursos,
+                                    ])
                                 </div>
                             </div>
 
@@ -429,21 +418,12 @@
                                                 onchange="validarDrive(this)">
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Archivo Local</label>
-                                        <input type="file" name="archivoCartaPoder" class="form-control">
-                                        @if(isset($recursos['carta_poder_archivo']) && $recursos['carta_poder_archivo'])
-                                            <div class="documento-preview">
-                                                <i class="fas fa-file-pdf"></i>
-                                                <span class="doc-nombre">{{ basename($recursos['carta_poder_archivo']->url) }}</span>
-                                                <div class="doc-acciones">
-                                                    <a href="{{ $recursos['carta_poder_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    
+                                    @include('cursos.partials.archivos-locales-doble', [
+                                        'inputName' => 'archivoCartaPoder',
+                                        'recursoKey' => 'carta_poder_archivo',
+                                        'recursos' => $recursos,
+                                    ])
                                 </div>
                             </div>
 
@@ -453,7 +433,7 @@
                             <div class="form-section-card shadow-sm">
                                 <div class="stps-title"><i class="fas fa-graduation-cap"></i> UDEMY</div>
                                 <div class="row g-3">
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <label for="UDEMY" class="form-label">
                                             Estado UDEMY
                                             <span class="estado-indicador" id="estado-UDEMY"></span>
@@ -463,11 +443,30 @@
                                             <select name="UDEMY" id="UDEMY" 
                                                 class="form-select" 
                                                 onchange="validarSelect(this)">
-                                                <option value="" disabled {{ old('UDEMY', isset($recursos['udemy']) ? $recursos['udemy']->url : '') === '' ? 'selected' : '' }}>Seleccione</option>
-                                                <option value="Prellenado" {{ old('UDEMY', isset($recursos['udemy']) ? $recursos['udemy']->url : '') == 'Prellenado' ? 'selected' : '' }}>Prellenado</option>
-                                                <option value="No se ha prellenado" {{ old('UDEMY', isset($recursos['udemy']) ? $recursos['udemy']->url : '') == 'No se ha prellenado' ? 'selected' : '' }}>No se ha prellenado</option>
+                                                <option value="" disabled {{ old('UDEMY', $udemyDatos['estado'] ?? '') === '' ? 'selected' : '' }}>Seleccione</option>
+                                                <option value="Prellenado" {{ old('UDEMY', $udemyDatos['estado'] ?? '') == 'Prellenado' ? 'selected' : '' }}>Prellenado</option>
+                                                <option value="No se ha prellenado" {{ old('UDEMY', $udemyDatos['estado'] ?? '') == 'No se ha prellenado' ? 'selected' : '' }}>No se ha prellenado</option>
+                                                <option value="Completo" {{ old('UDEMY', $udemyDatos['estado'] ?? '') == 'Completo' ? 'selected' : '' }}>Completo</option>
                                             </select>
                                         </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="LinkUdemy" class="form-label">
+                                            Link de acceso al curso
+                                            <span class="estado-indicador" id="estado-LinkUdemy"></span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                            <input type="text" name="LinkUdemy" id="LinkUdemy"
+                                                class="form-control @error('LinkUdemy') is-invalid @enderror"
+                                                value="{{ old('LinkUdemy', $udemyDatos['link'] ?? '') }}"
+                                                placeholder="https://www.udemy.com/course/..."
+                                                oninput="validarLinkUdemy(this)"
+                                                onchange="validarLinkUdemy(this)">
+                                        </div>
+                                        @error('LinkUdemy')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -504,6 +503,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     document.querySelectorAll('#DriveCertificadoComprobacion, #DriveCartaPoder').forEach(campo => {
         validarDrive(campo);
+    });
+    document.querySelectorAll('#LinkUdemy').forEach(campo => {
+        validarLinkUdemy(campo);
     });
     document.querySelectorAll('#FormatoDC5').forEach(campo => {
         validarCampo(campo);
@@ -558,9 +560,9 @@ function validarDrive(campo) {
     const valor = campo.value.trim();
     const indicador = document.getElementById('estado-' + campo.id);
     
-    campo.classList.remove('drive-completo', 'drive-vacio');
+    campo.classList.remove('drive-completo', 'drive-vacio', 'link-incompleto');
     if (indicador) {
-        indicador.classList.remove('estado-verde', 'estado-rojo');
+        indicador.classList.remove('estado-verde', 'estado-rojo', 'estado-amarillo');
     }
     
     if (valor === '') {
@@ -571,6 +573,30 @@ function validarDrive(campo) {
         if (indicador) indicador.classList.add('estado-verde');
     }
     
+    actualizarContadores();
+    actualizarEstadoGeneral();
+}
+
+function validarLinkUdemy(campo) {
+    const valor = campo.value.trim();
+    const indicador = document.getElementById('estado-' + campo.id);
+
+    campo.classList.remove('drive-completo', 'drive-vacio', 'link-incompleto');
+    if (indicador) {
+        indicador.classList.remove('estado-verde', 'estado-rojo', 'estado-amarillo');
+    }
+
+    if (valor === '') {
+        campo.classList.add('drive-vacio');
+        if (indicador) indicador.classList.add('estado-rojo');
+    } else if (valor.length > 3) {
+        campo.classList.add('drive-completo');
+        if (indicador) indicador.classList.add('estado-verde');
+    } else {
+        campo.classList.add('link-incompleto');
+        if (indicador) indicador.classList.add('estado-amarillo');
+    }
+
     actualizarContadores();
     actualizarEstadoGeneral();
 }
@@ -603,6 +629,8 @@ function actualizarContadores() {
     campos.forEach(campo => {
         if (campo.classList.contains('drive-completo') || campo.classList.contains('select-completo')) {
             completos++;
+        } else if (campo.classList.contains('link-incompleto')) {
+            incompletos++;
         } else if (campo.classList.contains('drive-vacio') || campo.classList.contains('select-vacio')) {
             vacios++;
         }
@@ -621,6 +649,8 @@ function actualizarEstadoGeneral() {
     campos.forEach(campo => {
         if (campo.classList.contains('drive-completo') || campo.classList.contains('select-completo')) {
             completos++;
+        } else if (campo.classList.contains('link-incompleto')) {
+            incompletos++;
         } else if (campo.classList.contains('drive-vacio') || campo.classList.contains('select-vacio')) {
             vacios++;
         }

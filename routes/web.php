@@ -10,7 +10,6 @@ use App\Http\Controllers\DatabaseController;
 use App\Http\Controllers\RegistroController;
 use App\Models\Cursos;
 use App\Http\Controllers\ConfigController;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\ArchivosController;
@@ -66,12 +65,9 @@ Route::post('/curso/paso4', [CursoController::class, 'guardarPaso4'])->name('cur
 Route::get('/curso/paso5', [CursoController::class, 'mostrarPaso5'])->name('curso.paso5');
 Route::post('/curso/paso5', [CursoController::class, 'guardarPaso5'])->name('curso.paso5.guardar');
 Route::get('/curso/paso6', [CursoController::class, 'mostrarPaso6'])->name('curso.paso6');
-//Route::post('/curso/paso6', [CursoController::class, 'guardarPaso6'])->name('curso.paso6.guardar');
+Route::post('/curso/paso6', [CursoController::class, 'guardarPaso6'])->name('curso.paso6.guardar');
 Route::get('/curso/paso7', [CursoController::class, 'mostrarPaso7'])->name('curso.paso7');
 Route::post('/curso/paso7', [CursoController::class, 'guardarPaso7'])->name('curso.guardar-paso7');
-Route::post('/curso/paso6-test', function(Request $request) {
-    dd('¡FUNCIONA!', $request->all());
-});
 
 //Vista, modificacion, "eliminacion" y consulta de los cursos
 Route::get('/cursos', [CursoController::class, 'index'])->name('cursos.index');
@@ -104,13 +100,7 @@ Route::delete('/participantes/{id}', [ParticipanteController::class, 'destroy'])
 Route::get('/export-db', [DatabaseController::class, 'export'])->name('database.export');
 Route::post('/import-db', [DatabaseController::class, 'import'])->name('database.import');
 
-Route::get('/cursos/{id}/pdf', function ($id) {
-    $curso = \App\Models\Cursos::findOrFail($id);
-
-    $pdf = Pdf::loadView('cursos.pdf', compact('curso'));
-    $filename = \Illuminate\Support\Str::slug($curso->nombre ?: $curso->NombredelCurso) . '.pdf';
-    return $pdf->download($filename);
-})->name('cursos.pdf');
+Route::get('/cursos/{id}/pdf', [CursoController::class, 'downloadPdf'])->name('cursos.pdf');
 
 Route::get('/cursos/{curso}/edit', [CursoController::class, 'edit'])->name('cursos.edit');
 Route::get('/cursos/{curso}/edit/{paso}', [CursoController::class, 'editPaso'])->name('cursos.edit.paso');

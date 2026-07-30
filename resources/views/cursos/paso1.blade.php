@@ -321,65 +321,16 @@
                                         </div>
                                     </div>
 
-                                    <!-- Campo 5: Instructor - NO OBLIGATORIO -->
-                                    <div class="col-md-8">
-                                        <label for="InstructorResponsable" class="form-label">
-                                            Instructor Responsable
-                                            <span class="estado-indicador" id="estado-InstructorResponsable"></span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
-                                            <input type="text" name="InstructorResponsable" id="InstructorResponsable"
-                                                class="form-control @error('InstructorResponsable') is-invalid @enderror"
-                                                placeholder="Nombre del instructor" 
-                                                value="{{ old('InstructorResponsable', $curso->InstructorResponsable ?? '') }}" 
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
-                                            @error('InstructorResponsable')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
+                                    @include('cursos.partials.instructores-fields')
 
-                                    <!-- Campo 6: Fecha Inicio - NO OBLIGATORIO -->
-                                    <div class="col-md-6">
-                                        <label for="FechadeInicio" class="form-label">
-                                            Fecha de Inicio
-                                            <span class="estado-indicador" id="estado-FechadeInicio"></span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                            <input type="date" name="FechadeInicio" id="FechadeInicio"
-                                                class="form-control @error('FechadeInicio') is-invalid @enderror"
-                                                value="{{ old('FechadeInicio', $curso->FechadeInicio ?? '') }}" 
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
-                                            @error('FechadeInicio')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
+                                    @include('cursos.partials.fechas-curso-fields', [
+                                        'fechaInicio' => old('FechadeInicio', $curso->FechadeInicio ?? ''),
+                                        'fechaTermino' => old('FechadeTermino', $curso->FechadeTermino ?? ''),
+                                        'fechaImparticionInicio' => old('FechaImparticionInicio', $curso->fecha_imparticion_inicio ?? ''),
+                                        'fechaImparticionTermino' => old('FechaImparticionTermino', $curso->fecha_imparticion_termino ?? ''),
+                                    ])
 
-                                    <!-- Campo 7: Fecha Término - NO OBLIGATORIO -->
-                                    <div class="col-md-6">
-                                        <label for="FechadeTermino" class="form-label">
-                                            Fecha de Término
-                                            <span class="estado-indicador" id="estado-FechadeTermino"></span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-calendar-check"></i></span>
-                                            <input type="date" name="FechadeTermino" id="FechadeTermino"
-                                                class="form-control @error('FechadeTermino') is-invalid @enderror"
-                                                value="{{ old('FechadeTermino', $curso->FechadeTermino ?? '') }}" 
-                                                oninput="validarCampo(this)"
-                                                onchange="validarCampo(this)">
-                                            @error('FechadeTermino')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <!-- Campo 8: Duración - NO OBLIGATORIO -->
+                                    <!-- Campo: Duración - NO OBLIGATORIO -->
                                     <div class="col-12">
                                         <label for="Duracioncurso" class="form-label">
                                             Duración del Curso
@@ -437,6 +388,8 @@ document.addEventListener('DOMContentLoaded', function() {
     campos.forEach(campo => {
         validarCampo(campo);
     });
+
+    initInstructoresPaso1();
     
     // Actualizar estado general
     actualizarEstadoGeneral();

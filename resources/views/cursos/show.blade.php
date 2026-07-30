@@ -142,23 +142,45 @@
 
                             <div class="section-card">
                                 <h5 class="section-title"><i class="fas fa-calendar-alt me-2"></i> Cronograma</h5>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="data-item">
-                                            <span class="data-label">Inicio</span>
-                                            <div class="data-value">{{ \Carbon\Carbon::parse($curso->fecha_inicio ?: $curso->FechadeInicio)->format('d/m/Y') }}</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <p class="small text-muted mb-2 fw-semibold text-uppercase">Desarrollo del curso</p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="data-item">
+                                                    <span class="data-label">Inicio de desarrollo</span>
+                                                    <div class="data-value">{{ ($f = $curso->fecha_inicio ?: $curso->FechadeInicio) ? \Carbon\Carbon::parse($f)->format('d/m/Y') : '—' }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="data-item">
+                                                    <span class="data-label">Término de creación</span>
+                                                    <div class="data-value">{{ ($f = $curso->fecha_termino ?: $curso->FechadeTermino) ? \Carbon\Carbon::parse($f)->format('d/m/Y') : '—' }}</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="data-item">
-                                            <span class="data-label">Término</span>
-                                            <div class="data-value">{{ \Carbon\Carbon::parse($curso->fecha_termino ?: $curso->FechadeTermino)->format('d/m/Y') }}</div>
+                                    <div class="col-md-6">
+                                        <p class="small text-muted mb-2 fw-semibold text-uppercase">Periodo de impartición</p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="data-item">
+                                                    <span class="data-label">Inicio</span>
+                                                    <div class="data-value">{{ $curso->fecha_imparticion_inicio ? \Carbon\Carbon::parse($curso->fecha_imparticion_inicio)->format('d/m/Y') : '—' }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="data-item">
+                                                    <span class="data-label">Término</span>
+                                                    <div class="data-value">{{ $curso->fecha_imparticion_termino ? \Carbon\Carbon::parse($curso->fecha_imparticion_termino)->format('d/m/Y') : '—' }}</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="data-item">
                                             <span class="data-label">Duración</span>
-                                            <div class="data-value">{{ $curso->duracion ?: $curso->Duracioncurso }}</div>
+                                            <div class="data-value">{{ $curso->duracion ?: $curso->Duracioncurso ?: '—' }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -166,46 +188,54 @@
 
                             <div class="section-card">
                                 <h5 class="section-title"><i class="fas fa-laptop-house me-2"></i> Modalidad</h5>
+                                @php $modalidad = $curso->modalidadPaso2Guardada(); @endphp
                                 <div class="d-flex flex-wrap gap-3">
-                                    @php $v = ($curso->virtual ?: $curso->Virtual) == 'Si' || ($curso->virtual ?: $curso->Virtual) == 'Sí'; @endphp
-                                    <div class="px-3 py-2 border rounded-3 {{ $v ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">VIRTUAL: {{ $v ? 'SÍ' : 'NO' }}</div>
-                                    @php $p = ($curso->presencial ?: $curso->Presencial) == 'Si' || ($curso->presencial ?: $curso->Presencial) == 'Sí'; @endphp
-                                    <div class="px-3 py-2 border rounded-3 {{ $p ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">PRESENCIAL: {{ $p ? 'SÍ' : 'NO' }}</div>
-                                    @php $m = ($curso->mixto ?: $curso->Mixto) == 'Si' || ($curso->mixto ?: $curso->Mixto) == 'Sí'; @endphp
-                                    <div class="px-3 py-2 border rounded-3 {{ $m ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">MIXTO: {{ $m ? 'SÍ' : 'NO' }}</div>
+                                    <div class="px-3 py-2 border rounded-3 {{ $modalidad === 'virtual' ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">VIRTUAL: {{ $modalidad === 'virtual' ? 'SÍ' : 'NO' }}</div>
+                                    <div class="px-3 py-2 border rounded-3 {{ $modalidad === 'presencial' ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">PRESENCIAL: {{ $modalidad === 'presencial' ? 'SÍ' : 'NO' }}</div>
+                                    <div class="px-3 py-2 border rounded-3 {{ $modalidad === 'mixto' ? 'bg-primary text-white' : 'bg-light text-muted' }} small fw-bold">MIXTO: {{ $modalidad === 'mixto' ? 'SÍ' : 'NO' }}</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-lg-5">
+                            @php
+                                $recursosMap = $curso->recursos->keyBy('tipo_recurso');
+                                $evaluacionesMap = $curso->evaluaciones->keyBy('tipo_evaluacion');
+                                $certificacionesMap = $curso->certificaciones->keyBy('tipo_certificacion');
+                                $linkRecurso = function ($tipo) use ($recursosMap) {
+                                    $r = $recursosMap->get($tipo);
+                                    return ($r && !empty($r->drive_url)) ? $r->drive_url : null;
+                                };
+                            @endphp
                             <div class="section-card">
                                 <h5 class="section-title"><i class="fas fa-file-alt me-2"></i> Recursos</h5>
                                 <div class="list-group list-group-flush border rounded mb-3">
-                                    <div class="list-group-item d-flex justify-content-between py-2">
-                                        <span class="small fw-bold">Temario</span>
-                                        @if($curso->drive_temario ?: $curso->DriveTemario) <a href="{{ $curso->drive_temario ?: $curso->DriveTemario }}" target="_blank" class="link-drive">Ver</a> @else <span class="text-muted small">N/A</span> @endif
-                                    </div>
-                                    <div class="list-group-item d-flex justify-content-between py-2">
-                                        <span class="small fw-bold">Itinerario</span>
-                                        @if($curso->drive_itinerario ?: $curso->DriveItinerario) <a href="{{ $curso->drive_itinerario ?: $curso->DriveItinerario }}" target="_blank" class="link-drive">Ver</a> @else <span class="text-muted small">N/A</span> @endif
-                                    </div>
-                                    <div class="list-group-item d-flex justify-content-between py-2">
-                                        <span class="small fw-bold">Planeación</span>
-                                        @if($curso->drive_planeacion ?: $curso->DrivePlaneación) <a href="{{ $curso->drive_planeacion ?: $curso->DrivePlaneación }}" target="_blank" class="link-drive">Ver</a> @else <span class="text-muted small">N/A</span> @endif
-                                    </div>
+                                    @foreach(['temario' => 'Temario', 'itinerario' => 'Itinerario', 'planeacion' => 'Planeación'] as $tipo => $label)
+                                        <div class="list-group-item d-flex justify-content-between py-2">
+                                            <span class="small fw-bold">{{ $label }}</span>
+                                            @if($url = $linkRecurso($tipo))
+                                                <a href="{{ $url }}" target="_blank" class="link-drive">Ver</a>
+                                            @else
+                                                <span class="text-muted small">N/A</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </div>
 
                                 <span class="data-label mb-2">Evaluación y Certificación</span>
                                 <div class="d-flex flex-wrap gap-2">
-                                    <span class="badge bg-light text-dark border">Diag: {{ $curso->evaluacion_diagnostica ?: $curso->Evaluación_diagnostica }}</span>
-                                    <span class="badge bg-light text-dark border">DC3: {{ $curso->dc3 ?: $curso->DC3 }}</span>
+                                    @php $diag = $evaluacionesMap->get('diagnostica'); @endphp
+                                    <span class="badge bg-light text-dark border">Diag: {{ $diag->url ?? 'N/A' }}</span>
+                                    @php $dc3 = $certificacionesMap->get('dc3'); @endphp
+                                    <span class="badge bg-light text-dark border">DC3: {{ $dc3->nombre ?? 'N/A' }}</span>
                                 </div>
                             </div>
                             
-                            @if(($curso->udemy ?: $curso->UDEMY) == 'Si' || ($curso->udemy ?: $curso->UDEMY) == 'Sí')
+                            @php $udemy = $recursosMap->get('udemy'); @endphp
+                            @if($udemy && !empty($udemy->drive_url))
                             <div class="section-card bg-primary text-white border-0">
                                 <h5 class="section-title text-white"><i class="fas fa-graduation-cap me-2"></i> UDEMY</h5>
-                                <a href="{{ $curso->enlace_udemy ?: $curso->EnlaceUDEMY }}" target="_blank" class="btn btn-sm btn-light w-100 fw-bold">PLATAFORMA</a>
+                                <a href="{{ $udemy->drive_url }}" target="_blank" class="btn btn-sm btn-light w-100 fw-bold">PLATAFORMA</a>
                             </div>
                             @endif
                         </div>

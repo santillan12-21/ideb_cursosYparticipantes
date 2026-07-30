@@ -263,6 +263,8 @@
                             @csrf
                             @method('PUT')
 
+                            @include('cursos.partials.file-upload-hint')
+
                             <!-- ==========================================
                             DIGITAL
                             ========================================== -->
@@ -299,21 +301,12 @@
                                                 onchange="validarDrive(this)">
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Archivo Local</label>
-                                        <input type="file" name="archivoDigital" class="form-control">
-                                        @if(isset($recursos['digital_archivo']) && $recursos['digital_archivo'])
-                                            <div class="documento-preview">
-                                                <i class="fas fa-file-pdf"></i>
-                                                <span class="doc-nombre">{{ basename($recursos['digital_archivo']->url) }}</span>
-                                                <div class="doc-acciones">
-                                                    <a href="{{ $recursos['digital_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    
+                                    @include('cursos.partials.archivos-locales-doble', [
+                                        'inputName' => 'archivoDigital',
+                                        'recursoKey' => 'digital_archivo',
+                                        'recursos' => $recursos,
+                                    ])
                                 </div>
                             </div>
 
@@ -353,21 +346,12 @@
                                                 onchange="validarDrive(this)">
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Archivo Local</label>
-                                        <input type="file" name="archivoImpreso" class="form-control">
-                                        @if(isset($recursos['impreso_archivo']) && $recursos['impreso_archivo'])
-                                            <div class="documento-preview">
-                                                <i class="fas fa-file-pdf"></i>
-                                                <span class="doc-nombre">{{ basename($recursos['impreso_archivo']->url) }}</span>
-                                                <div class="doc-acciones">
-                                                    <a href="{{ $recursos['impreso_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    
+                                    @include('cursos.partials.archivos-locales-doble', [
+                                        'inputName' => 'archivoImpreso',
+                                        'recursoKey' => 'impreso_archivo',
+                                        'recursos' => $recursos,
+                                    ])
                                 </div>
                             </div>
 

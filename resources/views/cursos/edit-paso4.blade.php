@@ -261,6 +261,8 @@
                             @csrf
                             @method('PUT')
 
+                            @include('cursos.partials.file-upload-hint')
+
                             <!-- ==========================================
                             TEMARIO
                             ========================================== -->
@@ -297,21 +299,12 @@
                                                 onchange="validarDrive(this)">
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Archivo Local</label>
-                                        <input type="file" name="archivoTemario" class="form-control">
-                                        @if(isset($recursos['temario_archivo']) && $recursos['temario_archivo'])
-                                            <div class="documento-preview">
-                                                <i class="fas fa-file-pdf"></i>
-                                                <span class="doc-nombre">{{ basename($recursos['temario_archivo']->url) }}</span>
-                                                <div class="doc-acciones">
-                                                    <a href="{{ $recursos['temario_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    
+                                    @include('cursos.partials.archivos-locales-doble', [
+                                        'inputName' => 'archivoTemario',
+                                        'recursoKey' => 'temario_archivo',
+                                        'recursos' => $recursos,
+                                    ])
                                 </div>
                             </div>
 
@@ -351,21 +344,12 @@
                                                 onchange="validarDrive(this)">
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Archivo Local</label>
-                                        <input type="file" name="archivoItinerario" class="form-control">
-                                        @if(isset($recursos['itinerario_archivo']) && $recursos['itinerario_archivo'])
-                                            <div class="documento-preview">
-                                                <i class="fas fa-file-pdf"></i>
-                                                <span class="doc-nombre">{{ basename($recursos['itinerario_archivo']->url) }}</span>
-                                                <div class="doc-acciones">
-                                                    <a href="{{ $recursos['itinerario_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    
+                                    @include('cursos.partials.archivos-locales-doble', [
+                                        'inputName' => 'archivoItinerario',
+                                        'recursoKey' => 'itinerario_archivo',
+                                        'recursos' => $recursos,
+                                    ])
                                 </div>
                             </div>
 
@@ -405,21 +389,12 @@
                                                 onchange="validarDrive(this)">
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Archivo Local</label>
-                                        <input type="file" name="archivoPlaneacion" class="form-control">
-                                        @if(isset($recursos['planeacion_archivo']) && $recursos['planeacion_archivo'])
-                                            <div class="documento-preview">
-                                                <i class="fas fa-file-pdf"></i>
-                                                <span class="doc-nombre">{{ basename($recursos['planeacion_archivo']->url) }}</span>
-                                                <div class="doc-acciones">
-                                                    <a href="{{ $recursos['planeacion_archivo']->archivo_publico_url }}" target="_blank" class="btn-ver-doc">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    
+                                    @include('cursos.partials.archivos-locales-doble', [
+                                        'inputName' => 'archivoPlaneacion',
+                                        'recursoKey' => 'planeacion_archivo',
+                                        'recursos' => $recursos,
+                                    ])
                                 </div>
                             </div>
 

@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Inscripcion;
 use App\Models\Participantes;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CursoController extends Controller
 {
@@ -202,7 +203,31 @@ class CursoController extends Controller
 
     public function show(Cursos $curso)
     {
+        $curso->load(['recursos', 'evaluaciones', 'certificaciones', 'modalidades']);
+
         return view('cursos.show', compact('curso'));
+    }
+
+    public function downloadPdf($id)
+    {
+        $curso = Cursos::with(['recursos', 'evaluaciones', 'certificaciones', 'modalidades'])->findOrFail($id);
+        $progreso = $this->calcularProgresoPaso($curso);
+
+        $recursos = $curso->recursos->keyBy('tipo_recurso');
+        $evaluaciones = $curso->evaluaciones->keyBy('tipo_evaluacion');
+        $certificaciones = $curso->certificaciones->keyBy('tipo_certificacion');
+
+        $pdf = Pdf::loadView('cursos.pdf', compact(
+            'curso',
+            'recursos',
+            'evaluaciones',
+            'certificaciones',
+            'progreso'
+        ));
+
+        $filename = Str::slug($curso->nombre ?: $curso->NombredelCurso ?: 'curso') . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     public function edit(Cursos $curso)
@@ -284,6 +309,186 @@ class CursoController extends Controller
         return response()->file($path);
     }
 
+    private function obtenerDatosUdemy(?CursoRecurso $udemy): array
+    {
+        $estados = ['Prellenado', 'No se ha prellenado', 'Completo'];
+        $estado = '';
+        $link = '';
+
+        if ($udemy) {
+            $url = $udemy->url ?? '';
+            if (in_array($url, $estados, true)) {
+                $estado = $url;
+                $link = $udemy->drive_url ?? '';
+            } elseif (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                $link = $url;
+            } else {
+                $estado = $url;
+                $link = $udemy->drive_url ?? '';
+            }
+        }
+
+        return ['estado' => $estado, 'link' => $link];
+    }
+
+    private function guardarUdemy(Cursos $curso, ?string $estado, ?string $link): void
+    {
+        $estado = trim((string) ($estado ?? ''));
+        $link = trim((string) ($link ?? ''));
+
+        if ($estado !== '' || $link !== '') {
+            CursoRecurso::updateOrCreate(
+                ['curso_id' => $curso->id, 'tipo_recurso' => 'udemy'],
+                [
+                    'url' => $estado !== '' ? $estado : null,
+                    'drive_url' => $link !== '' ? $link : null,
+                ]
+            );
+        } else {
+            $curso->recursos()->where('tipo_recurso', 'udemy')->delete();
+        }
+    }
+
+    private function parseInstructores(?string $valor): array
+    {
+        if ($valor === null || trim($valor) === '') {
+            return [''];
+        }
+
+        $partes = preg_split('/\s*,\s*/', trim($valor)) ?: [];
+
+        $partes = array_values(array_filter(array_map('trim', $partes), fn ($nombre) => $nombre !== ''));
+
+        return count($partes) > 0 ? $partes : [''];
+    }
+
+    private function listaInstructoresParaFormulario($oldInstructores, ?string $guardados): array
+    {
+        if (is_array($oldInstructores)) {
+            return count($oldInstructores) > 0 ? array_values($oldInstructores) : [''];
+        }
+
+        return $this->parseInstructores($guardados);
+    }
+
+    private function normalizarInstructoresDesdeRequest(Request $request): ?string
+    {
+        $instructores = $request->input('Instructores', []);
+
+        if (!is_array($instructores)) {
+            return $request->filled('InstructorResponsable')
+                ? trim((string) $request->InstructorResponsable)
+                : null;
+        }
+
+        $instructores = array_values(array_unique(array_filter(array_map(
+            fn ($nombre) => trim((string) $nombre),
+            $instructores
+        ))));
+
+        return count($instructores) > 0 ? implode(', ', $instructores) : null;
+    }
+
+    private function reglasInstructoresPaso1(): array
+    {
+        return [
+            'Instructores' => 'nullable|array|max:5',
+            'Instructores.*' => 'nullable|string|max:255',
+        ];
+    }
+
+    private function reglasFechasPaso1(): array
+    {
+        return [
+            'FechadeInicio' => 'nullable|date',
+            'FechadeTermino' => 'nullable|date|after_or_equal:FechadeInicio',
+            'FechaImparticionInicio' => 'nullable|date',
+            'FechaImparticionTermino' => 'nullable|date|after_or_equal:FechaImparticionInicio',
+            'Duracioncurso' => 'nullable|string|max:255',
+        ];
+    }
+
+    private function datosPaso1DesdeRequest(Request $request): array
+    {
+        return [
+            'nomenclatura' => $request->Nomenclatura,
+            'nombre' => $request->NombredelCurso,
+            'descripcion' => $request->filled('DescripciondeCurso') ? $request->DescripciondeCurso : null,
+            'costo' => $request->filled('CostodelCurso') ? $request->CostodelCurso : null,
+            'instructor_responsable' => $this->normalizarInstructoresDesdeRequest($request),
+            'fecha_inicio' => $request->FechadeInicio ?? null,
+            'fecha_termino' => $request->FechadeTermino ?? null,
+            'fecha_imparticion_inicio' => $request->FechaImparticionInicio ?? null,
+            'fecha_imparticion_termino' => $request->FechaImparticionTermino ?? null,
+            'duracion' => $request->filled('Duracioncurso') ? $request->Duracioncurso : null,
+        ];
+    }
+
+    private function mapArchivosDobles(array $map): array
+    {
+        $result = [];
+        foreach ($map as $input => $tipo) {
+            $result[$input] = $tipo;
+            $result[$input . '2'] = $tipo . '_2';
+        }
+
+        return $result;
+    }
+
+    private function cargarRecursosArchivos(array &$recursos, $recursosDb, array $tipos): void
+    {
+        foreach ($tipos as $tipo) {
+            $recursos[$tipo] = $recursosDb->get($tipo);
+            $recursos[$tipo . '_2'] = $recursosDb->get($tipo . '_2');
+        }
+    }
+
+    private function mapArchivosPaso3(): array
+    {
+        return $this->mapArchivosDobles([
+            'archivoSinFecha' => 'sin_fecha_archivo',
+            'archivoFacebook' => 'facebook_archivo',
+            'archivoLinkedIn' => 'linkedin_archivo',
+            'archivoInstagram' => 'instagram_archivo',
+        ]);
+    }
+
+    private function mapArchivosPaso4(): array
+    {
+        return $this->mapArchivosDobles([
+            'archivoTemario' => 'temario_archivo',
+            'archivoItinerario' => 'itinerario_archivo',
+            'archivoPlaneacion' => 'planeacion_archivo',
+        ]);
+    }
+
+    private function mapArchivosPaso5(): array
+    {
+        return $this->mapArchivosDobles([
+            'archivoDigital' => 'digital_archivo',
+            'archivoImpreso' => 'impreso_archivo',
+        ]);
+    }
+
+    private function mapArchivosPaso6(): array
+    {
+        return $this->mapArchivosDobles([
+            'archivoPresentacion' => 'presentacion_archivo',
+            'archivoEvaluacionDiagnostica' => 'diagnostica_archivo',
+            'archivoEvaluacionSatisfaccion' => 'satisfaccion_archivo',
+            'archivoEvaluacionFinal' => 'final_archivo',
+        ]);
+    }
+
+    private function mapArchivosPaso7(): array
+    {
+        return $this->mapArchivosDobles([
+            'archivoDC5' => 'dc5_archivo',
+            'archivoCertificado' => 'certificado_archivo',
+            'archivoCartaPoder' => 'carta_poder_archivo',
+        ]);
+    }
+
     private function guardarArchivosCurso($curso, $request, $archivosMap)
     {
         $cursoPath = storage_path('app/public/cursos/' . $curso->id);
@@ -319,35 +524,27 @@ class CursoController extends Controller
         $cursoId = session('curso_id');
         $curso = Cursos::find($cursoId);
         $datosPadre = null;
-        return view('cursos.paso1', compact('curso', 'datosPadre'));
+        $instructores = $this->listaInstructoresParaFormulario(
+            old('Instructores'),
+            $curso?->instructor_responsable
+        );
+
+        return view('cursos.paso1', compact('curso', 'datosPadre', 'instructores'));
     }
 
     public function guardarPaso1(Request $request)
     {
         $cursoId = session('curso_id');
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $cursoId,
             'NombredelCurso' => 'required|string|max:255',
             'DescripciondeCurso' => 'nullable|string|max:2000',
             'CostodelCurso' => 'nullable|numeric',
-            'InstructorResponsable' => 'nullable|string|max:255',
-            'FechadeInicio' => 'nullable|date',
-            'FechadeTermino' => 'nullable|date|after_or_equal:FechadeInicio',
-            'Duracioncurso' => 'nullable|string|max:255',
-        ]);
+        ], $this->reglasFechasPaso1(), $this->reglasInstructoresPaso1()));
 
         $curso = Cursos::findOrFail($cursoId);
 
-        $curso->update([
-            'nomenclatura' => $validated['Nomenclatura'],
-            'nombre' => $validated['NombredelCurso'],
-            'descripcion' => $request->filled('DescripciondeCurso') ? $request->DescripciondeCurso : null,
-            'costo' => $request->filled('CostodelCurso') ? $request->CostodelCurso : null,
-            'instructor_responsable' => $request->filled('InstructorResponsable') ? $request->InstructorResponsable : null,
-            'fecha_inicio' => $request->FechadeInicio ?? null,
-            'fecha_termino' => $request->FechadeTermino ?? null,
-            'duracion' => $request->filled('Duracioncurso') ? $request->Duracioncurso : null,
-        ]);
+        $curso->update($this->datosPaso1DesdeRequest($request));
 
         session(['cursos_paso1' => $validated]);
         return redirect()->route('curso.paso2');
@@ -414,10 +611,12 @@ class CursoController extends Controller
             $recursos['linkedin'] = $recursosDb->get('linkedin');
             $recursos['instagram'] = $recursosDb->get('instagram');
             
-            $recursos['sin_fecha_archivo'] = $recursosDb->get('sin_fecha_archivo');
-            $recursos['facebook_archivo'] = $recursosDb->get('facebook_archivo');
-            $recursos['linkedin_archivo'] = $recursosDb->get('linkedin_archivo');
-            $recursos['instagram_archivo'] = $recursosDb->get('instagram_archivo');
+            $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                'sin_fecha_archivo',
+                'facebook_archivo',
+                'linkedin_archivo',
+                'instagram_archivo',
+            ]);
         }
         
         return view('cursos.paso3', compact('curso', 'recursos')); 
@@ -454,12 +653,7 @@ class CursoController extends Controller
             }
         }
 
-        $this->guardarArchivosCurso($curso, $request, [
-            'archivoSinFecha' => 'sin_fecha_archivo',
-            'archivoFacebook' => 'facebook_archivo',
-            'archivoLinkedIn' => 'linkedin_archivo',
-            'archivoInstagram' => 'instagram_archivo',
-        ]);
+        $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso3());
         
         session(['cursos_paso3' => $v]);
         return redirect()->route('curso.paso4');
@@ -480,9 +674,11 @@ class CursoController extends Controller
             $recursos['itinerario'] = $recursosDb->get('itinerario');
             $recursos['planeacion'] = $recursosDb->get('planeacion');
             
-            $recursos['temario_archivo'] = $recursosDb->get('temario_archivo');
-            $recursos['itinerario_archivo'] = $recursosDb->get('itinerario_archivo');
-            $recursos['planeacion_archivo'] = $recursosDb->get('planeacion_archivo');
+            $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                'temario_archivo',
+                'itinerario_archivo',
+                'planeacion_archivo',
+            ]);
         }
         
         return view('cursos.paso4', compact('curso', 'recursos')); 
@@ -516,11 +712,7 @@ class CursoController extends Controller
             }
         }
 
-        $this->guardarArchivosCurso($curso, $request, [
-            'archivoTemario' => 'temario_archivo',
-            'archivoItinerario' => 'itinerario_archivo',
-            'archivoPlaneacion' => 'planeacion_archivo',
-        ]);
+        $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso4());
         
         session(['cursos_paso4' => $v]);
         return redirect()->route('curso.paso5');
@@ -541,9 +733,11 @@ class CursoController extends Controller
             $recursos['presentacion'] = $recursosDb->get('presentacion');
             $recursos['impreso'] = $recursosDb->get('impreso');
             
-            $recursos['digital_archivo'] = $recursosDb->get('digital_archivo');
-            $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
-            $recursos['impreso_archivo'] = $recursosDb->get('impreso_archivo');
+            $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                'digital_archivo',
+                'presentacion_archivo',
+                'impreso_archivo',
+            ]);
         }
         
         return view('cursos.paso5', compact('curso', 'recursos')); 
@@ -576,10 +770,7 @@ class CursoController extends Controller
             }
         }
 
-        $this->guardarArchivosCurso($curso, $request, [
-            'archivoDigital' => 'digital_archivo',
-            'archivoImpreso' => 'impreso_archivo',
-        ]);
+        $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso5());
         
         session(['cursos_paso5' => $v]);
         return redirect()->route('curso.paso6');
@@ -600,7 +791,12 @@ class CursoController extends Controller
             $certificacionesDb = $curso->certificaciones()->get()->keyBy('tipo_certificacion');
             
             $recursos['presentacion'] = $recursosDb->get('presentacion');
-            $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
+            $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                'presentacion_archivo',
+                'diagnostica_archivo',
+                'satisfaccion_archivo',
+                'final_archivo',
+            ]);
             
             $evaluaciones['diagnostica'] = $evaluacionesDb->get('diagnostica');
             $evaluaciones['satisfaccion'] = $evaluacionesDb->get('satisfaccion');
@@ -641,22 +837,7 @@ class CursoController extends Controller
             $curso->recursos()->where('tipo_recurso', 'presentacion')->delete();
         }
 
-        // Guardar archivo de presentación
-        if ($request->hasFile('archivoPresentacion') && $request->file('archivoPresentacion')->isValid()) {
-            $file = $request->file('archivoPresentacion');
-            $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-            $cursoPath = storage_path('app/public/cursos/' . $curso->id);
-            if (!file_exists($cursoPath)) {
-                mkdir($cursoPath, 0777, true);
-            }
-            $file->move($cursoPath, $fileName);
-            $rutaPublica = 'cursos/' . $curso->id . '/' . $fileName;
-            
-            CursoRecurso::updateOrCreate(
-                ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion_archivo'],
-                ['url' => $rutaPublica]
-            );
-        }
+        $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso6());
 
         // Guardar evaluaciones
         $evaluacionesMap = [
@@ -718,13 +899,17 @@ class CursoController extends Controller
             $certificaciones['carta_poder'] = $certificacionesDb->get('carta_poder');
             $fechaRegistro = $certificacionesDb->get('fecha_registro');
             
-            $recursos['dc5_archivo'] = $recursosDb->get('dc5_archivo');
-            $recursos['certificado_archivo'] = $recursosDb->get('certificado_archivo');
-            $recursos['carta_poder_archivo'] = $recursosDb->get('carta_poder_archivo');
+            $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                'dc5_archivo',
+                'certificado_archivo',
+                'carta_poder_archivo',
+            ]);
             $recursos['udemy'] = $recursosDb->get('udemy');
         }
+
+        $udemyDatos = $this->obtenerDatosUdemy($recursos['udemy'] ?? null);
         
-        return view('cursos.paso7', compact('curso', 'certificaciones', 'recursos', 'fechaRegistro')); 
+        return view('cursos.paso7', compact('curso', 'certificaciones', 'recursos', 'fechaRegistro', 'udemyDatos')); 
     }
     
     public function guardarPaso7(Request $request) 
@@ -738,13 +923,13 @@ class CursoController extends Controller
             'CartaPoderTieneFirma' => 'nullable|string',
             'DriveCartaPoder' => 'nullable|string',
             'UDEMY' => 'nullable|string',
+            'LinkUdemy' => 'nullable|string|min:4|max:500',
         ]);
         
         $curso = Cursos::findOrFail(session('curso_id'));
 
         $dc5Firma = ($v['FormatoDC5TieneFirma'] ?? 'No') === 'Si';
         $cartaFirma = ($v['CartaPoderTieneFirma'] ?? 'No') === 'Si';
-        $udemyBool = ($v['UDEMY'] ?? 'No se ha prellenado') === 'Prellenado';
 
         // Guardar FECHA en curso_certificaciones
         if (!empty($v['FechaRegistroSTPS'])) {
@@ -779,21 +964,10 @@ class CursoController extends Controller
         }
 
         // Guardar archivos
-        $this->guardarArchivosCurso($curso, $request, [
-            'archivoDC5' => 'dc5_archivo',
-            'archivoCertificado' => 'certificado_archivo',
-            'archivoCartaPoder' => 'carta_poder_archivo',
-        ]);
+            $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso7());
 
         // Guardar UDEMY
-        if ($udemyBool) {
-            CursoRecurso::updateOrCreate(
-                ['curso_id' => $curso->id, 'tipo_recurso' => 'udemy'],
-                ['url' => 'https://www.udemy.com/']
-            );
-        } else {
-            $curso->recursos()->where('tipo_recurso', 'udemy')->delete();
-        }
+        $this->guardarUdemy($curso, $v['UDEMY'] ?? null, $v['LinkUdemy'] ?? null);
 
         CourseActionLog::create([
             'curso_id' => $curso->id,
@@ -824,7 +998,12 @@ class CursoController extends Controller
         
         switch($paso) {
             case 1:
-                return view('cursos.edit-paso1', compact('curso'));
+                $instructores = $this->listaInstructoresParaFormulario(
+                    old('Instructores'),
+                    $curso->instructor_responsable
+                );
+
+                return view('cursos.edit-paso1', compact('curso', 'instructores'));
                 
             case 2:
                 $curso->load('modalidades');
@@ -835,33 +1014,44 @@ class CursoController extends Controller
                 $recursos['facebook'] = $recursosDb->get('facebook');
                 $recursos['linkedin'] = $recursosDb->get('linkedin');
                 $recursos['instagram'] = $recursosDb->get('instagram');
-                $recursos['sin_fecha_archivo'] = $recursosDb->get('sin_fecha_archivo');
-                $recursos['facebook_archivo'] = $recursosDb->get('facebook_archivo');
-                $recursos['linkedin_archivo'] = $recursosDb->get('linkedin_archivo');
-                $recursos['instagram_archivo'] = $recursosDb->get('instagram_archivo');
+                $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                    'sin_fecha_archivo',
+                    'facebook_archivo',
+                    'linkedin_archivo',
+                    'instagram_archivo',
+                ]);
                 return view('cursos.edit-paso3', compact('curso', 'recursos'));
                 
             case 4:
                 $recursos['temario'] = $recursosDb->get('temario');
                 $recursos['itinerario'] = $recursosDb->get('itinerario');
                 $recursos['planeacion'] = $recursosDb->get('planeacion');
-                $recursos['temario_archivo'] = $recursosDb->get('temario_archivo');
-                $recursos['itinerario_archivo'] = $recursosDb->get('itinerario_archivo');
-                $recursos['planeacion_archivo'] = $recursosDb->get('planeacion_archivo');
+                $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                    'temario_archivo',
+                    'itinerario_archivo',
+                    'planeacion_archivo',
+                ]);
                 return view('cursos.edit-paso4', compact('curso', 'recursos'));
                 
             case 5:
                 $recursos['digital'] = $recursosDb->get('digital');
                 $recursos['presentacion'] = $recursosDb->get('presentacion');
                 $recursos['impreso'] = $recursosDb->get('impreso');
-                $recursos['digital_archivo'] = $recursosDb->get('digital_archivo');
-                $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
-                $recursos['impreso_archivo'] = $recursosDb->get('impreso_archivo');
+                $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                    'digital_archivo',
+                    'presentacion_archivo',
+                    'impreso_archivo',
+                ]);
                 return view('cursos.edit-paso5', compact('curso', 'recursos'));
                 
             case 6:
                 $recursos['presentacion'] = $recursosDb->get('presentacion');
-                $recursos['presentacion_archivo'] = $recursosDb->get('presentacion_archivo');
+                $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                    'presentacion_archivo',
+                    'diagnostica_archivo',
+                    'satisfaccion_archivo',
+                    'final_archivo',
+                ]);
                 $evaluaciones['diagnostica'] = $evaluacionesDb->get('diagnostica');
                 $evaluaciones['satisfaccion'] = $evaluacionesDb->get('satisfaccion');
                 $evaluaciones['final'] = $evaluacionesDb->get('final');
@@ -873,11 +1063,14 @@ class CursoController extends Controller
                 $certificaciones['certificado_comprobacion'] = $certificacionesDb->get('certificado_comprobacion');
                 $certificaciones['carta_poder'] = $certificacionesDb->get('carta_poder');
                 $fechaRegistro = $certificacionesDb->get('fecha_registro');
-                $recursos['dc5_archivo'] = $recursosDb->get('dc5_archivo');
-                $recursos['certificado_archivo'] = $recursosDb->get('certificado_archivo');
-                $recursos['carta_poder_archivo'] = $recursosDb->get('carta_poder_archivo');
+                $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                    'dc5_archivo',
+                    'certificado_archivo',
+                    'carta_poder_archivo',
+                ]);
                 $recursos['udemy'] = $recursosDb->get('udemy');
-                return view('cursos.edit-paso7', compact('curso', 'certificaciones', 'recursos', 'fechaRegistro'));
+                $udemyDatos = $this->obtenerDatosUdemy($recursos['udemy'] ?? null);
+                return view('cursos.edit-paso7', compact('curso', 'certificaciones', 'recursos', 'fechaRegistro', 'udemyDatos'));
                 
             default:
                 return redirect()->route('cursos.index');
@@ -887,22 +1080,14 @@ class CursoController extends Controller
     public function updatePaso(Request $request, Cursos $curso, $paso)
     {
         if ($paso == 1) {
-            $request->validate([
+            $request->validate(array_merge([
                 'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $curso->id,
                 'NombredelCurso' => 'required|string|max:255',
-            ]);
-            
-            $data = [
-                'nomenclatura' => $request->Nomenclatura,
-                'nombre' => $request->NombredelCurso,
-                'descripcion' => $request->filled('DescripciondeCurso') ? $request->DescripciondeCurso : null,
-                'costo' => $request->filled('CostodelCurso') ? $request->CostodelCurso : null,
-                'instructor_responsable' => $request->filled('InstructorResponsable') ? $request->InstructorResponsable : null,
-                'fecha_inicio' => $request->FechadeInicio ?? null,
-                'fecha_termino' => $request->FechadeTermino ?? null,
-                'duracion' => $request->filled('Duracioncurso') ? $request->Duracioncurso : null,
-            ];
-            $curso->update($data);
+                'DescripciondeCurso' => 'nullable|string|max:2000',
+                'CostodelCurso' => 'nullable|numeric',
+            ], $this->reglasFechasPaso1(), $this->reglasInstructoresPaso1()));
+
+            $curso->update($this->datosPaso1DesdeRequest($request));
         }
 
         if ($paso == 2) {
@@ -949,12 +1134,7 @@ class CursoController extends Controller
                 }
             }
 
-            $this->guardarArchivosCurso($curso, $request, [
-                'archivoSinFecha' => 'sin_fecha_archivo',
-                'archivoFacebook' => 'facebook_archivo',
-                'archivoLinkedIn' => 'linkedin_archivo',
-                'archivoInstagram' => 'instagram_archivo',
-            ]);
+        $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso3());
         }
 
         if ($paso == 4) {
@@ -975,11 +1155,7 @@ class CursoController extends Controller
                 }
             }
 
-            $this->guardarArchivosCurso($curso, $request, [
-                'archivoTemario' => 'temario_archivo',
-                'archivoItinerario' => 'itinerario_archivo',
-                'archivoPlaneacion' => 'planeacion_archivo',
-            ]);
+            $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso4());
         }
 
         if ($paso == 5) {
@@ -999,10 +1175,7 @@ class CursoController extends Controller
                 }
             }
 
-            $this->guardarArchivosCurso($curso, $request, [
-                'archivoDigital' => 'digital_archivo',
-                'archivoImpreso' => 'impreso_archivo',
-            ]);
+            $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso5());
         }
 
         if ($paso == 6) {
@@ -1016,22 +1189,7 @@ class CursoController extends Controller
                 $curso->recursos()->where('tipo_recurso', 'presentacion')->delete();
             }
 
-            // Guardar archivo de presentacion
-            if ($request->hasFile('archivoPresentacion') && $request->file('archivoPresentacion')->isValid()) {
-                $file = $request->file('archivoPresentacion');
-                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $cursoPath = storage_path('app/public/cursos/' . $curso->id);
-                if (!file_exists($cursoPath)) {
-                    mkdir($cursoPath, 0777, true);
-                }
-                $file->move($cursoPath, $fileName);
-                $rutaPublica = 'cursos/' . $curso->id . '/' . $fileName;
-                
-                CursoRecurso::updateOrCreate(
-                    ['curso_id' => $curso->id, 'tipo_recurso' => 'presentacion_archivo'],
-                    ['url' => $rutaPublica]
-                );
-            }
+            $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso6());
 
             // Guardar evaluaciones
             $evaluacionesMap = [
@@ -1072,9 +1230,12 @@ class CursoController extends Controller
         }
 
         if ($paso == 7) {
+            $request->validate([
+                'LinkUdemy' => 'nullable|string|min:4|max:500',
+            ]);
+
             $dc5Firma = ($request->FormatoDC5TieneFirma ?? 'No') === 'Si';
             $cartaFirma = ($request->CartaPoderTieneFirma ?? 'No') === 'Si';
-            $udemyBool = ($request->UDEMY ?? 'No se ha prellenado') === 'Prellenado';
 
             // Guardar FECHA en curso_certificaciones
             if (!empty($request->FechaRegistroSTPS)) {
@@ -1109,20 +1270,9 @@ class CursoController extends Controller
                 }
             }
 
-            $this->guardarArchivosCurso($curso, $request, [
-                'archivoDC5' => 'dc5_archivo',
-                'archivoCertificado' => 'certificado_archivo',
-                'archivoCartaPoder' => 'carta_poder_archivo',
-            ]);
+            $this->guardarArchivosCurso($curso, $request, $this->mapArchivosPaso7());
 
-            if ($udemyBool) {
-                CursoRecurso::updateOrCreate(
-                    ['curso_id' => $curso->id, 'tipo_recurso' => 'udemy'],
-                    ['url' => 'https://www.udemy.com/']
-                );
-            } else {
-                $curso->recursos()->where('tipo_recurso', 'udemy')->delete();
-            }
+            $this->guardarUdemy($curso, $request->UDEMY ?? null, $request->LinkUdemy ?? null);
         }
 
         return redirect()->route('cursos.edit', $curso->id)->with('success', "Paso $paso actualizado.");
@@ -1136,7 +1286,7 @@ class CursoController extends Controller
         $progreso = [];
         
         $pasosCampos = [
-            1 => ['nomenclatura', 'nombre', 'descripcion', 'costo', 'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion'],
+            1 => ['nomenclatura', 'nombre', 'descripcion', 'costo', 'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'fecha_imparticion_inicio', 'fecha_imparticion_termino', 'duracion'],
             2 => [],
             3 => ['recursos' => ['sin_fecha', 'facebook', 'linkedin', 'instagram']],
             4 => ['recursos' => ['temario', 'itinerario', 'planeacion']],
@@ -1193,7 +1343,8 @@ class CursoController extends Controller
     {
         $camposPaso1 = [
             'nomenclatura', 'nombre', 'descripcion', 'costo',
-            'instructor_responsable', 'fecha_inicio', 'fecha_termino', 'duracion',
+            'instructor_responsable', 'fecha_inicio', 'fecha_termino',
+            'fecha_imparticion_inicio', 'fecha_imparticion_termino', 'duracion',
         ];
 
         $llenos = 0;
@@ -1274,27 +1425,14 @@ class CursoController extends Controller
         
         if ($curso) {
             if ($request->filled('Nomenclatura') && $request->filled('NombredelCurso')) {
-                $request->validate([
+                $request->validate(array_merge([
                     'Nomenclatura' => 'required|string|max:255|unique:cursos,nomenclatura,' . $curso->id,
                     'NombredelCurso' => 'required|string|max:255',
                     'DescripciondeCurso' => 'nullable|string|max:2000',
                     'CostodelCurso' => 'nullable|numeric',
-                    'InstructorResponsable' => 'nullable|string|max:255',
-                    'FechadeInicio' => 'nullable|date',
-                    'FechadeTermino' => 'nullable|date|after_or_equal:FechadeInicio',
-                    'Duracioncurso' => 'nullable|string|max:255',
-                ]);
+                ], $this->reglasFechasPaso1(), $this->reglasInstructoresPaso1()));
 
-                $curso->update([
-                    'nomenclatura' => $request->Nomenclatura,
-                    'nombre' => $request->NombredelCurso,
-                    'descripcion' => $request->filled('DescripciondeCurso') ? $request->DescripciondeCurso : null,
-                    'costo' => $request->filled('CostodelCurso') ? $request->CostodelCurso : null,
-                    'instructor_responsable' => $request->filled('InstructorResponsable') ? $request->InstructorResponsable : null,
-                    'fecha_inicio' => $request->FechadeInicio ?? null,
-                    'fecha_termino' => $request->FechadeTermino ?? null,
-                    'duracion' => $request->filled('Duracioncurso') ? $request->Duracioncurso : null,
-                ]);
+                $curso->update($this->datosPaso1DesdeRequest($request));
             }
 
             // Verificar que tenga al menos Nomenclatura y Nombre
