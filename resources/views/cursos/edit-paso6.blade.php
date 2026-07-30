@@ -314,9 +314,10 @@
                                         </div>
                                     </div>
                                     
-                                    @include('cursos.partials.archivos-locales-doble', [
+                                    @include('cursos.partials.archivos-locales-multiple', [
                                         'inputName' => 'archivoPresentacion',
                                         'recursoKey' => 'presentacion_archivo',
+                                        'cantidad' => 3,
                                         'recursos' => $recursos,
                                     ])
                                 </div>

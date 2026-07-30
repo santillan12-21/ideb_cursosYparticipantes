@@ -185,6 +185,37 @@ class Cursos extends Model
         return $this->recursos()->where('tipo_recurso', $tipo)->first();
     }
 
+    public function recursoTieneDatos(string $tipo): bool
+    {
+        $recursos = $this->relationLoaded('recursos')
+            ? $this->recursos
+            : $this->recursos()->get();
+
+        $principal = $recursos->firstWhere('tipo_recurso', $tipo);
+        if ($principal && (filled($principal->url) || filled($principal->drive_url))) {
+            return true;
+        }
+
+        $prefijo = $tipo . '_archivo';
+
+        return $recursos->contains(function ($recurso) use ($prefijo) {
+            return str_starts_with($recurso->tipo_recurso, $prefijo) && filled($recurso->url);
+        });
+    }
+
+    public function archivosDeRecurso(string $tipo)
+    {
+        $recursos = $this->relationLoaded('recursos')
+            ? $this->recursos
+            : $this->recursos()->get();
+
+        $prefijo = $tipo . '_archivo';
+
+        return $recursos->filter(function ($recurso) use ($prefijo) {
+            return str_starts_with($recurso->tipo_recurso, $prefijo) && filled($recurso->url);
+        })->sortBy('tipo_recurso')->values();
+    }
+
     // Método auxiliar para obtener evaluación por tipo
     public function getEvaluacion($tipo)
     {

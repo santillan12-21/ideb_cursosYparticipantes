@@ -426,10 +426,18 @@ class CursoController extends Controller
 
     private function mapArchivosDobles(array $map): array
     {
+        return $this->mapArchivosMultiples($map, 2);
+    }
+
+    private function mapArchivosMultiples(array $map, int $cantidad): array
+    {
         $result = [];
         foreach ($map as $input => $tipo) {
-            $result[$input] = $tipo;
-            $result[$input . '2'] = $tipo . '_2';
+            for ($i = 1; $i <= $cantidad; $i++) {
+                $inputSuffix = $i === 1 ? '' : (string) $i;
+                $tipoSuffix = $i === 1 ? '' : '_' . $i;
+                $result[$input . $inputSuffix] = $tipo . $tipoSuffix;
+            }
         }
 
         return $result;
@@ -437,20 +445,27 @@ class CursoController extends Controller
 
     private function cargarRecursosArchivos(array &$recursos, $recursosDb, array $tipos): void
     {
+        $this->cargarRecursosArchivosMultiples($recursos, $recursosDb, $tipos, 2);
+    }
+
+    private function cargarRecursosArchivosMultiples(array &$recursos, $recursosDb, array $tipos, int $cantidad): void
+    {
         foreach ($tipos as $tipo) {
-            $recursos[$tipo] = $recursosDb->get($tipo);
-            $recursos[$tipo . '_2'] = $recursosDb->get($tipo . '_2');
+            for ($i = 1; $i <= $cantidad; $i++) {
+                $key = $i === 1 ? $tipo : $tipo . '_' . $i;
+                $recursos[$key] = $recursosDb->get($key);
+            }
         }
     }
 
     private function mapArchivosPaso3(): array
     {
-        return $this->mapArchivosDobles([
+        return $this->mapArchivosMultiples([
             'archivoSinFecha' => 'sin_fecha_archivo',
             'archivoFacebook' => 'facebook_archivo',
             'archivoLinkedIn' => 'linkedin_archivo',
             'archivoInstagram' => 'instagram_archivo',
-        ]);
+        ], 3);
     }
 
     private function mapArchivosPaso4(): array
@@ -464,20 +479,24 @@ class CursoController extends Controller
 
     private function mapArchivosPaso5(): array
     {
-        return $this->mapArchivosDobles([
+        return $this->mapArchivosMultiples([
             'archivoDigital' => 'digital_archivo',
             'archivoImpreso' => 'impreso_archivo',
-        ]);
+        ], 6);
     }
 
     private function mapArchivosPaso6(): array
     {
-        return $this->mapArchivosDobles([
-            'archivoPresentacion' => 'presentacion_archivo',
-            'archivoEvaluacionDiagnostica' => 'diagnostica_archivo',
-            'archivoEvaluacionSatisfaccion' => 'satisfaccion_archivo',
-            'archivoEvaluacionFinal' => 'final_archivo',
-        ]);
+        return array_merge(
+            $this->mapArchivosMultiples([
+                'archivoPresentacion' => 'presentacion_archivo',
+            ], 3),
+            $this->mapArchivosDobles([
+                'archivoEvaluacionDiagnostica' => 'diagnostica_archivo',
+                'archivoEvaluacionSatisfaccion' => 'satisfaccion_archivo',
+                'archivoEvaluacionFinal' => 'final_archivo',
+            ])
+        );
     }
 
     private function mapArchivosPaso7(): array
@@ -611,12 +630,12 @@ class CursoController extends Controller
             $recursos['linkedin'] = $recursosDb->get('linkedin');
             $recursos['instagram'] = $recursosDb->get('instagram');
             
-            $this->cargarRecursosArchivos($recursos, $recursosDb, [
+            $this->cargarRecursosArchivosMultiples($recursos, $recursosDb, [
                 'sin_fecha_archivo',
                 'facebook_archivo',
                 'linkedin_archivo',
                 'instagram_archivo',
-            ]);
+            ], 3);
         }
         
         return view('cursos.paso3', compact('curso', 'recursos')); 
@@ -733,11 +752,10 @@ class CursoController extends Controller
             $recursos['presentacion'] = $recursosDb->get('presentacion');
             $recursos['impreso'] = $recursosDb->get('impreso');
             
-            $this->cargarRecursosArchivos($recursos, $recursosDb, [
+            $this->cargarRecursosArchivosMultiples($recursos, $recursosDb, [
                 'digital_archivo',
-                'presentacion_archivo',
                 'impreso_archivo',
-            ]);
+            ], 6);
         }
         
         return view('cursos.paso5', compact('curso', 'recursos')); 
@@ -791,8 +809,10 @@ class CursoController extends Controller
             $certificacionesDb = $curso->certificaciones()->get()->keyBy('tipo_certificacion');
             
             $recursos['presentacion'] = $recursosDb->get('presentacion');
-            $this->cargarRecursosArchivos($recursos, $recursosDb, [
+            $this->cargarRecursosArchivosMultiples($recursos, $recursosDb, [
                 'presentacion_archivo',
+            ], 3);
+            $this->cargarRecursosArchivos($recursos, $recursosDb, [
                 'diagnostica_archivo',
                 'satisfaccion_archivo',
                 'final_archivo',
@@ -1014,12 +1034,12 @@ class CursoController extends Controller
                 $recursos['facebook'] = $recursosDb->get('facebook');
                 $recursos['linkedin'] = $recursosDb->get('linkedin');
                 $recursos['instagram'] = $recursosDb->get('instagram');
-                $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                $this->cargarRecursosArchivosMultiples($recursos, $recursosDb, [
                     'sin_fecha_archivo',
                     'facebook_archivo',
                     'linkedin_archivo',
                     'instagram_archivo',
-                ]);
+                ], 3);
                 return view('cursos.edit-paso3', compact('curso', 'recursos'));
                 
             case 4:
@@ -1037,17 +1057,18 @@ class CursoController extends Controller
                 $recursos['digital'] = $recursosDb->get('digital');
                 $recursos['presentacion'] = $recursosDb->get('presentacion');
                 $recursos['impreso'] = $recursosDb->get('impreso');
-                $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                $this->cargarRecursosArchivosMultiples($recursos, $recursosDb, [
                     'digital_archivo',
-                    'presentacion_archivo',
                     'impreso_archivo',
-                ]);
+                ], 6);
                 return view('cursos.edit-paso5', compact('curso', 'recursos'));
                 
             case 6:
                 $recursos['presentacion'] = $recursosDb->get('presentacion');
-                $this->cargarRecursosArchivos($recursos, $recursosDb, [
+                $this->cargarRecursosArchivosMultiples($recursos, $recursosDb, [
                     'presentacion_archivo',
+                ], 3);
+                $this->cargarRecursosArchivos($recursos, $recursosDb, [
                     'diagnostica_archivo',
                     'satisfaccion_archivo',
                     'final_archivo',
@@ -1399,8 +1420,7 @@ class CursoController extends Controller
     private function campoEstaLleno($curso, $tipo, $subCampo)
     {
         if ($tipo === 'recursos') {
-            $recurso = $curso->recursos()->where('tipo_recurso', $subCampo)->first();
-            return $recurso && (!empty($recurso->url) || !empty($recurso->drive_url));
+            return $curso->recursoTieneDatos($subCampo);
         }
         if ($tipo === 'evaluaciones') {
             $evaluacion = $curso->evaluaciones()->where('tipo_evaluacion', $subCampo)->first();

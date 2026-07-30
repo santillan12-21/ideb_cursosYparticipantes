@@ -25,15 +25,6 @@
         <button type="submit" class="btn btn-primary">Subir Archivo</button>
     </form>
 
-    <!-- Formulario para crear subcarpetas -->
-    <form action="{{ route('archivos.create-subfolder', ['carpeta' => $carpeta]) }}" method="POST" class="mb-4">
-        @csrf
-        <div class="form-group">
-            <input type="text" name="nombre_subcarpeta" class="form-control" placeholder="Nombre de la subcarpeta" required>
-        </div>
-        <button type="submit" class="btn btn-info">Crear Subcarpeta</button>
-    </form>
-
     <!-- Lista de archivos -->
     <h2>Archivos</h2>
     @if (count($archivos) > 0)
@@ -46,7 +37,8 @@
                         <span>{{ basename($archivo) }}</span>
                     @endif
                     <div>
-                        <a href="{{ route('archivos.download', ['archivo' => basename($archivo)]) }}" class="btn btn-success btn-sm">Descargar</a>
+                        <a href="{{ route('archivos.view-from-folder', ['carpeta' => $carpeta, 'archivo' => basename($archivo)]) }}" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Ver</a>
+                        <a href="{{ route('archivos.download-from-folder', ['carpeta' => $carpeta, 'archivo' => basename($archivo)]) }}" class="btn btn-success btn-sm">Descargar</a>
                         <form action="{{ route('archivos.delete', ['archivo' => basename($archivo)]) }}" method="POST" style="display: inline;">
                             @csrf
                             @method('DELETE')
@@ -58,27 +50,6 @@
         </div>
     @else
         <p>No hay archivos en esta carpeta.</p>
-    @endif
-
-    <!-- Lista de subcarpetas -->
-    <h2>Subcarpetas</h2>
-    @if (count($subcarpetas) > 0)
-        <div class="list-group mb-4">
-            @foreach ($subcarpetas as $subcarpeta)
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{{ route('archivos.open-folder', ['carpeta' => rawurlencode($carpeta . '/' . basename($subcarpeta))]) }}">
-                        {{ basename($subcarpeta) }}
-                    </a>
-                    <form action="{{ route('archivos.delete-folder', ['carpeta' => $carpeta . '/' . basename($subcarpeta)]) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                    </form>
-                </div>
-            @endforeach
-        </div>
-    @else
-        <p>No hay subcarpetas en esta carpeta.</p>
     @endif
 
     <!-- Breadcrumb para navegar entre carpetas -->

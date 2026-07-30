@@ -46,14 +46,24 @@ class ArchivosController extends Controller
     // Método para descargar archivos
     public function download($archivo)
     {
-        $carpeta = 'mi_carpeta';
-        $ruta = $carpeta . '/' . $archivo;
+        $ruta = $this->resolverRutaArchivo(null, $archivo);
 
-        if (Storage::exists($ruta)) {
+        if ($ruta) {
             return Storage::download($ruta);
         }
 
         return redirect()->route('ruta.archivos')->with('error', 'El archivo no existe.');
+    }
+
+    public function view($archivo)
+    {
+        $ruta = $this->resolverRutaArchivo(null, $archivo);
+
+        if (!$ruta) {
+            return redirect()->route('ruta.archivos')->with('error', 'El archivo no existe.');
+        }
+
+        return $this->mostrarArchivoEnLinea($ruta, basename($archivo));
     }
 
     // Método para eliminar archivos
@@ -142,36 +152,29 @@ class ArchivosController extends Controller
                 ->with('error', 'Error al subir el archivo: ' . $e->getMessage());
         }
     }
-    // Método para crear subcarpetas
-    public function createSubfolder(Request $request, $carpeta)
-    {
-        $request->validate([
-            'nombre_subcarpeta' => 'required|string|max:255',
-        ]);
-
-        $carpeta = urldecode($carpeta);
-        $ruta = 'mi_carpeta/' . $carpeta . '/' . $request->nombre_subcarpeta;
-
-        if (!Storage::exists($ruta)) {
-            Storage::makeDirectory($ruta);
-            return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])
-                ->with('success', 'Subcarpeta creada correctamente.');
-        }
-
-        return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])
-            ->with('error', 'La subcarpeta ya existe.');
-    }
-
     // Método para descargar archivos de una carpeta específica
     public function downloadFromFolder($carpeta, $archivo)
     {
-        $ruta = 'mi_carpeta/' . $carpeta . '/' . $archivo;
+        $carpeta = urldecode($carpeta);
+        $ruta = $this->resolverRutaArchivo($carpeta, $archivo);
 
-        if (Storage::exists($ruta)) {
+        if ($ruta) {
             return Storage::download($ruta);
         }
 
         return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])->with('error', 'El archivo no existe.');
+    }
+
+    public function viewFromFolder($carpeta, $archivo)
+    {
+        $carpeta = urldecode($carpeta);
+        $ruta = $this->resolverRutaArchivo($carpeta, $archivo);
+
+        if (!$ruta) {
+            return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])->with('error', 'El archivo no existe.');
+        }
+
+        return $this->mostrarArchivoEnLinea($ruta, basename($archivo));
     }
 
     // Método para eliminar archivos de una carpeta específica
@@ -185,5 +188,28 @@ class ArchivosController extends Controller
         }
 
         return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])->with('error', 'El archivo no existe.');
+    }
+
+    private function resolverRutaArchivo(?string $carpeta, string $archivo): ?string
+    {
+        $archivo = basename($archivo);
+        $base = 'mi_carpeta';
+
+        if ($carpeta) {
+            $carpeta = trim(str_replace('\\', '/', $carpeta), '/');
+            $ruta = $base . '/' . $carpeta . '/' . $archivo;
+        } else {
+            $ruta = $base . '/' . $archivo;
+        }
+
+        return Storage::exists($ruta) ? $ruta : null;
+    }
+
+    private function mostrarArchivoEnLinea(string $ruta, string $nombre)
+    {
+        return response()->file(Storage::path($ruta), [
+            'Content-Type' => Storage::mimeType($ruta) ?? 'application/octet-stream',
+            'Content-Disposition' => 'inline; filename="' . $nombre . '"',
+        ]);
     }
 }

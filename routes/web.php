@@ -185,6 +185,7 @@ Route::prefix('archivos')->group(function () {
     // Operaciones con archivos
     Route::post('/upload', [ArchivosController::class, 'upload'])->name('archivos.upload');
     Route::get('/download/{archivo}', [ArchivosController::class, 'download'])->name('archivos.download');
+    Route::get('/view/{archivo}', [ArchivosController::class, 'view'])->name('archivos.view');
     Route::delete('/delete/{archivo}', [ArchivosController::class, 'delete'])->name('archivos.delete');
 
     // Operaciones con carpetas
@@ -198,18 +199,19 @@ Route::prefix('archivos')->group(function () {
         ->where('carpeta', '.*') // Permite cualquier carácter
         ->name('archivos.open-folder');
     Route::post('/upload-to-folder/{carpeta}', [ArchivosController::class, 'uploadToFolder'])
-        ->where('carpeta', '.*') // Permite cualquier carácter
+        ->where('carpeta', '.*')
         ->name('archivos.upload-to-folder');
-    Route::post('/create-subfolder/{carpeta}', [ArchivosController::class, 'createSubfolder'])
-        ->where('carpeta', '.*') // Permite cualquier carácter
-        ->name('archivos.create-subfolder');
     Route::get('/download-from-folder/{carpeta}/{archivo}', [ArchivosController::class, 'downloadFromFolder'])
-        ->where('carpeta', '.*') // Permite cualquier carácter
-        ->where('archivo', '.*') // Permite cualquier carácter
+        ->where('carpeta', '.*')
+        ->where('archivo', '.*')
         ->name('archivos.download-from-folder');
+    Route::get('/view-from-folder/{carpeta}/{archivo}', [ArchivosController::class, 'viewFromFolder'])
+        ->where('carpeta', '.*')
+        ->where('archivo', '.*')
+        ->name('archivos.view-from-folder');
     Route::delete('/delete-from-folder/{carpeta}/{archivo}', [ArchivosController::class, 'deleteFromFolder'])
-        ->where('carpeta', '.*') // Permite cualquier carácter
-        ->where('archivo', '.*') // Permite cualquier carácter
+        ->where('carpeta', '.*')
+        ->where('archivo', '.*')
         ->name('archivos.delete-from-folder');
 });
 

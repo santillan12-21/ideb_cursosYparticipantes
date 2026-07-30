@@ -301,9 +301,10 @@
                                         </div>
                                     </div>
                                     
-                                    @include('cursos.partials.archivos-locales-doble', [
+                                    @include('cursos.partials.archivos-locales-multiple', [
                                         'inputName' => 'archivoSinFecha',
                                         'recursoKey' => 'sin_fecha_archivo',
+                                        'cantidad' => 3,
                                         'recursos' => $recursos,
                                     ])
                                 </div>
@@ -346,9 +347,10 @@
                                         </div>
                                     </div>
                                     
-                                    @include('cursos.partials.archivos-locales-doble', [
+                                    @include('cursos.partials.archivos-locales-multiple', [
                                         'inputName' => 'archivoFacebook',
                                         'recursoKey' => 'facebook_archivo',
+                                        'cantidad' => 3,
                                         'recursos' => $recursos,
                                     ])
                                 </div>
@@ -391,9 +393,10 @@
                                         </div>
                                     </div>
                                     
-                                    @include('cursos.partials.archivos-locales-doble', [
+                                    @include('cursos.partials.archivos-locales-multiple', [
                                         'inputName' => 'archivoLinkedIn',
                                         'recursoKey' => 'linkedin_archivo',
+                                        'cantidad' => 3,
                                         'recursos' => $recursos,
                                     ])
                                 </div>
@@ -436,9 +439,10 @@
                                         </div>
                                     </div>
                                     
-                                    @include('cursos.partials.archivos-locales-doble', [
+                                    @include('cursos.partials.archivos-locales-multiple', [
                                         'inputName' => 'archivoInstagram',
                                         'recursoKey' => 'instagram_archivo',
+                                        'cantidad' => 3,
                                         'recursos' => $recursos,
                                     ])
                                 </div>

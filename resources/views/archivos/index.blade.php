@@ -130,6 +130,9 @@
                                     </span>
                                 </div>
                                 <div class="btn-group">
+                                    <a href="{{ route('archivos.view', ['archivo' => basename($a)]) }}" class="btn btn-sm btn-outline-primary" title="Ver" target="_blank" rel="noopener">
+                                        <i class="fas fa-eye me-1"></i> Ver
+                                    </a>
                                     <a href="{{ route('archivos.download', ['archivo' => basename($a)]) }}" class="btn btn-sm btn-outline-success" title="Descargar">
                                         <i class="fas fa-download"></i>
                                     </a>

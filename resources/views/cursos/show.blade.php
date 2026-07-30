@@ -202,21 +202,38 @@
                                 $recursosMap = $curso->recursos->keyBy('tipo_recurso');
                                 $evaluacionesMap = $curso->evaluaciones->keyBy('tipo_evaluacion');
                                 $certificacionesMap = $curso->certificaciones->keyBy('tipo_certificacion');
-                                $linkRecurso = function ($tipo) use ($recursosMap) {
-                                    $r = $recursosMap->get($tipo);
-                                    return ($r && !empty($r->drive_url)) ? $r->drive_url : null;
-                                };
                             @endphp
                             <div class="section-card">
                                 <h5 class="section-title"><i class="fas fa-file-alt me-2"></i> Recursos</h5>
                                 <div class="list-group list-group-flush border rounded mb-3">
                                     @foreach(['temario' => 'Temario', 'itinerario' => 'Itinerario', 'planeacion' => 'Planeación'] as $tipo => $label)
-                                        <div class="list-group-item d-flex justify-content-between py-2">
-                                            <span class="small fw-bold">{{ $label }}</span>
-                                            @if($url = $linkRecurso($tipo))
-                                                <a href="{{ $url }}" target="_blank" class="link-drive">Ver</a>
+                                        @php
+                                            $recurso = $recursosMap->get($tipo);
+                                            $archivos = $curso->archivosDeRecurso($tipo);
+                                            $completo = $curso->recursoTieneDatos($tipo);
+                                        @endphp
+                                        <div class="list-group-item py-3">
+                                            <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                                                <span class="small fw-bold">{{ $label }}</span>
+                                                @if($completo)
+                                                    <span class="badge bg-success">Completado</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Pendiente</span>
+                                                @endif
+                                            </div>
+                                            @if($completo)
+                                                <div class="small text-muted">
+                                                    @if($recurso && filled($recurso->url))
+                                                        <div>Avance: <span class="text-dark fw-semibold">{{ $recurso->url }}</span></div>
+                                                    @endif
+                                                    @if($archivos->isNotEmpty())
+                                                        <div class="mt-1">
+                                                            {{ $archivos->count() === 1 ? '1 documento adjunto' : $archivos->count() . ' documentos adjuntos' }}
+                                                        </div>
+                                                    @endif
+                                                </div>
                                             @else
-                                                <span class="text-muted small">N/A</span>
+                                                <span class="text-muted small">Sin datos registrados</span>
                                             @endif
                                         </div>
                                     @endforeach
