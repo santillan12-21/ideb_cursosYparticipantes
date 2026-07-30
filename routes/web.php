@@ -186,6 +186,7 @@ Route::prefix('archivos')->group(function () {
     Route::post('/upload', [ArchivosController::class, 'upload'])->name('archivos.upload');
     Route::get('/download/{archivo}', [ArchivosController::class, 'download'])->name('archivos.download');
     Route::get('/view/{archivo}', [ArchivosController::class, 'view'])->name('archivos.view');
+    Route::get('/stream/{archivo}', [ArchivosController::class, 'stream'])->name('archivos.stream');
     Route::delete('/delete/{archivo}', [ArchivosController::class, 'delete'])->name('archivos.delete');
 
     // Operaciones con carpetas
@@ -209,6 +210,10 @@ Route::prefix('archivos')->group(function () {
         ->where('carpeta', '.*')
         ->where('archivo', '.*')
         ->name('archivos.view-from-folder');
+    Route::get('/stream-from-folder/{carpeta}/{archivo}', [ArchivosController::class, 'streamFromFolder'])
+        ->where('carpeta', '.*')
+        ->where('archivo', '.*')
+        ->name('archivos.stream-from-folder');
     Route::delete('/delete-from-folder/{carpeta}/{archivo}', [ArchivosController::class, 'deleteFromFolder'])
         ->where('carpeta', '.*')
         ->where('archivo', '.*')

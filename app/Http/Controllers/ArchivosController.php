@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class ArchivosController extends Controller
 {
@@ -46,24 +47,29 @@ class ArchivosController extends Controller
     // Método para descargar archivos
     public function download($archivo)
     {
-        $ruta = $this->resolverRutaArchivo(null, $archivo);
+        $archivoInfo = $this->obtenerArchivo(null, $archivo);
 
-        if ($ruta) {
-            return Storage::download($ruta);
+        if ($archivoInfo) {
+            return Storage::disk($archivoInfo['disk'])->download($archivoInfo['path']);
         }
 
         return redirect()->route('ruta.archivos')->with('error', 'El archivo no existe.');
     }
 
-    public function view($archivo)
+    public function stream($archivo)
     {
-        $ruta = $this->resolverRutaArchivo(null, $archivo);
+        $archivoInfo = $this->obtenerArchivo(null, $archivo);
 
-        if (!$ruta) {
-            return redirect()->route('ruta.archivos')->with('error', 'El archivo no existe.');
+        if (!$archivoInfo) {
+            abort(404);
         }
 
-        return $this->mostrarArchivoEnLinea($ruta, basename($archivo));
+        return $this->respuestaStream($archivoInfo);
+    }
+
+    public function view($archivo)
+    {
+        return $this->responderVisualizacion(null, $archivo);
     }
 
     // Método para eliminar archivos
@@ -156,25 +162,32 @@ class ArchivosController extends Controller
     public function downloadFromFolder($carpeta, $archivo)
     {
         $carpeta = urldecode($carpeta);
-        $ruta = $this->resolverRutaArchivo($carpeta, $archivo);
+        $archivoInfo = $this->obtenerArchivo($carpeta, $archivo);
 
-        if ($ruta) {
-            return Storage::download($ruta);
+        if ($archivoInfo) {
+            return Storage::disk($archivoInfo['disk'])->download($archivoInfo['path']);
         }
 
         return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])->with('error', 'El archivo no existe.');
     }
 
+    public function streamFromFolder($carpeta, $archivo)
+    {
+        $carpeta = urldecode($carpeta);
+        $archivoInfo = $this->obtenerArchivo($carpeta, $archivo);
+
+        if (!$archivoInfo) {
+            abort(404);
+        }
+
+        return $this->respuestaStream($archivoInfo);
+    }
+
     public function viewFromFolder($carpeta, $archivo)
     {
         $carpeta = urldecode($carpeta);
-        $ruta = $this->resolverRutaArchivo($carpeta, $archivo);
 
-        if (!$ruta) {
-            return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])->with('error', 'El archivo no existe.');
-        }
-
-        return $this->mostrarArchivoEnLinea($ruta, basename($archivo));
+        return $this->responderVisualizacion($carpeta, $archivo);
     }
 
     // Método para eliminar archivos de una carpeta específica
@@ -190,7 +203,7 @@ class ArchivosController extends Controller
         return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])->with('error', 'El archivo no existe.');
     }
 
-    private function resolverRutaArchivo(?string $carpeta, string $archivo): ?string
+    private function obtenerArchivo(?string $carpeta, string $archivo): ?array
     {
         $archivo = basename($archivo);
         $base = 'mi_carpeta';
@@ -202,14 +215,128 @@ class ArchivosController extends Controller
             $ruta = $base . '/' . $archivo;
         }
 
-        return Storage::exists($ruta) ? $ruta : null;
+        foreach (['local', 'public'] as $disk) {
+            if (Storage::disk($disk)->exists($ruta)) {
+                return ['disk' => $disk, 'path' => $ruta];
+            }
+        }
+
+        return null;
     }
 
-    private function mostrarArchivoEnLinea(string $ruta, string $nombre)
+    private function responderVisualizacion(?string $carpeta, string $archivo)
     {
-        return response()->file(Storage::path($ruta), [
-            'Content-Type' => Storage::mimeType($ruta) ?? 'application/octet-stream',
+        $archivoInfo = $this->obtenerArchivo($carpeta, $archivo);
+
+        if (!$archivoInfo) {
+            if ($carpeta) {
+                return redirect()->route('archivos.open-folder', ['carpeta' => $carpeta])
+                    ->with('error', 'El archivo no existe.');
+            }
+
+            return redirect()->route('ruta.archivos')->with('error', 'El archivo no existe.');
+        }
+
+        $nombre = basename($archivo);
+        $extension = strtolower(pathinfo($nombre, PATHINFO_EXTENSION));
+
+        if ($this->esArchivoOfficePrevisualizable($extension)) {
+            return view('archivos.preview', [
+                'nombre' => $nombre,
+                'extension' => $extension,
+                'streamUrl' => $carpeta
+                    ? route('archivos.stream-from-folder', ['carpeta' => $carpeta, 'archivo' => $nombre])
+                    : route('archivos.stream', ['archivo' => $nombre]),
+                'downloadUrl' => $carpeta
+                    ? route('archivos.download-from-folder', ['carpeta' => $carpeta, 'archivo' => $nombre])
+                    : route('archivos.download', ['archivo' => $nombre]),
+                'volverUrl' => $carpeta
+                    ? route('archivos.open-folder', ['carpeta' => $carpeta])
+                    : route('ruta.archivos'),
+            ]);
+        }
+
+        if ($this->esArchivoInlineEnNavegador($extension)) {
+            return $this->mostrarArchivoEnLinea($archivoInfo);
+        }
+
+        return view('archivos.preview', [
+            'nombre' => $nombre,
+            'extension' => $extension,
+            'sinPreview' => true,
+            'downloadUrl' => $carpeta
+                ? route('archivos.download-from-folder', ['carpeta' => $carpeta, 'archivo' => $nombre])
+                : route('archivos.download', ['archivo' => $nombre]),
+            'volverUrl' => $carpeta
+                ? route('archivos.open-folder', ['carpeta' => $carpeta])
+                : route('ruta.archivos'),
+        ]);
+    }
+
+    private function respuestaStream(array $archivoInfo)
+    {
+        $disk = Storage::disk($archivoInfo['disk']);
+        $nombre = basename($archivoInfo['path']);
+
+        return response($disk->get($archivoInfo['path']), 200, [
+            'Content-Type' => $this->mimeTypeParaVisualizacion(
+                $archivoInfo['disk'],
+                $archivoInfo['path'],
+                $nombre
+            ),
             'Content-Disposition' => 'inline; filename="' . $nombre . '"',
         ]);
+    }
+
+    private function esArchivoOfficePrevisualizable(string $extension): bool
+    {
+        return in_array($extension, ['docx', 'xls', 'xlsx'], true);
+    }
+
+    private function esArchivoInlineEnNavegador(string $extension): bool
+    {
+        return in_array($extension, ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'txt', 'html', 'htm'], true);
+    }
+
+    private function mostrarArchivoEnLinea(array $archivoInfo)
+    {
+        $disk = Storage::disk($archivoInfo['disk']);
+        $nombre = basename($archivoInfo['path']);
+        $mime = $this->mimeTypeParaVisualizacion($archivoInfo['disk'], $archivoInfo['path'], $nombre);
+
+        return $disk->response($archivoInfo['path'], $nombre, [
+            'Content-Type' => $mime,
+        ], 'inline')->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_INLINE,
+            $nombre
+        );
+    }
+
+    private function mimeTypeParaVisualizacion(string $disk, string $ruta, string $nombre): string
+    {
+        $mime = Storage::disk($disk)->mimeType($ruta);
+        if ($mime && $mime !== 'application/octet-stream') {
+            return $mime;
+        }
+
+        $map = [
+            'pdf' => 'application/pdf',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+            'txt' => 'text/plain; charset=UTF-8',
+            'html' => 'text/html; charset=UTF-8',
+            'htm' => 'text/html; charset=UTF-8',
+        ];
+
+        $extension = strtolower(pathinfo($nombre, PATHINFO_EXTENSION));
+
+        return $map[$extension] ?? 'application/octet-stream';
     }
 }
