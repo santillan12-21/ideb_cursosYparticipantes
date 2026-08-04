@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class ArchivosController extends Controller
 {
@@ -306,10 +305,7 @@ class ArchivosController extends Controller
 
         return $disk->response($archivoInfo['path'], $nombre, [
             'Content-Type' => $mime,
-        ], 'inline')->setContentDisposition(
-            ResponseHeaderBag::DISPOSITION_INLINE,
-            $nombre
-        );
+        ], 'inline');
     }
 
     private function mimeTypeParaVisualizacion(string $disk, string $ruta, string $nombre): string
